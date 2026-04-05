@@ -28,10 +28,10 @@ export function Header() {
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8">
           <button
-            onClick={() => scrollToSection('categories')}
+            onClick={() => scrollToSection('hero')}
             className="text-foreground hover:text-primary transition-colors"
           >
-            Danh Mục
+            Trang chủ
           </button>
           <button
             onClick={() => scrollToSection('products')}
@@ -40,16 +40,22 @@ export function Header() {
             Sản Phẩm
           </button>
           <button
+            onClick={() => scrollToSection('pricing')}
+            className="text-foreground hover:text-primary transition-colors"
+          >
+            Bảng Giá
+          </button>
+          <button
             onClick={() => scrollToSection('story')}
             className="text-foreground hover:text-primary transition-colors"
           >
-            Câu Chuyện
+            Giới Thiệu
           </button>
           <button
-            onClick={() => scrollToSection('benefits')}
+            onClick={() => scrollToSection('contact')}
             className="text-foreground hover:text-primary transition-colors"
           >
-            Lợi Ích
+            Liên Hệ
           </button>
           <a
             href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO_PHONE || '0999999999'}`}

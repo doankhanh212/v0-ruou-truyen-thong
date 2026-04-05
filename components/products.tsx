@@ -118,16 +118,17 @@ export function Products() {
                   ))}
                 </div>
 
-                <div className="flex items-center justify-between border-t border-border pt-4">
+                <div className="flex items-center justify-between border-t border-border pt-4 gap-2">
                   <span className="text-2xl font-bold text-primary">{product.price}</span>
-                  <a
-                    href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO_PHONE || '0999999999'}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition-all text-sm font-semibold"
+                  <button
+                    onClick={() => {
+                      const chatBtn = document.querySelector('[aria-label="Open chatbot"]') as HTMLButtonElement
+                      if (chatBtn) chatBtn.click()
+                    }}
+                    className="bg-secondary text-white px-3 py-2 rounded-lg hover:bg-secondary/90 transition-all text-sm font-semibold"
                   >
-                    Đặt Hàng
-                  </a>
+                    Tư vấn
+                  </button>
                 </div>
               </div>
             </div>

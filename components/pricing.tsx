@@ -10,7 +10,7 @@ export function Pricing() {
   }, [])
 
   return (
-    <section className="py-16 md:py-24 bg-white">
+    <section id="pricing" className="py-16 md:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className={`text-center mb-12 transition-all duration-1000 ${
@@ -37,25 +37,25 @@ export function Pricing() {
             </thead>
             <tbody>
               <tr className="border-b border-border hover:bg-blue-50 transition-colors">
-                <td className="py-4 px-6 font-medium text-foreground">Rượu Truyền Thống Cơ Bản</td>
+                <td className="py-4 px-6"><div className="font-medium text-foreground">Rượu Truyền Thống Cơ Bản <span className="inline-block bg-primary/10 text-primary text-xs px-2 py-1 rounded ml-2">Nhập môn</span></div></td>
                 <td className="py-4 px-6 text-foreground/70">500ml</td>
                 <td className="py-4 px-6 font-bold text-primary">250.000đ</td>
                 <td className="py-4 px-6 text-accent">-</td>
               </tr>
               <tr className="border-b border-border hover:bg-blue-50 transition-colors">
-                <td className="py-4 px-6 font-medium text-foreground">Rượu Truyền Thống Nhân Sâm</td>
+                <td className="py-4 px-6"><div className="font-medium text-foreground">Rượu Truyền Thống Nhân Sâm <span className="inline-block bg-secondary/10 text-secondary text-xs px-2 py-1 rounded ml-2">Năng lượng</span></div></td>
                 <td className="py-4 px-6 text-foreground/70">500ml</td>
                 <td className="py-4 px-6 font-bold text-primary">450.000đ</td>
                 <td className="py-4 px-6 text-accent">-</td>
               </tr>
               <tr className="border-b border-border hover:bg-blue-50 transition-colors">
-                <td className="py-4 px-6 font-medium text-foreground">Rượu Truyền Thống Phụ Nữ</td>
+                <td className="py-4 px-6"><div className="font-medium text-foreground">Rượu Truyền Thống Phụ Nữ <span className="inline-block bg-accent/10 text-accent text-xs px-2 py-1 rounded ml-2">Sắc đẹp</span></div></td>
                 <td className="py-4 px-6 text-foreground/70">500ml</td>
                 <td className="py-4 px-6 font-bold text-primary">400.000đ</td>
                 <td className="py-4 px-6 text-accent">-</td>
               </tr>
               <tr className="border-b border-border hover:bg-blue-50 transition-colors">
-                <td className="py-4 px-6 font-medium text-foreground">Rượu Truyền Thống Nam</td>
+                <td className="py-4 px-6"><div className="font-medium text-foreground">Rượu Truyền Thống Nam <span className="inline-block bg-primary/10 text-primary text-xs px-2 py-1 rounded ml-2">Sức mạnh</span></div></td>
                 <td className="py-4 px-6 text-foreground/70">500ml</td>
                 <td className="py-4 px-6 font-bold text-primary">500.000đ</td>
                 <td className="py-4 px-6 text-accent">-</td>
