@@ -21,7 +21,7 @@ export function CTA() {
             Sẵn Sàng Bắt Đầu Hành Trình Sức Khỏe?
           </h2>
           <p className="text-lg md:text-xl opacity-90 mb-8 leading-relaxed">
-            Tham gia hàng ngàn khách hàng hài lòng đã trải nghiệm lợi ích của Cửu Long Mỹ Tửu. 
+            Tham gia hàng ngàn khách hàng hài lòng đã trải nghiệm lợi ích của Rượu Truyền Thống. 
             Đặt hàng ngay hôm nay và nhận ưu đãi đặc biệt!
           </p>
 

@@ -15,7 +15,7 @@ export function Footer() {
               <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-primary font-bold">
                 𝔐
               </div>
-              <h3 className="font-bold text-lg">Cửu Long Mỹ Tửu</h3>
+              <h3 className="font-bold text-lg">Rượu Truyền Thống</h3>
             </div>
             <p className="text-white/70 text-sm leading-relaxed">
               Rượu thuốc truyền thống Việt Nam chế tác từ 9 loại dược liệu quý hiếm.
@@ -110,7 +110,7 @@ export function Footer() {
         <div className="border-t border-white/20 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <p className="text-white/70 text-sm">
-              © {currentYear} Cửu Long Mỹ Tửu. Tất cả các quyền được bảo lưu.
+              © {currentYear} Rượu Truyền Thống. Tất cả các quyền được bảo lưu.
             </p>
             <div className="flex gap-4 mt-4 md:mt-0">
               <a href="#" className="text-white/70 hover:text-white transition-colors text-sm">

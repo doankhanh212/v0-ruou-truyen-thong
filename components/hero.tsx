@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 
 export function Hero() {
   const [isVisible, setIsVisible] = useState(false)
@@ -21,7 +22,7 @@ export function Hero() {
             }`}
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4 leading-tight">
-              Rượu Thuốc Truyền Thống <span className="text-secondary">Cửu Long</span>
+              Rượu Thuốc Truyền Thống <span className="text-secondary">Việt Nam</span>
             </h1>
             <p className="text-lg text-foreground/80 mb-6 leading-relaxed">
               Chế tác từ 9 loại dược liệu quý hiếm được chọn lọc kỹ lưỡng, mỗi tách rượu là một liệu pháp sức khỏe tự nhiên. 
@@ -45,19 +46,19 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Right Image Placeholder */}
+          {/* Right Image */}
           <div
             className={`transition-all duration-1000 delay-300 ${
               isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
             }`}
           >
-            <div className="relative w-full h-96 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl flex items-center justify-center overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5"></div>
-              <div className="relative text-center">
-                <div className="text-6xl mb-4">🍶</div>
-                <p className="text-primary font-semibold">Rượu Thuốc Cửu Long</p>
-                <p className="text-sm text-foreground/60 mt-2">Truyền thống Việt Nam</p>
-              </div>
+            <div className="relative w-full h-96 rounded-2xl overflow-hidden shadow-lg">
+              <Image
+                src="/hero-liquor.jpg"
+                alt="Rượu truyền thống premium"
+                fill
+                className="object-cover"
+              />
             </div>
           </div>
         </div>

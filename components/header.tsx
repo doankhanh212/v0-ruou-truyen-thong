@@ -22,7 +22,7 @@ export function Header() {
           <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg">
             𝔐
           </div>
-          <span className="text-lg font-semibold text-primary hidden sm:inline">Cửu Long Mỹ Tửu</span>
+          <span className="text-lg font-semibold text-primary hidden sm:inline">Rượu Truyền Thống</span>
         </div>
 
         {/* Desktop Menu */}

@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 
 const products = [
   {
     id: 1,
-    name: 'Cửu Long Mỹ Tửu Cơ Bản',
+    name: 'Rượu Truyền Thống Cơ Bản',
     price: '250,000đ',
     volume: '500ml',
     description: '9 vị dược liệu tinh chọn',
@@ -13,7 +14,7 @@ const products = [
   },
   {
     id: 2,
-    name: 'Cửu Long Mỹ Tửu Nhân Sâm',
+    name: 'Rượu Truyền Thống Nhân Sâm',
     price: '450,000đ',
     volume: '500ml',
     description: 'Với nhân sâm và yến mạch',
@@ -21,7 +22,7 @@ const products = [
   },
   {
     id: 3,
-    name: 'Cửu Long Mỹ Tửu Phụ Nữ',
+    name: 'Rượu Truyền Thống Phụ Nữ',
     price: '400,000đ',
     volume: '500ml',
     description: 'Công thức dành riêng cho phụ nữ',
@@ -29,7 +30,7 @@ const products = [
   },
   {
     id: 4,
-    name: 'Cửu Long Mỹ Tửu Nam',
+    name: 'Rượu Truyền Thống Nam',
     price: '500,000đ',
     volume: '500ml',
     description: 'Công thức tăng cường sinh lực',
@@ -87,8 +88,13 @@ export function Products() {
                 transitionDelay: isVisible ? `${index * 100}ms` : '0ms'
               }}
             >
-              <div className="bg-gradient-to-br from-primary/10 to-secondary/10 h-40 flex items-center justify-center group-hover:from-primary/20 group-hover:to-secondary/20 transition-all">
-                <span className="text-5xl">🍶</span>
+              <div className="relative w-full h-40 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center group-hover:from-primary/20 group-hover:to-secondary/20 transition-all overflow-hidden">
+                <Image
+                  src={product.id % 2 === 0 ? '/hero-liquor.jpg' : '/product-showcase.jpg'}
+                  alt={product.name}
+                  fill
+                  className="object-cover opacity-80"
+                />
               </div>
               
               <div className="p-6">

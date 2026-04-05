@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 
 export function Story() {
   const [isVisible, setIsVisible] = useState(false)
@@ -20,12 +21,12 @@ export function Story() {
             }`}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">
-              Câu Chuyện Cửu Long Mỹ Tửu
+              Câu Chuyện Rượu Truyền Thống
             </h2>
             
             <div className="space-y-4 text-foreground/80">
               <p className="leading-relaxed">
-                Cửu Long Mỹ Tửu kế thừa bí quyết chế tác rượu thuốc truyền thống từ đời xưa của người dân 
+                Rượu Truyền Thống kế thừa bí quyết chế tác rượu thuốc truyền thống từ đời xưa của người dân 
                 miền Nam Việt Nam. Mỗi công thức được truyền lại qua nhiều thế hệ, lưu giữ sự huyền bí 
                 và hiệu quả của y học cổ truyền.
               </p>
@@ -58,19 +59,19 @@ export function Story() {
             </div>
           </div>
 
-          {/* Right Image Placeholder */}
+          {/* Right Image */}
           <div
             className={`transition-all duration-1000 delay-300 ${
               isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
             }`}
           >
-            <div className="relative w-full h-96 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl flex items-center justify-center overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5"></div>
-              <div className="relative text-center">
-                <div className="text-6xl mb-4">📜</div>
-                <p className="text-primary font-semibold">Truyền Thống Và Hiện Đại</p>
-                <p className="text-sm text-foreground/60 mt-2">Kết hợp hoàn hảo</p>
-              </div>
+            <div className="relative w-full h-96 rounded-2xl overflow-hidden shadow-lg">
+              <Image
+                src="/story-tradition.jpg"
+                alt="Truyền thống rượu thuốc Việt Nam"
+                fill
+                className="object-cover"
+              />
             </div>
           </div>
         </div>

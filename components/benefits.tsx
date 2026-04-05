@@ -52,7 +52,7 @@ export function Benefits() {
         >
           <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">Lợi Ích Sức Khỏe</h2>
           <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
-            Khám phá những lợi ích tuyệt vời mà Cửu Long Mỹ Tửu mang lại
+            Khám phá những lợi ích tuyệt vời mà Rượu Truyền Thống mang lại
           </p>
         </div>
 

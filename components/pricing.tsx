@@ -37,25 +37,25 @@ export function Pricing() {
             </thead>
             <tbody>
               <tr className="border-b border-border hover:bg-blue-50 transition-colors">
-                <td className="py-4 px-6 font-medium text-foreground">Cửu Long Mỹ Tửu Cơ Bản</td>
+                <td className="py-4 px-6 font-medium text-foreground">Rượu Truyền Thống Cơ Bản</td>
                 <td className="py-4 px-6 text-foreground/70">500ml</td>
                 <td className="py-4 px-6 font-bold text-primary">250.000đ</td>
                 <td className="py-4 px-6 text-accent">-</td>
               </tr>
               <tr className="border-b border-border hover:bg-blue-50 transition-colors">
-                <td className="py-4 px-6 font-medium text-foreground">Cửu Long Mỹ Tửu Nhân Sâm</td>
+                <td className="py-4 px-6 font-medium text-foreground">Rượu Truyền Thống Nhân Sâm</td>
                 <td className="py-4 px-6 text-foreground/70">500ml</td>
                 <td className="py-4 px-6 font-bold text-primary">450.000đ</td>
                 <td className="py-4 px-6 text-accent">-</td>
               </tr>
               <tr className="border-b border-border hover:bg-blue-50 transition-colors">
-                <td className="py-4 px-6 font-medium text-foreground">Cửu Long Mỹ Tửu Phụ Nữ</td>
+                <td className="py-4 px-6 font-medium text-foreground">Rượu Truyền Thống Phụ Nữ</td>
                 <td className="py-4 px-6 text-foreground/70">500ml</td>
                 <td className="py-4 px-6 font-bold text-primary">400.000đ</td>
                 <td className="py-4 px-6 text-accent">-</td>
               </tr>
               <tr className="border-b border-border hover:bg-blue-50 transition-colors">
-                <td className="py-4 px-6 font-medium text-foreground">Cửu Long Mỹ Tửu Nam</td>
+                <td className="py-4 px-6 font-medium text-foreground">Rượu Truyền Thống Nam</td>
                 <td className="py-4 px-6 text-foreground/70">500ml</td>
                 <td className="py-4 px-6 font-bold text-primary">500.000đ</td>
                 <td className="py-4 px-6 text-accent">-</td>

@@ -7,8 +7,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Cửu Long Mỹ Tửu - Rượu Thuốc Truyền Thống Việt Nam',
-  description: 'Khám phá rượu thuốc Cửu Long Mỹ Tửu - sản phẩm thuốc truyền thống được chế tác từ các loại dược liệu quý hiếm, hỗ trợ sức khỏe toàn diện.',
+  title: 'Rượu Truyền Thống - Sản Phẩm Thuốc Truyền Thống Việt Nam',
+  description: 'Khám phá rượu truyền thống - sản phẩm thuốc truyền thống được chế tác từ các loại dược liệu quý hiếm, hỗ trợ sức khỏe toàn diện.',
   generator: 'v0.app',
   icons: {
     icon: [
