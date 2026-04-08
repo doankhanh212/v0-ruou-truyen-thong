@@ -12,13 +12,13 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-primary font-bold">
-                𝔐
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-primary font-bold text-sm">
+                CL
               </div>
-              <h3 className="font-bold text-lg">Rượu Truyền Thống</h3>
+              <h3 className="font-bold text-lg">Cửu Long Mỹ Tửu</h3>
             </div>
             <p className="text-white/70 text-sm leading-relaxed">
-              Rượu thuốc truyền thống Việt Nam chế tác từ 9 loại dược liệu quý hiếm.
+              Rượu truyền thống cao cấp — Công Ty Cổ Phần Somo Gold. Đạt tiêu chuẩn ISO 22000:2018 & OCOP 4 sao.
             </p>
           </div>
 
@@ -67,19 +67,19 @@ export function Footer() {
             <ul className="space-y-2 text-sm">
               <li className="text-white/70">
                 <a
-                  href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO_PHONE || '0999999999'}`}
+                  href="https://zalo.me/84902931119"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"
                 >
-                  📱 Zalo: {process.env.NEXT_PUBLIC_ZALO_PHONE || '0999 999 999'}
+                  📱 0909 799 311 – 0902 931 119
                 </a>
               </li>
               <li className="text-white/70">
-                <span>📧 Email: info@cuulong.com</span>
+                <span>📧 somogold@somogroup.vn</span>
               </li>
               <li className="text-white/70">
-                <span>📍 Thành phố Hồ Chí Minh</span>
+                <span>📍 29 Nguyễn Khắc Nhu, P. Cầu Ông Lãnh, TP. HCM</span>
               </li>
             </ul>
           </div>
@@ -110,7 +110,7 @@ export function Footer() {
         <div className="border-t border-white/20 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <p className="text-white/70 text-sm">
-              © {currentYear} Rượu Truyền Thống. Tất cả các quyền được bảo lưu.
+              © {currentYear} Cửu Long Mỹ Tửu — Somo Gold. Tất cả các quyền được bảo lưu.
             </p>
             <div className="flex gap-4 mt-4 md:mt-0">
               <a href="#" className="text-white/70 hover:text-white transition-colors text-sm">

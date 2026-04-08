@@ -1,19 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { useFadeIn } from '@/hooks/use-fade-in'
 
 export function Story() {
-  const [isVisible, setIsVisible] = useState(false)
-
-  useEffect(() => {
-    setIsVisible(true)
-  }, [])
+  const { ref, isVisible } = useFadeIn()
 
   return (
     <section id="story" className="py-16 md:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
           <div
             className={`transition-all duration-1000 ${

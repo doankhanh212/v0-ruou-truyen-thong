@@ -1,18 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { CTAButton } from '@/components/cta-button'
+import { useFadeIn } from '@/hooks/use-fade-in'
 
 export function CTA() {
-  const [isVisible, setIsVisible] = useState(false)
-
-  useEffect(() => {
-    setIsVisible(true)
-  }, [])
+  const { ref, isVisible } = useFadeIn()
 
   return (
     <section className="py-16 md:py-24 bg-gradient-to-r from-primary to-secondary text-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div
+          ref={ref}
           className={`transition-all duration-1000 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
@@ -26,22 +24,14 @@ export function CTA() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <a
-              href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO_PHONE || '0999999999'}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <CTAButton
+              label="Chat Zalo Ngay"
               className="inline-block bg-white text-primary px-8 py-4 rounded-lg hover:bg-blue-50 transition-all font-bold text-lg hover:shadow-lg"
-            >
-              Đặt Hàng Ngay
-            </a>
-            <a
-              href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO_PHONE || '0999999999'}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            />
+            <CTAButton
+              label="Tư Vấn Miễn Phí"
               className="inline-block border-2 border-white text-white px-8 py-4 rounded-lg hover:bg-white/10 transition-all font-bold text-lg"
-            >
-              Tư Vấn Miễn Phí
-            </a>
+            />
           </div>
 
           <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6">

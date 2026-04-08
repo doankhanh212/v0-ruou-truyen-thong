@@ -33,12 +33,12 @@ export function Header() {
           >
             Trang chủ
           </button>
-          <button
-            onClick={() => scrollToSection('products')}
+          <Link
+            href="/san-pham"
             className="text-foreground hover:text-primary transition-colors"
           >
             Sản Phẩm
-          </button>
+          </Link>
           <button
             onClick={() => scrollToSection('pricing')}
             className="text-foreground hover:text-primary transition-colors"
@@ -87,12 +87,13 @@ export function Header() {
             >
               Danh Mục
             </button>
-            <button
-              onClick={() => scrollToSection('products')}
-              className="block w-full text-left text-foreground hover:text-primary transition-colors py-2"
+            <Link
+              href="/san-pham"
+              onClick={() => setIsOpen(false)}
+              className="block text-foreground hover:text-primary transition-colors py-2"
             >
               Sản Phẩm
-            </button>
+            </Link>
             <button
               onClick={() => scrollToSection('story')}
               className="block w-full text-left text-foreground hover:text-primary transition-colors py-2"
