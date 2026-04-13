@@ -1,15 +1,22 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, SlidersHorizontal, Filter, X } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import {
+  ChevronLeft, ChevronRight,
+  SlidersHorizontal, Filter, X,
+  Search, Sparkles, Gift, Heart, Users,
+} from 'lucide-react'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { FloatingButtons } from '@/components/floating-buttons'
 import { ProductCard } from '@/components/product-card'
 import { getCatalogItems } from '@/data/products'
+import { track } from '@/utils/track'
+import type { CatalogItem } from '@/data/products'
 
 const ITEMS_PER_PAGE = 6
 
+// ─── Filters ───────────────────────────────────────────────
 const CATEGORIES = [
   { id: 'all', label: 'Tất cả' },
   { id: 'bồi bổ', label: 'Bồi bổ' },
@@ -22,60 +29,179 @@ const CATEGORIES = [
 
 const PRICE_RANGES = [
   { id: 'all', label: 'Tất cả mức giá', min: 0, max: Infinity },
-  { id: 'under500', label: 'Dưới 500.000đ', min: 0, max: 500000 },
-  { id: '500-1m', label: '500k – 1.000.000đ', min: 500000, max: 1000000 },
-  { id: '1m-2m', label: '1tr – 2.000.000đ', min: 1000000, max: 2000000 },
-  { id: 'over2m', label: 'Trên 2.000.000đ', min: 2000000, max: Infinity },
+  { id: 'under1m', label: 'Dưới 1.000.000đ', min: 0, max: 1000000 },
+  { id: 'over1m', label: 'Trên 1.000.000đ', min: 1000000, max: Infinity },
 ]
 
+// ─── AI Recommend presets ────────────────────────────────
+interface RecommendPreset {
+  id: string
+  label: string
+  icon: React.ReactNode
+  color: string
+  activeColor: string
+  match: (item: CatalogItem) => boolean
+}
+
+const RECOMMEND_PRESETS: RecommendPreset[] = [
+  {
+    id: 'gift',
+    label: 'Mua làm quà',
+    icon: <Gift size={15} />,
+    color: 'border-amber-300 text-amber-700 hover:bg-amber-50',
+    activeColor: 'bg-amber-500 text-white border-amber-500',
+    match: (item) =>
+      item.category === 'quà tặng' ||
+      item.target.toLowerCase().includes('quà') ||
+      item.tag?.includes('Quà') === true,
+  },
+  {
+    id: 'health',
+    label: 'Tăng sức khỏe',
+    icon: <Heart size={15} />,
+    color: 'border-green-300 text-green-700 hover:bg-green-50',
+    activeColor: 'bg-green-600 text-white border-green-600',
+    match: (item) =>
+      item.category === 'bồi bổ' ||
+      item.benefits.some((b) =>
+        ['đề kháng', 'huyết áp', 'lão hóa', 'sức khỏe'].some((kw) =>
+          b.toLowerCase().includes(kw)
+        )
+      ),
+  },
+  {
+    id: 'male',
+    label: 'Nam giới',
+    icon: <Users size={15} />,
+    color: 'border-blue-300 text-blue-700 hover:bg-blue-50',
+    activeColor: 'bg-blue-600 text-white border-blue-600',
+    match: (item) =>
+      item.category === 'sinh lý' ||
+      item.target.toLowerCase().includes('nam') ||
+      item.benefits.some((b) =>
+        ['sinh lý', 'sinh lực', 'nam'].some((kw) => b.toLowerCase().includes(kw))
+      ),
+  },
+]
+
+// ─── Page ────────────────────────────────────────────────
 export default function SanPhamPage() {
   const allItems = getCatalogItems()
-  const [category, setCategory] = useState('all')
-  const [priceRange, setPriceRange] = useState('all')
-  const [page, setPage] = useState(1)
+
+  const [search, setSearch]           = useState('')
+  const [category, setCategory]       = useState('all')
+  const [priceRange, setPriceRange]   = useState('all')
+  const [recommend, setRecommend]     = useState<string | null>(null)
+  const [page, setPage]               = useState(1)
   const [showMobileFilter, setShowMobileFilter] = useState(false)
 
-  // Filter items
+  // ── Filtered list ──
   const filtered = allItems.filter((item) => {
+    // Search
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      if (!item.name.toLowerCase().includes(q) && !item.target.toLowerCase().includes(q))
+        return false
+    }
+    // AI recommend overrides category/price
+    if (recommend) {
+      const preset = RECOMMEND_PRESETS.find((p) => p.id === recommend)
+      return preset ? preset.match(item) : true
+    }
+    // Category
     if (category !== 'all' && item.category !== category) return false
+    // Price
     const range = PRICE_RANGES.find((r) => r.id === priceRange)!
     if (item.priceMin < range.min || item.priceMin > range.max) return false
     return true
   })
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE)
-  const pageItems = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
+  const pageItems  = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
+
+  const hasActiveFilter =
+    search.trim() !== '' ||
+    category !== 'all' ||
+    priceRange !== 'all' ||
+    recommend !== null
 
   // Scroll to top on page change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [page])
 
-  // Reset to page 1 when filters change
+  // Reset page when any filter changes
   useEffect(() => {
     setPage(1)
-  }, [category, priceRange])
+  }, [search, category, priceRange, recommend])
 
+  // ── Handlers ──
+  const handleSearch = (value: string) => {
+    setSearch(value)
+    if (value.trim()) track('search', { query: value })
+  }
+
+  const handleCategory = (id: string) => {
+    setCategory(id)
+    setRecommend(null)
+    setShowMobileFilter(false)
+    track('filter_category', { category: id })
+  }
+
+  const handlePrice = (id: string) => {
+    setPriceRange(id)
+    setShowMobileFilter(false)
+    track('filter_price', { range: id })
+  }
+
+  const handleRecommend = (id: string) => {
+    const next = recommend === id ? null : id
+    setRecommend(next)
+    if (next) {
+      setCategory('all')
+      setPriceRange('all')
+      track('ai_recommend', { preset: next })
+    }
+  }
+
+  const clearAll = useCallback(() => {
+    setSearch('')
+    setCategory('all')
+    setPriceRange('all')
+    setRecommend(null)
+  }, [])
+
+  // ── Sidebar (shared desktop + mobile drawer) ──
   const Sidebar = () => (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-      <h3 className="font-bold text-gray-900 mb-5 flex items-center gap-2">
-        <Filter size={16} className="text-blue-600" />
-        Bộ lọc
-      </h3>
-
-      {/* Category filter */}
-      <div className="mb-6">
-        <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">
-          Danh mục
+    <div className="space-y-5">
+      {/* Search — mobile only inside drawer */}
+      <div className="md:hidden">
+        <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+          Tìm kiếm
         </h4>
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => handleSearch(e.target.value)}
+          placeholder="Tên sản phẩm..."
+          className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+      </div>
+
+      {/* Category */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-sm">
+          <Filter size={14} className="text-blue-600" />
+          Danh mục
+        </h3>
         <ul className="space-y-1">
           {CATEGORIES.map((cat) => (
             <li key={cat.id}>
               <button
                 type="button"
-                onClick={() => { setCategory(cat.id); setShowMobileFilter(false) }}
+                onClick={() => handleCategory(cat.id)}
                 className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
-                  category === cat.id
+                  category === cat.id && !recommend
                     ? 'bg-blue-600 text-white font-semibold'
                     : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
                 }`}
@@ -87,19 +213,17 @@ export default function SanPhamPage() {
         </ul>
       </div>
 
-      {/* Price range filter */}
-      <div>
-        <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">
-          Mức giá
-        </h4>
+      {/* Price range */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h3 className="font-bold text-gray-900 mb-4 text-sm">💰 Mức giá</h3>
         <ul className="space-y-1">
           {PRICE_RANGES.map((range) => (
             <li key={range.id}>
               <button
                 type="button"
-                onClick={() => { setPriceRange(range.id); setShowMobileFilter(false) }}
+                onClick={() => handlePrice(range.id)}
                 className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
-                  priceRange === range.id
+                  priceRange === range.id && !recommend
                     ? 'bg-blue-600 text-white font-semibold'
                     : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
                 }`}
@@ -110,6 +234,17 @@ export default function SanPhamPage() {
           ))}
         </ul>
       </div>
+
+      {hasActiveFilter && (
+        <button
+          type="button"
+          onClick={() => { clearAll(); setShowMobileFilter(false) }}
+          className="w-full flex items-center justify-center gap-2 bg-red-50 text-red-600 border border-red-200 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-red-100 transition-all"
+        >
+          <X size={14} />
+          Xóa tất cả bộ lọc
+        </button>
+      )}
     </div>
   )
 
@@ -118,52 +253,155 @@ export default function SanPhamPage() {
       <Header />
 
       <main className="min-h-screen bg-gray-50">
-        {/* Page banner */}
+        {/* ── Page banner ── */}
         <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <p className="text-blue-600 text-sm font-semibold mb-1 uppercase tracking-wide">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <p className="text-blue-600 text-xs font-semibold mb-1 uppercase tracking-wide">
               Cửu Long Mỹ Tửu — Somo Gold
             </p>
-            <h1 className="text-3xl font-bold text-gray-900">Tất Cả Sản Phẩm</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Tất Cả Sản Phẩm</h1>
             <p className="text-gray-400 mt-1 text-sm">
               {filtered.length} sản phẩm
-              {category !== 'all' || priceRange !== 'all' ? ' (đang lọc)' : ''}
+              {hasActiveFilter ? ' (đang lọc)' : ''}
             </p>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Mobile filter toggle */}
-          <div className="md:hidden mb-4 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setShowMobileFilter(true)}
-              className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl text-sm font-semibold shadow-sm"
-            >
-              <SlidersHorizontal size={16} />
-              Bộ lọc
-            </button>
-            {(category !== 'all' || priceRange !== 'all') && (
-              <button
-                type="button"
-                onClick={() => { setCategory('all'); setPriceRange('all') }}
-                className="flex items-center gap-1.5 bg-red-50 text-red-600 border border-red-200 px-3 py-2.5 rounded-xl text-sm font-semibold"
-              >
-                <X size={14} />
-                Xóa lọc
-              </button>
-            )}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+          {/* ── AI Recommend strip ── */}
+          <div className="mb-6 bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles size={16} className="text-blue-600" />
+              <span className="text-sm font-bold text-gray-700">Gợi ý nhanh cho bạn</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {RECOMMEND_PRESETS.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => handleRecommend(preset.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-all ${
+                    recommend === preset.id ? preset.activeColor : preset.color
+                  }`}
+                >
+                  {preset.icon}
+                  {preset.label}
+                </button>
+              ))}
+              {recommend && (
+                <button
+                  type="button"
+                  onClick={() => setRecommend(null)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-500 hover:bg-gray-50 transition-all"
+                >
+                  <X size={13} />
+                  Bỏ gợi ý
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Mobile filter drawer */}
+          {/* ── Search bar (desktop) + mobile filter toggle ── */}
+          <div className="flex items-center gap-3 mb-6">
+            {/* Search */}
+            <div className="relative flex-1 max-w-md hidden md:block">
+              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => handleSearch(e.target.value)}
+                placeholder="Tìm tên sản phẩm..."
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+
+            {/* Mobile: filter toggle + search */}
+            <div className="flex items-center gap-2 md:hidden w-full">
+              <div className="relative flex-1">
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  placeholder="Tìm sản phẩm..."
+                  className="w-full pl-9 pr-8 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                {search && (
+                  <button type="button" onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <X size={13} />
+                  </button>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowMobileFilter(true)}
+                className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-xl text-sm font-semibold shadow-sm flex-shrink-0"
+              >
+                <SlidersHorizontal size={15} />
+                Lọc
+                {hasActiveFilter && (
+                  <span className="w-2 h-2 rounded-full bg-blue-600" />
+                )}
+              </button>
+            </div>
+
+            {/* Desktop: active filter tags */}
+            <div className="hidden md:flex items-center gap-2 flex-wrap">
+              {recommend && (
+                <span className="flex items-center gap-1.5 bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full">
+                  ✨ {RECOMMEND_PRESETS.find((p) => p.id === recommend)?.label}
+                  <button type="button" onClick={() => setRecommend(null)}><X size={11} /></button>
+                </span>
+              )}
+              {category !== 'all' && !recommend && (
+                <span className="flex items-center gap-1.5 bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full">
+                  {CATEGORIES.find((c) => c.id === category)?.label}
+                  <button type="button" onClick={() => setCategory('all')}><X size={11} /></button>
+                </span>
+              )}
+              {priceRange !== 'all' && !recommend && (
+                <span className="flex items-center gap-1.5 bg-green-100 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full">
+                  {PRICE_RANGES.find((r) => r.id === priceRange)?.label}
+                  <button type="button" onClick={() => setPriceRange('all')}><X size={11} /></button>
+                </span>
+              )}
+              {search.trim() && (
+                <span className="flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs font-semibold px-3 py-1.5 rounded-full">
+                  "{search}"
+                  <button type="button" onClick={() => setSearch('')}><X size={11} /></button>
+                </span>
+              )}
+              {hasActiveFilter && (
+                <button
+                  type="button"
+                  onClick={clearAll}
+                  className="text-xs text-red-500 font-semibold hover:underline"
+                >
+                  Xóa tất cả
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* ── Mobile filter drawer ── */}
           {showMobileFilter && (
             <div className="fixed inset-0 z-50 md:hidden">
               <div
                 className="absolute inset-0 bg-black/40"
                 onClick={() => setShowMobileFilter(false)}
               />
-              <div className="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-2xl p-5 overflow-y-auto">
-                <div className="flex items-center justify-between mb-4">
+              <div className="absolute left-0 top-0 bottom-0 w-72 bg-gray-50 shadow-2xl overflow-y-auto">
+                <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
                   <h3 className="font-bold text-gray-900">Bộ lọc</h3>
                   <button
                     type="button"
@@ -173,35 +411,42 @@ export default function SanPhamPage() {
                     <X size={20} />
                   </button>
                 </div>
-                <Sidebar />
+                <div className="p-4">
+                  <Sidebar />
+                </div>
               </div>
             </div>
           )}
 
-          <div className="flex gap-8">
+          {/* ── Main layout: sidebar + grid ── */}
+          <div className="flex gap-6">
             {/* Desktop Sidebar */}
-            <aside className="hidden md:block w-56 flex-shrink-0">
+            <aside className="hidden md:block w-52 flex-shrink-0">
               <div className="sticky top-24">
                 <Sidebar />
               </div>
             </aside>
 
-            {/* Product grid + pagination */}
+            {/* Product grid */}
             <div className="flex-1 min-w-0">
               {pageItems.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {pageItems.map((item) => (
                     <ProductCard key={item.id} item={item} />
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-20">
-                  <p className="text-gray-400 text-lg mb-4">
-                    Không có sản phẩm nào phù hợp với bộ lọc.
+                  <p className="text-5xl mb-4">🔍</p>
+                  <p className="text-gray-500 text-lg font-medium mb-2">
+                    Không tìm thấy sản phẩm
+                  </p>
+                  <p className="text-gray-400 text-sm mb-6">
+                    Thử thay đổi từ khóa hoặc bộ lọc
                   </p>
                   <button
                     type="button"
-                    onClick={() => { setCategory('all'); setPriceRange('all') }}
+                    onClick={clearAll}
                     className="text-blue-600 font-semibold hover:underline"
                   >
                     Xóa bộ lọc →
@@ -209,12 +454,12 @@ export default function SanPhamPage() {
                 </div>
               )}
 
-              {/* Pagination */}
+              {/* ── Pagination ── */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-center gap-2 mt-10">
                   <button
                     type="button"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    onClick={() => { setPage((p) => Math.max(1, p - 1)); track('page_change', { page: page - 1 }) }}
                     disabled={page === 1}
                     className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 disabled:opacity-30 hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm"
                   >
@@ -225,7 +470,7 @@ export default function SanPhamPage() {
                     <button
                       key={n}
                       type="button"
-                      onClick={() => setPage(n)}
+                      onClick={() => { setPage(n); track('page_change', { page: n }) }}
                       className={`w-10 h-10 rounded-xl text-sm font-bold transition-all shadow-sm ${
                         page === n
                           ? 'bg-blue-600 text-white shadow-blue-200'
@@ -238,7 +483,7 @@ export default function SanPhamPage() {
 
                   <button
                     type="button"
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    onClick={() => { setPage((p) => Math.min(totalPages, p + 1)); track('page_change', { page: page + 1 }) }}
                     disabled={page === totalPages}
                     className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 disabled:opacity-30 hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm"
                   >
@@ -247,7 +492,6 @@ export default function SanPhamPage() {
                 </div>
               )}
 
-              {/* Page info */}
               {totalPages > 1 && (
                 <p className="text-center text-gray-400 text-sm mt-3">
                   Trang {page} / {totalPages} — {filtered.length} sản phẩm

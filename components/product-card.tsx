@@ -3,18 +3,26 @@
 import Image from 'next/image'
 import { Flame, TrendingUp, MessageCircle } from 'lucide-react'
 import { openZalo } from '@/utils/zalo'
+import { track } from '@/utils/track'
 import type { CatalogItem } from '@/data/products'
 
 interface ProductCardProps {
   item: CatalogItem
+  /** Called when user clicks the Zalo button — for parent-level tracking */
+  onZaloClick?: (item: CatalogItem) => void
 }
 
-export function ProductCard({ item }: ProductCardProps) {
+export function ProductCard({ item, onZaloClick }: ProductCardProps) {
+  const handleZalo = () => {
+    track('product_click_zalo', { id: item.id, name: item.name, category: item.category })
+    onZaloClick?.(item)
+    openZalo(undefined, `Xin chào, tôi muốn tư vấn ${item.name}`)
+  }
+
   return (
     <div className="group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col">
       {/* Image */}
       <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-50 to-white">
-        {/* Badges */}
         <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
           {item.isBestSeller && (
             <span className="flex items-center gap-1 bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-sm">
@@ -63,7 +71,7 @@ export function ProductCard({ item }: ProductCardProps) {
           </span>
           <button
             type="button"
-            onClick={() => openZalo(undefined, `Xin chào, tôi muốn tư vấn ${item.name}`)}
+            onClick={handleZalo}
             className="flex items-center gap-1.5 bg-blue-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-sm shadow-blue-200 whitespace-nowrap"
           >
             <MessageCircle size={14} />
