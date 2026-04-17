@@ -12,8 +12,8 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-primary font-bold text-sm">
-                CL
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-primary font-bold text-lg">
+                𝔐
               </div>
               <h3 className="font-bold text-lg">Cửu Long Mỹ Tửu</h3>
             </div>
@@ -27,36 +27,24 @@ export function Footer() {
             <h4 className="font-bold mb-4">Liên Kết Nhanh</h4>
             <ul className="space-y-2">
               <li>
-                <button
-                  onClick={() => document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="text-white/70 hover:text-white transition-colors text-sm"
-                >
-                  Danh Mục
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="text-white/70 hover:text-white transition-colors text-sm"
-                >
+                <Link href="/san-pham" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
                   Sản Phẩm
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => document.getElementById('benefits')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="text-white/70 hover:text-white transition-colors text-sm"
-                >
-                  Lợi Ích
-                </button>
+                <Link href="/bang-gia" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
+                  Bảng Giá
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => document.getElementById('story')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="text-white/70 hover:text-white transition-colors text-sm"
-                >
-                  Câu Chuyện
-                </button>
+                <Link href="/gioi-thieu" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
+                  Giới Thiệu
+                </Link>
+              </li>
+              <li>
+                <Link href="/lien-he" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
+                  Liên Hệ
+                </Link>
               </li>
             </ul>
           </div>
@@ -76,7 +64,9 @@ export function Footer() {
                 </a>
               </li>
               <li className="text-white/70">
-                <span>📧 somogold@somogroup.vn</span>
+                <a href="mailto:somogold@somogroup.vn" className="hover:text-white transition-colors">
+                  📧 somogold@somogroup.vn
+                </a>
               </li>
               <li className="text-white/70">
                 <span>📍 29 Nguyễn Khắc Nhu, P. Cầu Ông Lãnh, TP. HCM</span>
@@ -89,19 +79,19 @@ export function Footer() {
             <h4 className="font-bold mb-4">Chính Sách</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-white/70 hover:text-white transition-colors">
+                <Link href="/lien-he" className="inline-flex min-h-11 items-center text-white/70 transition-colors hover:text-white">
                   Điều Khoản Dịch Vụ
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-white/70 hover:text-white transition-colors">
+                <Link href="/lien-he" className="inline-flex min-h-11 items-center text-white/70 transition-colors hover:text-white">
                   Chính Sách Bảo Mật
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-white/70 hover:text-white transition-colors">
+                <Link href="/lien-he" className="inline-flex min-h-11 items-center text-white/70 transition-colors hover:text-white">
                   Chính Sách Hoàn Trả
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -113,15 +103,15 @@ export function Footer() {
               © {currentYear} Cửu Long Mỹ Tửu — Somo Gold. Tất cả các quyền được bảo lưu.
             </p>
             <div className="flex gap-4 mt-4 md:mt-0">
-              <a href="#" className="text-white/70 hover:text-white transition-colors text-sm">
+              <Link href="/lien-he" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
                 Facebook
-              </a>
-              <a href="#" className="text-white/70 hover:text-white transition-colors text-sm">
+              </Link>
+              <Link href="/lien-he" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
                 Instagram
-              </a>
-              <a href="#" className="text-white/70 hover:text-white transition-colors text-sm">
+              </Link>
+              <Link href="/lien-he" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
                 TikTok
-              </a>
+              </Link>
             </div>
           </div>
         </div>

@@ -1,16 +1,16 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
+import { useCallback, useEffect, useState } from 'react'
 import {
   ChevronLeft, ChevronRight,
   SlidersHorizontal, Filter, X,
   Search, Sparkles, Gift, Heart, Users,
 } from 'lucide-react'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
-import { FloatingButtons } from '@/components/floating-buttons'
 import { ProductCard } from '@/components/product-card'
-import { getCatalogItems } from '@/data/products'
+import { triggerChatbotOpen } from '@/lib/chatbot-trigger'
+import { brandVisuals, getCatalogItems } from '@/data/products'
+import type { PurposeId } from '@/lib/chatbot-rules'
 import { track } from '@/utils/track'
 import type { CatalogItem } from '@/data/products'
 
@@ -125,11 +125,6 @@ export default function SanPhamPage() {
     priceRange !== 'all' ||
     recommend !== null
 
-  // Scroll to top on page change
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [page])
-
   // Reset page when any filter changes
   useEffect(() => {
     setPage(1)
@@ -161,6 +156,7 @@ export default function SanPhamPage() {
       setCategory('all')
       setPriceRange('all')
       track('ai_recommend', { preset: next })
+      triggerChatbotOpen(next as PurposeId)
     }
   }
 
@@ -170,6 +166,24 @@ export default function SanPhamPage() {
     setPriceRange('all')
     setRecommend(null)
   }, [])
+
+  useEffect(() => {
+    if (!showMobileFilter) return
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [showMobileFilter])
+
+  const handlePageChange = (nextPage: number) => {
+    if (nextPage < 1 || nextPage > totalPages || nextPage === page) return
+
+    setPage(nextPage)
+    track('page_change', { page: nextPage })
+  }
 
   // ── Sidebar (shared desktop + mobile drawer) ──
   const Sidebar = () => (
@@ -200,7 +214,7 @@ export default function SanPhamPage() {
               <button
                 type="button"
                 onClick={() => handleCategory(cat.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
+                className={`min-h-11 w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
                   category === cat.id && !recommend
                     ? 'bg-blue-600 text-white font-semibold'
                     : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
@@ -222,7 +236,7 @@ export default function SanPhamPage() {
               <button
                 type="button"
                 onClick={() => handlePrice(range.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
+                className={`min-h-11 w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
                   priceRange === range.id && !recommend
                     ? 'bg-blue-600 text-white font-semibold'
                     : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
@@ -250,20 +264,46 @@ export default function SanPhamPage() {
 
   return (
     <>
-      <Header />
-
-      <main className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50">
         {/* ── Page banner ── */}
         <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <p className="text-blue-600 text-xs font-semibold mb-1 uppercase tracking-wide">
-              Cửu Long Mỹ Tửu — Somo Gold
-            </p>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Tất Cả Sản Phẩm</h1>
-            <p className="text-gray-400 mt-1 text-sm">
-              {filtered.length} sản phẩm
-              {hasActiveFilter ? ' (đang lọc)' : ''}
-            </p>
+          <div className="max-w-7xl mx-auto grid gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:items-center">
+            <div>
+              <p className="text-blue-600 text-xs font-semibold mb-1 uppercase tracking-wide">
+                Cửu Long Mỹ Tửu — Somo Gold
+              </p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Tất Cả Sản Phẩm</h1>
+              <p className="text-gray-500 mt-2 text-sm leading-6 max-w-xl">
+                Catalog hiện gồm cả rượu lẻ và bộ quà tặng, dùng ảnh thật từ bộ tài liệu công ty để khách xem nhanh và chọn đúng nhu cầu.
+              </p>
+              <p className="text-gray-400 mt-2 text-sm">
+                {filtered.length} sản phẩm
+                {hasActiveFilter ? ' (đang lọc)' : ''}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="relative overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
+                <div className="relative aspect-[4/5] bg-slate-100">
+                  <Image
+                    src={brandVisuals.collection}
+                    alt="Bộ sưu tập Cửu Long Mỹ Tửu"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+              <div className="relative overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
+                <div className="relative aspect-[4/5] bg-slate-100">
+                  <Image
+                    src={brandVisuals.gifts}
+                    alt="Quà tặng cao cấp Somo Gold"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -345,7 +385,7 @@ export default function SanPhamPage() {
               <button
                 type="button"
                 onClick={() => setShowMobileFilter(true)}
-                className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-xl text-sm font-semibold shadow-sm flex-shrink-0"
+                className="flex min-h-11 items-center gap-1.5 bg-white border border-gray-200 text-gray-700 px-3 py-2.5 rounded-xl text-sm font-semibold shadow-sm flex-shrink-0"
               >
                 <SlidersHorizontal size={15} />
                 Lọc
@@ -406,7 +446,7 @@ export default function SanPhamPage() {
                   <button
                     type="button"
                     onClick={() => setShowMobileFilter(false)}
-                    className="p-1.5 rounded-lg hover:bg-gray-100"
+                    className="flex min-h-11 min-w-11 items-center justify-center rounded-lg p-1.5 hover:bg-gray-100"
                   >
                     <X size={20} />
                   </button>
@@ -459,9 +499,9 @@ export default function SanPhamPage() {
                 <div className="flex items-center justify-center gap-2 mt-10">
                   <button
                     type="button"
-                    onClick={() => { setPage((p) => Math.max(1, p - 1)); track('page_change', { page: page - 1 }) }}
+                    onClick={() => handlePageChange(page - 1)}
                     disabled={page === 1}
-                    className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 disabled:opacity-30 hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm"
+                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 shadow-sm transition-all hover:border-blue-400 hover:text-blue-600 disabled:opacity-30"
                   >
                     <ChevronLeft size={18} />
                   </button>
@@ -470,8 +510,8 @@ export default function SanPhamPage() {
                     <button
                       key={n}
                       type="button"
-                      onClick={() => { setPage(n); track('page_change', { page: n }) }}
-                      className={`w-10 h-10 rounded-xl text-sm font-bold transition-all shadow-sm ${
+                      onClick={() => handlePageChange(n)}
+                      className={`h-11 w-11 rounded-xl text-sm font-bold transition-all shadow-sm ${
                         page === n
                           ? 'bg-blue-600 text-white shadow-blue-200'
                           : 'bg-white border border-gray-200 text-gray-600 hover:border-blue-400 hover:text-blue-600'
@@ -483,9 +523,9 @@ export default function SanPhamPage() {
 
                   <button
                     type="button"
-                    onClick={() => { setPage((p) => Math.min(totalPages, p + 1)); track('page_change', { page: page + 1 }) }}
+                    onClick={() => handlePageChange(page + 1)}
                     disabled={page === totalPages}
-                    className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 disabled:opacity-30 hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm"
+                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 shadow-sm transition-all hover:border-blue-400 hover:text-blue-600 disabled:opacity-30"
                   >
                     <ChevronRight size={18} />
                   </button>
@@ -500,10 +540,7 @@ export default function SanPhamPage() {
             </div>
           </div>
         </div>
-      </main>
-
-      <Footer />
-      <FloatingButtons />
+      </div>
     </>
   )
 }

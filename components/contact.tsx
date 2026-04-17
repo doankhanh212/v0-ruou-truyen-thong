@@ -3,7 +3,7 @@
 import { Phone, Mail, MapPin, Building2, Factory } from 'lucide-react'
 import { CTAButton } from '@/components/cta-button'
 import { openZalo } from '@/utils/zalo'
-import { companyInfo } from '@/data/products'
+import { brandVisuals, companyInfo } from '@/data/products'
 
 export function Contact() {
   return (
@@ -15,6 +15,56 @@ export function Contact() {
         <p className="text-center text-foreground/60 mb-12">
           {companyInfo.name} — Thương hiệu {companyInfo.brand}
         </p>
+
+        <div className="mb-12 grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="overflow-hidden rounded-3xl border border-amber-200/70 bg-gradient-to-br from-amber-50 to-white p-3 shadow-sm md:p-4">
+            <div className="overflow-hidden rounded-2xl bg-white/70">
+              <img
+                src={brandVisuals.contact}
+                alt="Thông tin liên hệ mua hàng Somo Gold"
+                className="block h-auto w-full"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-5">
+            <div className="overflow-hidden rounded-3xl border border-sky-200/70 bg-gradient-to-br from-sky-50 to-white p-3 shadow-sm md:p-4">
+              <div className="overflow-hidden rounded-2xl bg-white/70">
+                <img
+                  src={brandVisuals.contactAlt}
+                  alt="Bộ quà tặng Lộc Xuân Somo Gold"
+                  className="block h-auto w-full"
+                />
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-6 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary/70">
+                Hồ sơ doanh nghiệp
+              </p>
+              <h3 className="mt-3 text-2xl font-bold text-primary">
+                Somo Gold, APT và Somo Farm Cửu Long
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-foreground/70">
+                Phần liên hệ được trình bày theo đúng poster doanh nghiệp của công ty, đồng thời giữ nguyên tỷ lệ ảnh gốc để không làm vỡ bố cục thương hiệu.
+              </p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl bg-white p-4 shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Hotline</p>
+                  <p className="mt-2 text-sm font-bold text-slate-900">{companyInfo.phone[0]}</p>
+                </div>
+                <div className="rounded-2xl bg-white p-4 shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Email</p>
+                  <p className="mt-2 text-sm font-bold text-slate-900 break-all">{companyInfo.email}</p>
+                </div>
+                <div className="rounded-2xl bg-white p-4 shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Thương hiệu</p>
+                  <p className="mt-2 text-sm font-bold text-slate-900">{companyInfo.brand}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           <button

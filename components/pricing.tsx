@@ -1,5 +1,7 @@
 'use client'
 
+import Image from 'next/image'
+import Link from 'next/link'
 import { products, giftSets, formatPrice } from '@/data/products'
 import { CTAButton } from '@/components/cta-button'
 import { useFadeIn } from '@/hooks/use-fade-in'
@@ -72,6 +74,15 @@ export function Pricing() {
                       🔥 Phổ biến nhất
                     </div>
                   )}
+
+                  <div className="relative mb-6 aspect-[4/3] overflow-hidden rounded-2xl border border-white/15 bg-slate-100">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
 
                   <div className="mb-6">
                     <span
@@ -185,17 +196,26 @@ export function Pricing() {
                     key={set.id}
                     className="bg-white rounded-2xl border border-amber-200/60 shadow-sm p-6 hover:shadow-lg transition-shadow"
                   >
+                    <div className="relative mb-5 aspect-[4/3] overflow-hidden rounded-2xl bg-amber-50">
+                      <Image
+                        src={set.image}
+                        alt={set.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
                     <h4 className="text-lg font-bold text-primary mb-1">{set.name}</h4>
                     <p className="text-sm text-foreground/55 mb-4">{set.description}</p>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                       <span className="text-primary font-bold">
                         {formatPrice(minPrice)} – {formatPrice(maxPrice)}
                       </span>
-                      <CTAButton
-                        label="Xem chi tiết"
-                        productName={set.name}
-                        className="btn-lift bg-amber-500 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-amber-600"
-                      />
+                      <Link
+                        href={`/san-pham/${set.slug}`}
+                        className="btn-lift inline-flex min-h-11 items-center justify-center rounded-xl bg-amber-500 px-4 py-2 text-sm font-bold text-white hover:bg-amber-600"
+                      >
+                        Xem chi tiết
+                      </Link>
                     </div>
                   </div>
                 )

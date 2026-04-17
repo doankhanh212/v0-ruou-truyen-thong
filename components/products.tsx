@@ -6,6 +6,7 @@ import { products } from '@/data/products'
 import { CTAButton } from '@/components/cta-button'
 import { useFadeIn } from '@/hooks/use-fade-in'
 import { Flame, TrendingUp } from 'lucide-react'
+import { track } from '@/utils/track'
 
 // Static urgency — gives scarcity feel without deception
 const URGENCY: Record<string, string> = {
@@ -16,6 +17,10 @@ const URGENCY: Record<string, string> = {
 
 export function Products() {
   const { ref, isVisible } = useFadeIn()
+
+  const handleProductClick = (productId: string, productSlug: string, productName: string) => {
+    track('click_product', { id: productId, slug: productSlug, name: productName, source: 'home' })
+  }
 
   return (
     <section id="products" className="py-20 md:py-28 bg-white">
@@ -47,7 +52,12 @@ export function Products() {
               style={{ transitionDelay: isVisible ? `${index * 90}ms` : '0ms' }}
             >
               {/* Image */}
-              <div className="relative w-full h-48 overflow-hidden bg-gradient-to-br from-primary/8 to-secondary/8">
+              <Link
+                href={`/san-pham/${product.slug}`}
+                className="block"
+                onClick={() => handleProductClick(product.id, product.slug, product.name)}
+              >
+              <div className="relative aspect-square w-full overflow-hidden bg-gradient-to-br from-primary/8 to-secondary/8">
                 {/* Badges */}
                 <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
                   {product.isBestSeller && (
@@ -79,9 +89,15 @@ export function Products() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
               </div>
+              </Link>
 
               {/* Body */}
               <div className="p-6">
+                <Link
+                  href={`/san-pham/${product.slug}`}
+                  className="block"
+                  onClick={() => handleProductClick(product.id, product.slug, product.name)}
+                >
                 <div className="mb-1">
                   <h3 className="text-lg font-bold text-primary group-hover:text-secondary transition-colors leading-snug">
                     {product.name}
@@ -101,8 +117,9 @@ export function Products() {
                     </div>
                   ))}
                 </div>
+                </Link>
 
-                <div className="flex items-center justify-between border-t border-border/50 pt-4 gap-3">
+                <div className="flex flex-col gap-3 border-t border-border/50 pt-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <span className="text-lg font-bold text-primary block">
                       {product.price}đ
@@ -111,7 +128,7 @@ export function Products() {
                   <CTAButton
                     label="Tư vấn ngay"
                     productName={product.name}
-                    className="btn-lift bg-primary text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm shadow-primary/20 hover:bg-secondary"
+                    className="btn-lift w-full sm:w-auto bg-primary text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm shadow-primary/20 hover:bg-secondary"
                   />
                 </div>
               </div>
@@ -127,13 +144,13 @@ export function Products() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href="/san-pham"
-              className="btn-lift inline-flex items-center gap-2 bg-white text-primary border-2 border-primary px-8 py-4 rounded-2xl font-bold text-base hover:bg-primary/5 transition-all"
+              className="btn-lift inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border-2 border-primary bg-white px-8 py-4 text-base font-bold text-primary transition-all hover:bg-primary/5 sm:w-auto"
             >
               Xem tất cả sản phẩm →
             </Link>
             <CTAButton
               label="💬 Chat Zalo để được tư vấn"
-              className="btn-lift inline-block bg-[#0068FF] text-white px-8 py-4 rounded-2xl font-bold text-base shadow-lg shadow-blue-500/25"
+              className="btn-lift w-full sm:w-auto bg-[#0068FF] text-white px-8 py-4 rounded-2xl font-bold text-base shadow-lg shadow-blue-500/25"
             />
           </div>
         </div>

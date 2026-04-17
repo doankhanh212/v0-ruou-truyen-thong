@@ -1,5 +1,6 @@
 'use client'
 
+import { cn } from '@/lib/utils'
 import { openZalo } from '@/utils/zalo'
 
 interface CTAButtonProps {
@@ -17,7 +18,11 @@ export function CTAButton({ label, productName, className = '' }: CTAButtonProps
   }
 
   return (
-    <button type="button" onClick={handleClick} className={className}>
+    <button
+      type="button"
+      onClick={handleClick}
+      className={cn('min-h-11 touch-manipulation', className)}
+    >
       {label}
     </button>
   )

@@ -4,11 +4,13 @@
  */
 
 type EventName =
+  | 'page_view'
   | 'search'
   | 'filter_category'
   | 'filter_price'
   | 'ai_recommend'
-  | 'product_click_zalo'
+  | 'click_product'
+  | 'click_zalo'
   | 'page_change'
 
 interface TrackPayload {
@@ -18,10 +20,7 @@ interface TrackPayload {
 export function track(event: EventName, payload?: TrackPayload): void {
   if (typeof window === 'undefined') return
 
-  // Console log in dev
-  if (process.env.NODE_ENV !== 'production') {
-    console.info(`[track] ${event}`, payload ?? '')
-  }
+  console.log(`[track] ${event}`, payload ?? {})
 
   // ── Vercel Analytics (auto-injected if @vercel/analytics is installed) ──
   // window.va?.('event', { name: event, data: payload })

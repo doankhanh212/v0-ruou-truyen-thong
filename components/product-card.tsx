@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { Flame, TrendingUp, MessageCircle } from 'lucide-react'
 import { openZalo } from '@/utils/zalo'
 import { track } from '@/utils/track'
@@ -13,8 +14,11 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ item, onZaloClick }: ProductCardProps) {
+  const handleProductClick = () => {
+    track('click_product', { id: item.id, slug: item.slug, name: item.name, source: 'listing' })
+  }
+
   const handleZalo = () => {
-    track('product_click_zalo', { id: item.id, name: item.name, category: item.category })
     onZaloClick?.(item)
     openZalo(undefined, `Xin chào, tôi muốn tư vấn ${item.name}`)
   }
@@ -22,7 +26,8 @@ export function ProductCard({ item, onZaloClick }: ProductCardProps) {
   return (
     <div className="group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col">
       {/* Image */}
-      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-50 to-white">
+      <Link href={`/san-pham/${item.slug}`} className="block" onClick={handleProductClick}>
+      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-blue-50 to-white">
         <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
           {item.isBestSeller && (
             <span className="flex items-center gap-1 bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-sm">
@@ -46,9 +51,11 @@ export function ProductCard({ item, onZaloClick }: ProductCardProps) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
       </div>
+      </Link>
 
       {/* Body */}
       <div className="p-5 flex flex-col flex-1">
+        <Link href={`/san-pham/${item.slug}`} className="block" onClick={handleProductClick}>
         <h3 className="font-bold text-blue-900 text-base leading-snug group-hover:text-blue-600 transition-colors">
           {item.name}
         </h3>
@@ -64,15 +71,16 @@ export function ProductCard({ item, onZaloClick }: ProductCardProps) {
             </li>
           ))}
         </ul>
+        </Link>
 
-        <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
+        <div className="pt-4 border-t border-gray-100 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <span className="font-bold text-blue-700 text-base whitespace-nowrap">
             {item.price}đ
           </span>
           <button
             type="button"
             onClick={handleZalo}
-            className="flex items-center gap-1.5 bg-blue-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-sm shadow-blue-200 whitespace-nowrap"
+            className="flex min-h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-blue-200 transition-all hover:bg-blue-700 active:scale-95 sm:w-auto"
           >
             <MessageCircle size={14} />
             Tư vấn Zalo

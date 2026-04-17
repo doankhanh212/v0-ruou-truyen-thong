@@ -1,7 +1,9 @@
 'use client'
 
-import { CheckCircle2, Shield, Users, Leaf, Clock, Award } from 'lucide-react'
+import Image from 'next/image'
+import { Users, Leaf, Clock, Award } from 'lucide-react'
 import { useFadeIn } from '@/hooks/use-fade-in'
+import { brandVisuals } from '@/data/products'
 
 const TRUST_POINTS = [
   {
@@ -53,6 +55,43 @@ export function Trust() {
             <h2 className="text-3xl md:text-4xl font-bold text-primary">
               Được tin tưởng vì lý do chính đáng
             </h2>
+          </div>
+
+          <div className="mb-10 grid gap-4 lg:grid-cols-[1.25fr_0.75fr]">
+            <div className="relative overflow-hidden rounded-3xl border border-white/60 bg-white shadow-sm">
+              <div className="relative aspect-[16/9]">
+                <Image
+                  src={brandVisuals.collection}
+                  alt="Bộ sưu tập Cửu Long Mỹ Tửu"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-6 text-white">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/80">Catalog thật</p>
+                  <h3 className="mt-2 text-2xl font-bold">Dòng rượu và bộ quà đã lên web bằng ảnh gốc</h3>
+                  <p className="mt-2 max-w-xl text-sm text-white/85">
+                    Từ rượu nếp, ba kích đến Minh Mạng, Hoàng Hoa, Tây Dương Sâm và các bộ quà biếu doanh nghiệp.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative overflow-hidden rounded-3xl border border-amber-200/70 bg-white shadow-sm">
+              <div className="relative aspect-[4/5]">
+                <Image
+                  src={brandVisuals.gifts}
+                  alt="Quà tặng cao cấp Somo Gold"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-200">Biếu tặng cao cấp</p>
+                  <p className="mt-2 text-lg font-bold leading-snug">Phù hợp quà Tết, quà đối tác và khách VIP</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">

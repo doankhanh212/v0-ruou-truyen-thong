@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { CTAButton } from '@/components/cta-button'
 import { CheckCircle2 } from 'lucide-react'
+import { brandVisuals } from '@/data/products'
 
 const TRUST_BADGES = [
   '100% thảo dược tự nhiên',
@@ -47,30 +49,26 @@ export function Hero() {
             </div>
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-primary leading-[1.05] mb-6">
-              Rượu Thuốc{' '}
-              <span className="text-secondary whitespace-nowrap">Truyền Thống</span>
+              Rượu Truyền Thống{' '}
+              <span className="text-secondary whitespace-nowrap">Cửu Long</span>
             </h1>
 
             <p className="text-lg md:text-xl text-foreground/65 mb-8 leading-relaxed max-w-lg">
-              Chế tác từ <strong className="text-foreground/80">9 loại dược liệu quý hiếm</strong>,
-              kế thừa bí quyết cổ truyền, hòa quyện khoa học hiện đại — mang lại sức
-              khỏe toàn diện cho gia đình bạn.
+              Catalog Somo Gold gồm <strong className="text-foreground/80">rượu nếp, ba kích, Minh Mạng, Hoàng Hoa và Tây Dương Sâm</strong>,
+              cùng nhiều bộ quà biếu cao cấp cho gia đình, đối tác và khách VIP.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <CTAButton
                 label="💬 Nhận tư vấn miễn phí"
-                className="btn-lift inline-block bg-primary text-white px-8 py-4 rounded-xl font-bold text-base text-center shadow-lg shadow-primary/25"
+                className="btn-lift w-full sm:w-auto bg-primary text-white px-8 py-4 rounded-xl font-bold text-base text-center shadow-lg shadow-primary/25"
               />
-              <button
-                type="button"
-                onClick={() =>
-                  document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
-                }
-                className="btn-lift inline-block border-2 border-primary/30 text-primary px-8 py-4 rounded-xl font-bold text-base text-center hover:border-primary hover:bg-primary/5 transition-colors"
+              <Link
+                href="/bang-gia"
+                className="btn-lift min-h-11 w-full sm:w-auto border-2 border-primary/30 text-primary px-8 py-4 rounded-xl font-bold text-base text-center hover:border-primary hover:bg-primary/5 transition-colors"
               >
                 Xem bảng giá →
-              </button>
+              </Link>
             </div>
 
             {/* Trust badges */}
@@ -95,8 +93,8 @@ export function Hero() {
           >
             <div className="relative w-full h-[460px] rounded-3xl overflow-hidden shadow-2xl shadow-primary/15">
               <Image
-                src="/hero-liquor.jpg"
-                alt="Rượu truyền thống premium"
+                src={brandVisuals.hero}
+                alt="Catalog rượu truyền thống Cửu Long"
                 fill
                 className="object-cover"
                 priority

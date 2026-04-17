@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { PageViewTracker } from '@/components/page-view-tracker'
+import { Header } from '@/components/header'
+import { Footer } from '@/components/footer'
+import { FloatingButtons } from '@/components/floating-buttons'
+import { Chatbot } from '@/components/chatbot'
 import './globals.css'
-
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: 'Rượu Truyền Thống - Sản Phẩm Thuốc Truyền Thống Việt Nam',
@@ -35,9 +36,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="vi">
       <body className="font-sans antialiased">
-        {children}
+        <PageViewTracker />
+        <Header />
+        <main className="min-h-screen">{children}</main>
+        <Footer />
+        <FloatingButtons />
+        <Chatbot />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
