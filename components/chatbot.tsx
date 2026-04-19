@@ -47,7 +47,7 @@ interface Answers {
 
 /* ─── Constants ──────────────────────────────────── */
 
-const STORAGE_KEY = 'chatbot_hybrid_session'
+const SESSION_STORAGE_KEY = 'chatbot_hybrid_session'
 const DISMISSED_KEY = 'chatbot_dismissed'
 const TYPING_DELAY = 600
 
@@ -316,14 +316,14 @@ export function Chatbot() {
     setConvoState('idle')
     setInput('')
     setIsTyping(false)
-    try { localStorage.removeItem(STORAGE_KEY) } catch { /* */ }
+    try { sessionStorage.removeItem(SESSION_STORAGE_KEY) } catch { /* */ }
   }, [])
 
   /* ─── Persistence ──────────────────────────────── */
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY)
+      const raw = sessionStorage.getItem(SESSION_STORAGE_KEY)
       if (!raw) return
       const saved = JSON.parse(raw) as { answers: Answers; messages: Message[]; convoState: ConvoState }
       setAnswers(saved.answers)
@@ -334,7 +334,7 @@ export function Chatbot() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, messages, convoState }))
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ answers, messages, convoState }))
     } catch { /* */ }
   }, [answers, messages, convoState])
 
