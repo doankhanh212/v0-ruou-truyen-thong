@@ -57,15 +57,15 @@ const RECOMMEND_PRESETS: RecommendPreset[] = [
   },
   {
     id: 'health',
-    label: 'Tăng sức khỏe',
+    label: 'Dược liệu quý',
     icon: <Heart size={15} />,
     color: 'border-green-300 text-green-700 hover:bg-green-50',
     activeColor: 'bg-green-600 text-white border-green-600',
     match: (item) =>
       item.category === 'bồi bổ' ||
       item.benefits.some((b) =>
-        ['đề kháng', 'huyết áp', 'lão hóa', 'sức khỏe'].some((kw) =>
-          b.toLowerCase().includes(kw)
+        ['dược liệu', 'cổ phương', 'Đông y', 'truyền thống'].some((kw) =>
+          b.toLowerCase().includes(kw.toLowerCase())
         )
       ),
   },
@@ -79,7 +79,7 @@ const RECOMMEND_PRESETS: RecommendPreset[] = [
       item.category === 'sinh lý' ||
       item.target.toLowerCase().includes('nam') ||
       item.benefits.some((b) =>
-        ['sinh lý', 'sinh lực', 'nam'].some((kw) => b.toLowerCase().includes(kw))
+        ['cổ phương', 'nam giới', 'nam'].some((kw) => b.toLowerCase().includes(kw))
       ),
   },
 ]
@@ -440,7 +440,7 @@ export default function SanPhamPage() {
                 className="absolute inset-0 bg-black/40"
                 onClick={() => setShowMobileFilter(false)}
               />
-              <div className="absolute left-0 top-0 bottom-0 w-72 bg-gray-50 shadow-2xl overflow-y-auto">
+              <div className="absolute inset-y-0 left-0 w-[min(20rem,86vw)] overflow-y-auto bg-gray-50 shadow-2xl">
                 <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
                   <h3 className="font-bold text-gray-900">Bộ lọc</h3>
                   <button
@@ -461,7 +461,7 @@ export default function SanPhamPage() {
           {/* ── Main layout: sidebar + grid ── */}
           <div className="flex gap-6">
             {/* Desktop Sidebar */}
-            <aside className="hidden md:block w-52 flex-shrink-0">
+            <aside className="hidden w-48 flex-shrink-0 md:block lg:w-52">
               <div className="sticky top-24">
                 <Sidebar />
               </div>
@@ -496,12 +496,12 @@ export default function SanPhamPage() {
 
               {/* ── Pagination ── */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-10">
+                <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
                   <button
                     type="button"
                     onClick={() => handlePageChange(page - 1)}
                     disabled={page === 1}
-                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 shadow-sm transition-all hover:border-blue-400 hover:text-blue-600 disabled:opacity-30"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 shadow-sm transition-all hover:border-blue-400 hover:text-blue-600 disabled:opacity-30 sm:h-11 sm:w-11"
                   >
                     <ChevronLeft size={18} />
                   </button>
@@ -511,7 +511,7 @@ export default function SanPhamPage() {
                       key={n}
                       type="button"
                       onClick={() => handlePageChange(n)}
-                      className={`h-11 w-11 rounded-xl text-sm font-bold transition-all shadow-sm ${
+                      className={`h-10 w-10 rounded-xl text-sm font-bold transition-all shadow-sm sm:h-11 sm:w-11 ${
                         page === n
                           ? 'bg-blue-600 text-white shadow-blue-200'
                           : 'bg-white border border-gray-200 text-gray-600 hover:border-blue-400 hover:text-blue-600'
@@ -525,7 +525,7 @@ export default function SanPhamPage() {
                     type="button"
                     onClick={() => handlePageChange(page + 1)}
                     disabled={page === totalPages}
-                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 shadow-sm transition-all hover:border-blue-400 hover:text-blue-600 disabled:opacity-30"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 shadow-sm transition-all hover:border-blue-400 hover:text-blue-600 disabled:opacity-30 sm:h-11 sm:w-11"
                   >
                     <ChevronRight size={18} />
                   </button>

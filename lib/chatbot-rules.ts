@@ -48,7 +48,7 @@ export const PURPOSE_OPTIONS: PurposeOption[] = [
   },
   {
     id: 'health',
-    label: 'Tăng sức khỏe',
+    label: 'Dược liệu quý',
     categories: ['bồi bổ', 'quà tặng'],
     tags: ['Cao cấp', '🎁 Cao cấp'],
   },
@@ -93,7 +93,7 @@ export const PREFERENCE_OPTIONS: PreferenceOption[] = [
   },
   {
     id: 'strength',
-    label: 'Tăng sinh lực',
+    label: 'Cổ phương nam giới',
     categories: ['sinh lý', 'entry'],
     tags: ['Sinh lực'],
   },

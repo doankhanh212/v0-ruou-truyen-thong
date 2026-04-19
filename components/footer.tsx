@@ -8,7 +8,7 @@ export function Footer() {
   return (
     <footer className="bg-primary text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="mb-8 grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
@@ -98,20 +98,20 @@ export function Footer() {
         </div>
 
         <div className="border-t border-white/20 pt-8">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <p className="text-white/70 text-sm">
+          <div className="flex flex-col items-center justify-between gap-4 md:flex-row md:gap-6">
+            <p className="text-center text-sm text-white/70 md:text-left">
               © {currentYear} Cửu Long Mỹ Tửu — Somo Gold. Tất cả các quyền được bảo lưu.
             </p>
-            <div className="flex gap-4 mt-4 md:mt-0">
-              <Link href="/lien-he" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
+            <div className="flex flex-wrap items-center justify-center gap-4 md:justify-end">
+              <a href="https://www.facebook.com/cuulongmytuu" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
                 Facebook
-              </Link>
-              <Link href="/lien-he" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
+              </a>
+              <a href="https://www.instagram.com/cuulongmytuu" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
                 Instagram
-              </Link>
-              <Link href="/lien-he" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
+              </a>
+              <a href="https://www.tiktok.com/@cuulongmytuu" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
                 TikTok
-              </Link>
+              </a>
             </div>
           </div>
         </div>

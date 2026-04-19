@@ -13,7 +13,7 @@ DANH SÁCH SẢN PHẨM (giá chưa VAT):
 1. Tây Dương Sâm Tửu — CAO CẤP NHẤT
    - Nồng độ: 33% ACL.VOL
    - Thành phần: Rượu truyền thống Cửu Long, Tây dương sâm, Nhụy hoa nghệ tây (Saffron)
-   - Công dụng: hỗ trợ điều chỉnh rối loạn chuyển hóa mỡ, hạ đường huyết, ổn định huyết áp, tăng sức đề kháng, chống lão hóa
+   - Đặc trưng: Theo Đông y, Tây dương sâm vị đắng hơi ngọt, tính hàn, thường được dùng trong các bài thuốc cổ truyền
    - Phù hợp: người trung niên, quà tặng cao cấp
    - Giá: Bình sứ Bát Tràng 1.200.000đ (500ml) / 1.500.000đ (700ml)
    - Các đóng gói khác: Hộp lục giác, Túi nhung, Thùng 6 chai
@@ -21,21 +21,21 @@ DANH SÁCH SẢN PHẨM (giá chưa VAT):
 2. Minh Mạng Tửu — BÁN CHẠY NHẤT
    - Nồng độ: 29% ACL.VOL
    - Thành phần: Rượu truyền thống Cửu Long, Minh Mạng Thang thượng hạng
-   - Công dụng: tăng sinh lực, bồi bổ nam giới, duy trì sức khỏe
-   - Phù hợp: nam giới
+   - Đặc trưng: chế tác theo bài thuốc cổ phương Minh Mạng Thang, nhiều dược liệu quý
+   - Phù hợp: nam giới, quà biếu gia đình
    - Giá: Bình sứ Bát Tràng 700.000đ (500ml) / 900.000đ (700ml)
 
 3. Hoàng Hoa Tửu — THƠM NHẸ, DỄ UỐNG
    - Nồng độ: 29% ACL.VOL
    - Thành phần: Rượu truyền thống Cửu Long, Hoa cúc khô, Nhụy hoa nghệ tây (Saffron)
-   - Công dụng: dễ uống, thơm nhẹ, hương vị thanh tao
+   - Đặc trưng: vị thanh, hương thơm dịu dàng, dễ uống
    - Phù hợp: quà tặng, thưởng thức nhẹ nhàng
    - Giá: Bình sứ Bát Tràng 700.000đ (500ml) / 900.000đ (700ml)
 
 4. Rượu Ba Kích — NHẬP MÔN, GIÁ TỐT
    - Nồng độ: 29% ACL.VOL
    - Thành phần: Rượu truyền thống Cửu Long, Ba kích rừng Quảng Ninh
-   - Công dụng: tăng sinh lý, dễ uống, phù hợp bữa tiệc
+   - Đặc trưng: Ba kích là dược liệu quen thuộc trong Đông y, dòng rượu dễ uống, phù hợp bữa tiệc
    - Phù hợp: người mới, bữa tiệc
    - Giá: 350.000đ/chai 750ml
 
@@ -75,7 +75,9 @@ PHONG CÁCH:
 KHÔNG BAO GIỜ:
 - Nói quá dài
 - Đưa quá nhiều lựa chọn
-- Dùng ngôn ngữ nào khác ngoài tiếng Việt`
+- Dùng ngôn ngữ nào khác ngoài tiếng Việt
+- Đưa ra bất kỳ tuyên bố y tế hoặc sức khỏe nào (không nói "tốt cho sức khỏe", "tăng sức đề kháng", "bồi bổ", v.v.)
+- Hứa hẹn về công dụng chữa bệnh`
 
 export async function POST(req: Request) {
   try {

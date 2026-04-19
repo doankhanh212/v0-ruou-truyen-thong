@@ -9,7 +9,7 @@ export function Story() {
   return (
     <section id="story" className="py-16 md:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div ref={ref} className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-12 items-center">
           {/* Left Content */}
           <div
             className={`transition-all duration-1000 ${
@@ -34,12 +34,12 @@ export function Story() {
               </p>
 
               <p className="leading-relaxed">
-                Đây không chỉ là một loại rượu, mà là một liệu pháp sức khỏe, một thể hiện của tình yêu 
+                Đây không chỉ là một loại rượu, mà là một tinh hoa văn hóa, một thể hiện của tình yêu 
                 gia đình và một di sản văn hóa được bảo tồn và phát triển bởi chúng tôi.
               </p>
             </div>
 
-            <div className="mt-8 flex gap-4">
+            <div className="mt-8 flex flex-wrap gap-4 sm:gap-6">
               <div className="text-center">
                 <div className="text-3xl font-bold text-primary">100+</div>
                 <p className="text-sm text-foreground/60">Năm lịch sử</p>
@@ -61,7 +61,7 @@ export function Story() {
               isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
             }`}
           >
-            <div className="relative w-full h-96 rounded-2xl overflow-hidden shadow-lg">
+            <div className="relative h-60 w-full overflow-hidden rounded-2xl shadow-lg sm:h-80 md:h-96">
               <Image
                 src="/story-tradition.jpg"
                 alt="Truyền thống rượu thuốc Việt Nam"

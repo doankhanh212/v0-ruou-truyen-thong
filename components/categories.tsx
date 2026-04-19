@@ -5,26 +5,26 @@ import { useState, useEffect } from 'react'
 const categories = [
   {
     id: 1,
-    name: 'Rượu Thuốc Cơ Bản',
+    name: 'Rượu Dược Liệu Cơ Bản',
     description: 'Công thức truyền thống 9 vị dược liệu',
     icon: '🌿'
   },
   {
     id: 2,
-    name: 'Rượu Thuốc Cao Cấp',
-    description: 'Chứa thêm nhân sâm và yến mạch quý',
+    name: 'Rượu Dược Liệu Cao Cấp',
+    description: 'Kết hợp nhân sâm và nghệ tây quý hiếm',
     icon: '👑'
   },
   {
     id: 3,
-    name: 'Rượu Thuốc Phụ Nữ',
-    description: 'Hỗ trợ sức khỏe và vẻ đẹp phụ nữ',
+    name: 'Rượu Hương Hoa',
+    description: 'Vị thanh nhẹ, hương thơm dịu dàng',
     icon: '💎'
   },
   {
     id: 4,
-    name: 'Rượu Thuốc Nam',
-    description: 'Tăng cường sức mạnh và sức bền',
+    name: 'Rượu Cổ Phương Nam Giới',
+    description: 'Bài thuốc cổ truyền dành riêng cho phái mạnh',
     icon: '⚡'
   }
 ]
@@ -46,7 +46,7 @@ export function Categories() {
         >
           <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">Danh Mục Sản Phẩm</h2>
           <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
-            Khám phá các loại rượu thuốc được chế tác riêng cho từng nhu cầu sức khỏe
+            Khám phá các dòng rượu dược liệu được chế tác riêng theo từng dòng sản phẩm
           </p>
         </div>
 

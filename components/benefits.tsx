@@ -2,36 +2,36 @@
 
 import { useState, useEffect } from 'react'
 
-const benefits = [
+const highlights = [
   {
-    icon: '🛡️',
-    title: 'Tăng Sức Đề Kháng',
-    description: 'Giúp cơ thể chống lại các bệnh tật và tăng cường hệ miễn dịch tự nhiên.'
+    icon: '🌿',
+    title: 'Dược Liệu Quý Việt Nam',
+    description: 'Nguyên liệu được chọn lọc từ vùng trồng đạt chuẩn, kết hợp theo bài thuốc cổ phương.'
   },
   {
-    icon: '⚡',
-    title: 'Tăng Năng Lượng',
-    description: 'Cung cấp năng lượng tự nhiên cho cơ thể trong suốt ngày dài.'
+    icon: '🏺',
+    title: 'Chưng Cất Thủ Công',
+    description: 'Phương pháp truyền thống qua nhiều thế hệ, giữ trọn hương vị đặc trưng miền Tây.'
   },
   {
-    icon: '😴',
-    title: 'Giúp Ngủ Ngon',
-    description: 'Cải thiện chất lượng giấc ngủ và giúp bạn thức dậy tỉnh táo hơn.'
+    icon: '🎖️',
+    title: 'Đạt Chuẩn ISO 22000',
+    description: 'Quy trình sản xuất đạt tiêu chuẩn an toàn thực phẩm quốc tế, OCOP 4 sao.'
   },
   {
-    icon: '🦴',
-    title: 'Tăng Cường Xương',
-    description: 'Hỗ trợ sức khỏe xương và khớp, phòng chống loãng xương.'
+    icon: '🎁',
+    title: 'Quà Biếu Sang Trọng',
+    description: 'Thiết kế bình sứ Bát Tràng, hộp quà cao cấp — phù hợp biếu đối tác, gia đình.'
   },
   {
-    icon: '❤️',
-    title: 'Khỏe Mạnh Tim',
-    description: 'Hỗ trợ sức khỏe tim mạch và tuần hoàn máu toàn thân.'
+    icon: '🏭',
+    title: 'Nhà Máy Tại Vĩnh Long',
+    description: 'Sản xuất tại nhà máy Somo Farm Cửu Long, vùng phù sa miền Tây sông nước.'
   },
   {
-    icon: '🧠',
-    title: 'Tỉnh Táo Tâm Trí',
-    description: 'Tăng cường trí nhớ, giúp tập trung và giảm căng thẳng.'
+    icon: '💬',
+    title: 'Tư Vấn Tận Tâm',
+    description: 'Đội ngũ hỗ trợ qua Zalo 24/7, giúp bạn chọn đúng sản phẩm cho mọi dịp.'
   }
 ]
 
@@ -50,14 +50,14 @@ export function Benefits() {
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">Lợi Ích Sức Khỏe</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">Vì Sao Chọn Cửu Long Mỹ Tửu?</h2>
           <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
-            Khám phá những lợi ích tuyệt vời mà Rượu Truyền Thống mang lại
+            Giá trị truyền thống — chất lượng hiện đại
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {benefits.map((benefit, index) => (
+          {highlights.map((item, index) => (
             <div
               key={index}
               className={`bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-all duration-300 group border border-border ${
@@ -70,13 +70,13 @@ export function Benefits() {
               }}
             >
               <div className="text-5xl mb-4 group-hover:scale-110 group-hover:rotate-6 transition-transform">
-                {benefit.icon}
+                {item.icon}
               </div>
               <h3 className="text-xl font-bold text-primary mb-3 group-hover:text-secondary transition-colors">
-                {benefit.title}
+                {item.title}
               </h3>
               <p className="text-foreground/70 leading-relaxed">
-                {benefit.description}
+                {item.description}
               </p>
             </div>
           ))}
@@ -84,9 +84,8 @@ export function Benefits() {
 
         <div className="mt-12 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8 border border-border">
           <p className="text-center text-foreground/70 leading-relaxed">
-            <span className="font-semibold text-primary">Lưu ý:</span> Sản phẩm này không phải để chẩn đoán, 
-            điều trị, chữa bệnh hoặc ngăn ngừa bất kỳ bệnh nào. Vui lòng tham khảo ý kiến bác sĩ 
-            trước khi sử dụng.
+            <span className="font-semibold text-primary">Lưu ý:</span> Sản phẩm rượu dược liệu không phải là thuốc, 
+            không có tác dụng thay thế thuốc chữa bệnh. Uống có trách nhiệm.
           </p>
         </div>
       </div>

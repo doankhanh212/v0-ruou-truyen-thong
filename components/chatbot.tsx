@@ -47,7 +47,7 @@ interface Answers {
 
 /* ─── Constants ──────────────────────────────────── */
 
-const SESSION_STORAGE_KEY = 'chatbot_hybrid_session'
+const STORAGE_KEY = 'chatbot_hybrid_session'
 const DISMISSED_KEY = 'chatbot_dismissed'
 const TYPING_DELAY = 600
 
@@ -316,14 +316,14 @@ export function Chatbot() {
     setConvoState('idle')
     setInput('')
     setIsTyping(false)
-    try { sessionStorage.removeItem(SESSION_STORAGE_KEY) } catch { /* */ }
+    try { sessionStorage.removeItem(STORAGE_KEY) } catch { /* */ }
   }, [])
 
   /* ─── Persistence ──────────────────────────────── */
 
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem(SESSION_STORAGE_KEY)
+      const raw = sessionStorage.getItem(STORAGE_KEY)
       if (!raw) return
       const saved = JSON.parse(raw) as { answers: Answers; messages: Message[]; convoState: ConvoState }
       setAnswers(saved.answers)
@@ -334,7 +334,7 @@ export function Chatbot() {
 
   useEffect(() => {
     try {
-      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ answers, messages, convoState }))
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, messages, convoState }))
     } catch { /* */ }
   }, [answers, messages, convoState])
 
@@ -376,6 +376,16 @@ export function Chatbot() {
   useEffect(() => {
     if (isOpen && !isTyping) inputRef.current?.focus()
   }, [isOpen, isTyping])
+
+  useEffect(() => {
+    if (!isOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [isOpen])
 
   /* ─── Close ────────────────────────────────────── */
 
@@ -534,7 +544,7 @@ export function Chatbot() {
         type="button"
         onClick={() => { setIsOpen(true); setShowBadge(false) }}
         aria-label="Mở tư vấn chatbot"
-        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-white shadow-xl transition-all hover:scale-110 hover:bg-secondary/90"
+        className="fixed bottom-4 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-white shadow-xl transition-all hover:scale-110 hover:bg-secondary/90 sm:bottom-6 sm:right-6"
       >
         <MessageCircle size={24} />
         {showBadge && (
@@ -545,7 +555,9 @@ export function Chatbot() {
   }
 
   return (
-    <div className="fixed inset-x-2 bottom-4 z-50 flex h-[min(72vh,560px)] flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-96">
+    <>
+      <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[1px] sm:hidden" onClick={closeChatbot} />
+      <div className="fixed inset-x-3 bottom-3 z-50 flex h-[min(78vh,640px)] max-h-[calc(100dvh-1.5rem)] w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-3xl border border-border bg-white shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:h-[min(72vh,560px)] sm:w-96 sm:max-h-[560px]">
       {/* Header */}
       <div className="flex flex-shrink-0 items-center justify-between bg-secondary px-4 py-3 text-white">
         <div className="flex items-center gap-3">
@@ -576,7 +588,7 @@ export function Chatbot() {
           {messages.map((msg, i) => (
             <div key={`${msg.role}-${i}`} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+                className={`max-w-[88%] break-words whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                   msg.role === 'user'
                     ? 'rounded-br-sm bg-secondary text-white'
                     : 'rounded-bl-sm bg-white text-foreground shadow-sm'
@@ -617,13 +629,13 @@ export function Chatbot() {
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} className="flex flex-shrink-0 gap-2 border-t border-border bg-white p-3">
+      <form onSubmit={handleSubmit} className="flex flex-shrink-0 gap-2 border-t border-border bg-white px-3 pb-3 pt-3">
         <input
           ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={convoState === 'idle' ? 'Ví dụ: quà Tết 2 triệu, Minh Mạng Tửu, hoặc hỏi hotline' : convoState === 'result' ? 'Gõ tên sản phẩm khác, hỏi địa chỉ, hoặc "làm lại"' : 'Gõ hoặc chọn nhanh bên dưới...'}
+          placeholder={convoState === 'idle' ? 'Ví dụ: quà Tết 2 triệu hoặc Minh Mạng Tửu' : convoState === 'result' ? 'Gõ sản phẩm khác hoặc "làm lại"' : 'Gõ hoặc chọn nhanh bên dưới'}
           className="flex-1 rounded-xl border border-border bg-gray-50 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/40"
         />
         <button
@@ -636,7 +648,7 @@ export function Chatbot() {
       </form>
 
       {/* Zalo CTA */}
-      <div className="flex-shrink-0 border-t border-border bg-white px-3 py-2">
+      <div className="flex-shrink-0 border-t border-border bg-white px-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] pt-2">
         <button
           type="button"
           onClick={() => openZalo()}
@@ -645,6 +657,7 @@ export function Chatbot() {
           💬 Nhận tư vấn & báo giá qua Zalo
         </button>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

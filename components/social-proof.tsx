@@ -12,7 +12,7 @@ const TESTIMONIALS = [
     color: 'bg-blue-500',
     rating: 5,
     product: 'Rượu Ba Kích',
-    text: 'Uống được 3 tuần, cảm giác sức khỏe tốt lên rõ rệt. Ngủ ngon hơn, tinh thần sảng khoái. Rất hài lòng, đã giới thiệu cho anh em trong nhà.',
+    text: 'Uống được 3 tuần, thấy hương vị rất đặc biệt, khác hẳn rượu ngoài chợ. Rất hài lòng với chất lượng, đã giới thiệu cho anh em trong nhà.',
   },
   {
     name: 'Trần Thị Lan',
@@ -20,8 +20,8 @@ const TESTIMONIALS = [
     initials: 'TL',
     color: 'bg-pink-500',
     rating: 5,
-    product: 'Rượu Phụ Nữ',
-    text: 'Da em lên màu hồng hào, ít mệt mỏi hơn so với trước. Đã dùng được 2 hộp và sẽ tiếp tục. Chất lượng xứng đáng với giá tiền!',
+    product: 'Hoàng Hoa Tửu',
+    text: 'Vị rượu thanh, thơm dịu, rất phù hợp với phụ nữ. Đã dùng được 2 bình và sẽ tiếp tục. Chất lượng xứng đáng với giá tiền!',
   },
   {
     name: 'Lê Minh Tuấn',
@@ -38,8 +38,8 @@ const TESTIMONIALS = [
     initials: 'PB',
     color: 'bg-amber-500',
     rating: 5,
-    product: 'Rượu Nhân Sâm',
-    text: 'Làm việc văn phòng hay bị mệt buổi chiều, từ khi dùng sản phẩm này thì đỡ hẳn. Vị ngon, không bị kích đau đầu như rượu thường.',
+    product: 'Tây Dương Sâm Tửu',
+    text: 'Làm việc văn phòng hay mời anh em qua nhậu, từ khi dùng dòng này ai cũng khen ngon và sang. Vị ngọt dịu, không bị kích đau đầu như rượu thường.',
   },
   {
     name: 'Hồ Thị Mỹ Linh',
@@ -48,7 +48,7 @@ const TESTIMONIALS = [
     color: 'bg-purple-500',
     rating: 5,
     product: 'Rượu Ba Kích',
-    text: 'Chồng em dùng tuần thứ 4 rồi, thấy khỏe hẳn. Quan trọng là sản phẩm nguồn gốc rõ ràng, không lo tác dụng phụ. Sẽ mua thêm.',
+    text: 'Chồng em dùng rượu Ba Kích từ tuần thứ 4 rồi, rất thích hương vị. Quan trọng là sản phẩm nguồn gốc rõ ràng, có chứng nhận ISO. Sẽ mua thêm.',
   },
   {
     name: 'Đinh Văn Dũng',
@@ -122,13 +122,13 @@ export function SocialProof() {
           <div className="relative">
             <div
               ref={scrollRef}
-              className="flex gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4"
+              className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 sm:gap-5"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {TESTIMONIALS.map((t, idx) => (
                 <div
                   key={idx}
-                  className="flex-shrink-0 w-[300px] sm:w-[340px] snap-start bg-white rounded-2xl p-6 shadow-sm border border-border/60 hover:shadow-md transition-shadow"
+                  className="w-[calc(100vw-3rem)] max-w-[300px] flex-shrink-0 snap-start rounded-2xl border border-border/60 bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:max-w-[340px] sm:p-6 lg:max-w-[380px]"
                 >
                   {/* Stars */}
                   <div className="flex gap-0.5 mb-4">
@@ -162,7 +162,7 @@ export function SocialProof() {
               onClick={prev}
               disabled={current === 0}
               aria-label="Trước"
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 bg-white border border-border rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-30 transition-all"
+              className="absolute left-0 top-1/2 hidden h-10 w-10 -translate-x-4 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white shadow-md transition-all hover:bg-gray-50 disabled:opacity-30 md:flex"
             >
               <ChevronLeft size={18} />
             </button>
@@ -171,7 +171,7 @@ export function SocialProof() {
               onClick={next}
               disabled={current === TESTIMONIALS.length - 1}
               aria-label="Tiếp"
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 bg-white border border-border rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-30 transition-all"
+              className="absolute right-0 top-1/2 hidden h-10 w-10 translate-x-4 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white shadow-md transition-all hover:bg-gray-50 disabled:opacity-30 md:flex"
             >
               <ChevronRight size={18} />
             </button>
@@ -193,12 +193,12 @@ export function SocialProof() {
           </div>
 
           {/* Stats row */}
-          <div className="mt-16 grid grid-cols-3 gap-6 text-center bg-white rounded-2xl border border-border/60 shadow-sm p-8">
+          <div className="mt-16 grid grid-cols-1 gap-4 rounded-2xl border border-border/60 bg-white p-6 text-center shadow-sm sm:grid-cols-3 sm:gap-6 sm:p-8">
             <div>
               <p className="text-4xl font-bold text-primary">10K+</p>
               <p className="text-foreground/55 mt-1.5 text-sm">Khách hàng hài lòng</p>
             </div>
-            <div className="border-x border-border/40">
+            <div className="sm:border-x sm:border-border/40">
               <p className="text-4xl font-bold text-primary">4.9★</p>
               <p className="text-foreground/55 mt-1.5 text-sm">Đánh giá trung bình</p>
             </div>

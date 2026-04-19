@@ -48,7 +48,7 @@ export function Contact() {
               <p className="mt-3 text-sm leading-7 text-foreground/70">
                 Phần liên hệ được trình bày theo đúng poster doanh nghiệp của công ty, đồng thời giữ nguyên tỷ lệ ảnh gốc để không làm vỡ bố cục thương hiệu.
               </p>
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="rounded-2xl bg-white p-4 shadow-sm">
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Hotline</p>
                   <p className="mt-2 text-sm font-bold text-slate-900">{companyInfo.phone[0]}</p>
@@ -66,7 +66,7 @@ export function Contact() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
+        <div className="mb-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <button
             type="button"
             onClick={() => openZalo()}
@@ -94,7 +94,7 @@ export function Contact() {
         </div>
 
         {/* Company details */}
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
+        <div className="mb-12 grid gap-6 md:grid-cols-2">
           <div className="flex items-start gap-4 p-5 bg-blue-50/50 rounded-xl">
             <Factory className="text-primary w-8 h-8 flex-shrink-0 mt-0.5" />
             <div>
@@ -120,8 +120,8 @@ export function Contact() {
           ))}
         </div>
 
-        <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl p-8 text-center">
-          <p className="text-lg text-foreground/80 mb-6">
+        <div className="rounded-xl bg-gradient-to-br from-primary/5 to-secondary/5 p-6 text-center sm:p-8">
+          <p className="mb-6 text-base text-foreground/80 sm:text-lg">
             Liên hệ ngay để nhận tư vấn miễn phí và báo giá tốt nhất!
           </p>
           <CTAButton

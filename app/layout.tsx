@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Be_Vietnam_Pro } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { PageViewTracker } from '@/components/page-view-tracker'
 import { Header } from '@/components/header'
@@ -7,9 +8,16 @@ import { FloatingButtons } from '@/components/floating-buttons'
 import { Chatbot } from '@/components/chatbot'
 import './globals.css'
 
+const beVietnamPro = Be_Vietnam_Pro({
+  subsets: ['vietnamese', 'latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-be-vietnam-pro',
+})
+
 export const metadata: Metadata = {
-  title: 'Rượu Truyền Thống - Sản Phẩm Thuốc Truyền Thống Việt Nam',
-  description: 'Khám phá rượu truyền thống - sản phẩm thuốc truyền thống được chế tác từ các loại dược liệu quý hiếm, hỗ trợ sức khỏe toàn diện.',
+  title: 'Rượu Truyền Thống Cửu Long Mỹ Tửu — Somo Gold',
+  description: 'Rượu truyền thống cao cấp Cửu Long Mỹ Tửu — thương hiệu Somo Gold. Chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống. Đạt ISO 22000:2018 & OCOP 4 sao.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -36,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="vi">
+    <html lang="vi" className={beVietnamPro.variable}>
       <body className="font-sans antialiased">
         <PageViewTracker />
         <Header />

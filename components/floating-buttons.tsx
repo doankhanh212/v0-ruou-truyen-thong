@@ -5,18 +5,18 @@ import { openZalo, HOTLINE, ZALO_PHONE } from '@/utils/zalo'
 
 export function FloatingButtons() {
   return (
-    <div className="fixed bottom-24 right-5 flex flex-col gap-4 z-40 items-end">
+    <div className="fixed bottom-20 right-4 z-40 flex flex-col items-end gap-3 sm:bottom-24 sm:right-5 sm:gap-4">
 
       {/* Hotline */}
       <div className="group flex items-center gap-2">
-        <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg pointer-events-none">
+        <span className="pointer-events-none hidden whitespace-nowrap rounded-lg bg-gray-800 px-3 py-1.5 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 sm:block">
           {HOTLINE}
         </span>
         <a
           href={`tel:${HOTLINE}`}
           aria-label="Gọi hotline"
           title={`Hotline: ${HOTLINE}`}
-          className="w-12 h-12 bg-red-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-red-600 hover:scale-110 transition-all"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-red-500 text-white shadow-lg transition-all hover:scale-110 hover:bg-red-600 sm:h-12 sm:w-12"
         >
           <Phone size={20} />
         </a>
@@ -25,12 +25,12 @@ export function FloatingButtons() {
       {/* Zalo — with pulse ring + label */}
       <div className="group flex flex-col items-end gap-1.5">
         {/* Label above button */}
-        <span className="text-[11px] font-bold text-white bg-[#0068FF] px-2.5 py-1 rounded-full shadow-sm whitespace-nowrap">
+        <span className="whitespace-nowrap rounded-full bg-[#0068FF] px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
           Tư vấn miễn phí
         </span>
 
         <div className="flex items-center gap-2">
-          <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg pointer-events-none">
+          <span className="pointer-events-none hidden whitespace-nowrap rounded-lg bg-gray-800 px-3 py-1.5 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 sm:block">
             Chat Zalo ngay
           </span>
           <button
@@ -38,7 +38,7 @@ export function FloatingButtons() {
             onClick={() => openZalo(ZALO_PHONE)}
             aria-label="Nhắn Zalo"
             title="Chat Zalo"
-            className="zalo-pulse w-14 h-14 bg-[#0068FF] text-white rounded-full shadow-xl flex items-center justify-center hover:bg-[#0057d6] hover:scale-110 transition-transform font-bold text-lg select-none"
+            className="zalo-pulse flex h-12 w-12 select-none items-center justify-center rounded-full bg-[#0068FF] text-base font-bold text-white shadow-xl transition-transform hover:scale-110 hover:bg-[#0057d6] sm:h-14 sm:w-14 sm:text-lg"
           >
             Z
           </button>
