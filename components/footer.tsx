@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { FanpageWidget } from '@/components/fanpage'
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
@@ -8,7 +9,7 @@ export function Footer() {
   return (
     <footer className="bg-primary text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-8 grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
+        <div className="mb-8 grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-[1.1fr_0.8fr_0.9fr_0.9fr_1.3fr]">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
@@ -94,6 +95,11 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
+          </div>
+
+          <div className="sm:col-span-2 xl:col-span-1">
+            <h4 className="mb-4 font-bold">Fanpage</h4>
+            <FanpageWidget />
           </div>
         </div>
 
