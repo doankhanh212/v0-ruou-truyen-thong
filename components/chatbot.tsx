@@ -4,6 +4,36 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { MessageCircle, RefreshCw, Send, X } from 'lucide-react'
+
+type ApiProduct = {
+  id: number
+  name: string
+  slug: string
+  price: number
+  category: string
+  imageUrl: string
+  tags: string[]
+  description?: string | null
+  featured?: boolean
+}
+
+function apiProductToRecommendation(p: ApiProduct): RecommendationItem {
+  const isGift = p.category === 'qua-tang'
+  return {
+    id: String(p.id),
+    slug: p.slug,
+    kind: isGift ? 'gift-set' : 'product',
+    name: p.name,
+    category: p.category,
+    price: String(p.price),
+    priceMin: p.price,
+    image: p.imageUrl,
+    benefits: [],
+    target: p.description ?? '',
+    tag: p.tags?.[0],
+    isBestSeller: Boolean(p.featured),
+  }
+}
 import {
   BUDGET_OPTIONS,
   PREFERENCE_OPTIONS,
@@ -175,10 +205,11 @@ export function Chatbot() {
   const [convoState, setConvoState] = useState<ConvoState>('idle')
   const [answers, setAnswers] = useState<Answers>({})
   const [isTyping, setIsTyping] = useState(false)
+  const [apiRecommendations, setApiRecommendations] = useState<RecommendationItem[] | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const recommendations = useMemo(() => {
+  const localRecommendations = useMemo(() => {
     if (convoState !== 'result' || !answers.intent) return []
     return matchProducts({
       intent: answers.intent,
@@ -186,6 +217,43 @@ export function Chatbot() {
       preference: answers.preference,
       query: answers.query,
     })
+  }, [convoState, answers])
+
+  const recommendations = apiRecommendations ?? localRecommendations
+
+  useEffect(() => {
+    if (convoState !== 'result' || !answers.intent) {
+      setApiRecommendations(null)
+      return
+    }
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch('/api/chatbot/match', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: answers.query,
+            purpose: answers.intent,
+            budget: answers.budget,
+            preference: answers.preference,
+          }),
+        })
+        if (!res.ok) throw new Error('api failed')
+        const data = (await res.json()) as { items?: ApiProduct[] }
+        if (cancelled) return
+        if (Array.isArray(data.items) && data.items.length > 0) {
+          setApiRecommendations(data.items.map(apiProductToRecommendation))
+        } else {
+          setApiRecommendations(null)
+        }
+      } catch {
+        if (!cancelled) setApiRecommendations(null)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
   }, [convoState, answers])
 
   /* ─── Append helpers with typing delay ─────────── */
@@ -208,6 +276,7 @@ export function Chatbot() {
   const goToIntent = useCallback((intentId: IntentId, query?: string) => {
     setAnswers((prev) => ({ ...prev, intent: intentId, query: prev.query ?? query }))
     setConvoState('got-intent')
+    track('chatbot_step', { from: 'idle', to: 'got-intent', intent: intentId })
     setIsTyping(true)
     window.setTimeout(() => {
       setMessages((prev) => [
@@ -221,6 +290,7 @@ export function Chatbot() {
   const goToBudget = useCallback((budgetId: Exclude<BudgetId, 'unknown'>, query?: string) => {
     setAnswers((prev) => ({ ...prev, budget: budgetId, query: prev.query ?? query }))
     setConvoState('got-budget')
+    track('chatbot_step', { from: 'got-intent', to: 'got-budget', budget: budgetId })
     setIsTyping(true)
     window.setTimeout(() => {
       setMessages((prev) => [
@@ -249,6 +319,13 @@ export function Chatbot() {
       budget: finalAnswers.budget,
       preference: finalAnswers.preference,
       results: results.map((p) => p.slug).join(','),
+    })
+
+    track('chatbot_complete', {
+      intent: finalAnswers.intent,
+      budget: finalAnswers.budget,
+      preference: finalAnswers.preference,
+      result_count: results.length,
     })
 
     setIsTyping(true)
@@ -343,7 +420,11 @@ export function Chatbot() {
   useEffect(() => {
     try { if (localStorage.getItem(DISMISSED_KEY)) return } catch { return }
     const badgeTimer = window.setTimeout(() => setShowBadge(true), 4000)
-    const openTimer = window.setTimeout(() => { setIsOpen(true); setShowBadge(false) }, 7000)
+    const openTimer = window.setTimeout(() => {
+      setIsOpen(true)
+      setShowBadge(false)
+      track('chatbot_open', { trigger: 'auto' })
+    }, 7000)
     return () => { window.clearTimeout(badgeTimer); window.clearTimeout(openTimer) }
   }, [])
 
@@ -354,6 +435,7 @@ export function Chatbot() {
       const detail = (event as CustomEvent<ChatbotOpenDetail>).detail
       setIsOpen(true)
       setShowBadge(false)
+      track('chatbot_open', { trigger: 'external', purpose: detail?.purposeId })
       if (detail?.purposeId) {
         reset()
         window.setTimeout(() => {
@@ -390,6 +472,14 @@ export function Chatbot() {
   /* ─── Close ────────────────────────────────────── */
 
   const closeChatbot = () => {
+    if (convoState !== 'result') {
+      track('chatbot_drop', {
+        state: convoState,
+        intent: answers.intent,
+        budget: answers.budget,
+        preference: answers.preference,
+      })
+    }
     setIsOpen(false)
     try { localStorage.setItem(DISMISSED_KEY, '1') } catch { /* */ }
   }
@@ -542,7 +632,7 @@ export function Chatbot() {
     return (
       <button
         type="button"
-        onClick={() => { setIsOpen(true); setShowBadge(false) }}
+        onClick={() => { setIsOpen(true); setShowBadge(false); track('chatbot_open', { trigger: 'button' }) }}
         aria-label="Mở tư vấn chatbot"
         className="fixed bottom-4 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-white shadow-xl transition-all hover:scale-110 hover:bg-secondary/90 sm:bottom-6 sm:right-6"
       >

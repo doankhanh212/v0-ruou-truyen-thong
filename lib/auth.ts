@@ -1,21 +1,7 @@
 import { getIronSession, IronSession } from "iron-session";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
-
-interface SessionData {
-  isAdmin?: boolean;
-}
-
-const SESSION_OPTIONS = {
-  password: process.env.SESSION_SECRET || "complex_password_at_least_32_characters_long!!!",
-  cookieName: "session_token",
-  cookieOptions: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict" as const,
-    maxAge: 86400, // 24h
-  },
-};
+import { SESSION_OPTIONS, SessionData } from "./session-options";
 
 export async function getSession(): Promise<IronSession<SessionData>> {
   const cookieStore = await cookies();

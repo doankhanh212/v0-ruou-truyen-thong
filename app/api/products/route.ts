@@ -5,6 +5,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const category = searchParams.get("category");
   const featured = searchParams.get("featured");
+  const search = (searchParams.get("q") || searchParams.get("search"))?.trim();
   const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "12")));
   const skip = (page - 1) * limit;
@@ -12,6 +13,7 @@ export async function GET(request: NextRequest) {
   const where: Record<string, unknown> = { inStock: true };
   if (category) where.category = category;
   if (featured === "true") where.featured = true;
+  if (search) where.name = { contains: search, mode: "insensitive" };
 
   const [products, total] = await Promise.all([
     db.product.findMany({

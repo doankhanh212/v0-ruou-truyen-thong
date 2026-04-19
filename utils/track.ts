@@ -12,6 +12,10 @@ type EventName =
   | 'click_product'
   | 'click_zalo'
   | 'page_change'
+  | 'chatbot_open'
+  | 'chatbot_step'
+  | 'chatbot_complete'
+  | 'chatbot_drop'
 
 interface TrackPayload {
   [key: string]: string | number | boolean | undefined

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { invalidateProductCache } from "@/lib/product-cache";
 
 async function requireAuth() {
   if (!(await isAuthenticated())) {
@@ -55,5 +56,6 @@ export async function POST(request: NextRequest) {
     },
   });
 
+  invalidateProductCache();
   return NextResponse.json(product, { status: 201 });
 }
