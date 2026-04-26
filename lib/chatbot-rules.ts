@@ -1,16 +1,11 @@
-import { getCatalogItems, type CatalogItem } from '@/data/products'
-
-/* ─── Intent types ──────────────────────────────── */
+import type { CatalogProduct } from '@/lib/catalog'
 
 export type IntentId = 'gift' | 'health' | 'male' | 'daily' | 'unknown'
 export type BudgetId = 'under-1m' | 'between-1m-2m' | 'over-2m' | 'unknown'
 export type PreferenceId = 'premium' | 'easy' | 'traditional' | 'strength'
 
-/* Legacy aliases used by option buttons */
 export type PurposeId = IntentId
-export type RecommendationItem = CatalogItem
-
-/* ─── Option definitions ────────────────────────── */
+export type RecommendationItem = CatalogProduct
 
 interface PurposeOption {
   id: IntentId
@@ -42,64 +37,62 @@ export interface RecommendationAnswers {
 export const PURPOSE_OPTIONS: PurposeOption[] = [
   {
     id: 'gift',
-    label: 'Mua làm quà',
-    categories: ['quà tặng', 'bồi bổ', 'nhẹ'],
-    tags: ['Cao cấp', 'Thơm nhẹ', '🎁 Cao cấp', '🎁 Doanh nghiệp', '🎁 Quà Tết', '🎁 Sum vầy'],
+    label: 'Mua lam qua',
+    categories: ['qua-tang', 'ruou-thuoc', 'ruou-trai-cay'],
+    tags: ['Cao cap', 'Qua Tet', 'Doanh nghiep', 'Sum vay'],
   },
   {
     id: 'health',
-    label: 'Dược liệu quý',
-    categories: ['bồi bổ', 'quà tặng'],
-    tags: ['Cao cấp', '🎁 Cao cấp'],
+    label: 'Duoc lieu quy',
+    categories: ['ruou-thuoc', 'qua-tang'],
+    tags: ['Cao cap', 'Suc khoe'],
   },
   {
     id: 'male',
-    label: 'Nam giới',
-    categories: ['sinh lý', 'entry'],
-    tags: ['Sinh lực', 'Nhập môn'],
+    label: 'Nam gioi',
+    categories: ['ruou-thuoc'],
+    tags: ['Sinh luc', 'Co phuong'],
   },
   {
     id: 'daily',
-    label: 'Dùng hằng ngày',
-    categories: ['truyền thống', 'entry'],
-    tags: ['Truyền thống', 'Nhập môn'],
+    label: 'Dung hang ngay',
+    categories: ['ruou-nep', 'ruou-trai-cay'],
+    tags: ['Truyen thong', 'De uong'],
   },
 ]
 
 export const BUDGET_OPTIONS: BudgetOption[] = [
-  { id: 'under-1m', label: 'Dưới 1 triệu', min: 0, max: 999999 },
-  { id: 'between-1m-2m', label: 'Từ 1 đến 2 triệu', min: 1000000, max: 2000000 },
-  { id: 'over-2m', label: 'Trên 2 triệu', min: 2000001, max: Number.POSITIVE_INFINITY },
+  { id: 'under-1m', label: 'Duoi 1 trieu', min: 0, max: 999999 },
+  { id: 'between-1m-2m', label: 'Tu 1 den 2 trieu', min: 1000000, max: 2000000 },
+  { id: 'over-2m', label: 'Tren 2 trieu', min: 2000001, max: Number.POSITIVE_INFINITY },
 ]
 
 export const PREFERENCE_OPTIONS: PreferenceOption[] = [
   {
     id: 'premium',
-    label: 'Cao cấp',
-    categories: ['bồi bổ', 'quà tặng'],
-    tags: ['Cao cấp', '🎁 Cao cấp', '🎁 Doanh nghiệp', '🎁 Quà Tết'],
+    label: 'Cao cap',
+    categories: ['qua-tang', 'ruou-thuoc'],
+    tags: ['Cao cap', 'Doanh nghiep', 'Qua Tet'],
   },
   {
     id: 'easy',
-    label: 'Dễ uống',
-    categories: ['nhẹ', 'entry'],
-    tags: ['Thơm nhẹ', 'Nhập môn'],
+    label: 'De uong',
+    categories: ['ruou-trai-cay', 'ruou-nep'],
+    tags: ['De uong', 'Thom nhe'],
   },
   {
     id: 'traditional',
-    label: 'Truyền thống',
-    categories: ['truyền thống'],
-    tags: ['Truyền thống'],
+    label: 'Truyen thong',
+    categories: ['ruou-nep'],
+    tags: ['Truyen thong'],
   },
   {
     id: 'strength',
-    label: 'Cổ phương nam giới',
-    categories: ['sinh lý', 'entry'],
-    tags: ['Sinh lực'],
+    label: 'Co phuong nam gioi',
+    categories: ['ruou-thuoc'],
+    tags: ['Sinh luc', 'Co phuong'],
   },
 ]
-
-/* ─── Text normalizer ───────────────────────────── */
 
 function normalize(value: string) {
   return value
@@ -109,8 +102,6 @@ function normalize(value: string) {
     .replace(/đ/g, 'd')
     .trim()
 }
-
-/* ─── Intent / preference detection ─────────────── */
 
 const INTENT_KEYWORDS: { intent: IntentId; keywords: string[] }[] = [
   {
@@ -163,6 +154,12 @@ const PREFERENCE_KEYWORDS: { preference: PreferenceId; keywords: string[] }[] = 
   },
 ]
 
+// TECHNICAL DEBT: DIRECT_ITEM_KEYWORDS is a hardcoded slug → keyword map.
+// If an admin renames or soft-deletes a product, these entries will silently
+// match nothing. The correct fix is to drive this mapping from the database
+// (e.g. a new `keywords` column on the Product model and a DB query at
+// chatbot-match time). Until then, keep this list in sync with production
+// product slugs manually whenever catalog changes are made.
 const DIRECT_ITEM_KEYWORDS: Array<{ slug: string; keywords: string[] }> = [
   { slug: 'tay-duong-sam-tuu', keywords: ['tay duong sam', 'tay sam', 'sam my', 'tay duong sam tuu'] },
   { slug: 'minh-mang-tuu', keywords: ['minh mang', 'minh mang tuu'] },
@@ -254,36 +251,34 @@ export function detectNamedSlugs(input: string): string[] {
     .map((entry) => entry.slug)
 }
 
-export function detectNamedItems(input: string): RecommendationItem[] {
+export function detectNamedItems(input: string, catalog: RecommendationItem[]): RecommendationItem[] {
   const slugs = detectNamedSlugs(input)
   if (slugs.length === 0) return []
 
-  return getCatalogItems().filter((item) => slugs.includes(item.slug))
+  return catalog.filter((item) => slugs.includes(item.slug))
 }
 
-export function inferIntentFromQuery(input: string): IntentId {
-  const directItems = detectNamedItems(input)
+export function inferIntentFromQuery(input: string, catalog: RecommendationItem[]): IntentId {
+  const directItems = detectNamedItems(input, catalog)
   const detectedIntent = detectIntent(input)
 
   if (directItems.length === 0) return detectedIntent
 
-  if (directItems.some((item) => item.kind === 'gift-set' || item.category === 'quà tặng')) {
+  if (directItems.some((item) => item.kind === 'gift-set' || item.category === 'qua-tang')) {
     return 'gift'
   }
-  if (directItems.some((item) => item.category === 'bồi bổ')) {
+  if (directItems.some((item) => item.category === 'ruou-thuoc' && /sam|boi bo|suc khoe/.test(normalize(item.target)))) {
     return 'health'
   }
-  if (directItems.some((item) => item.category === 'sinh lý' || item.name.toLowerCase().includes('ba kích') || item.name.toLowerCase().includes('minh mạng'))) {
+  if (directItems.some((item) => item.category === 'ruou-thuoc' && /ba kich|minh mang|nam/.test(normalize(item.name + ' ' + item.target)))) {
     return 'male'
   }
-  if (directItems.some((item) => item.category === 'truyền thống' || item.name.toLowerCase().includes('rượu nếp'))) {
+  if (directItems.some((item) => item.category === 'ruou-nep' || item.name.toLowerCase().includes('ruou nep'))) {
     return 'daily'
   }
 
   return detectedIntent
 }
-
-/* ─── Recommendation engine ─────────────────────── */
 
 function getPurpose(id: IntentId) {
   return PURPOSE_OPTIONS.find((option) => option.id === id)
@@ -297,7 +292,7 @@ function getPreference(id: PreferenceId) {
   return PREFERENCE_OPTIONS.find((option) => option.id === id)
 }
 
-function scoreCatalogItem(item: CatalogItem, answers: RecommendationAnswers, query?: string) {
+function scoreCatalogItem(item: RecommendationItem, answers: RecommendationAnswers, query?: string) {
   const purpose = getPurpose(answers.purposeId)
   const budget = getBudget(answers.budgetId)
   const preference = getPreference(answers.preferenceId)
@@ -326,9 +321,9 @@ function scoreCatalogItem(item: CatalogItem, answers: RecommendationAnswers, que
 
   if (answers.purposeId === 'gift' && item.kind === 'gift-set') score += 6
   if (answers.purposeId !== 'gift' && item.kind === 'product') score += 2
-  if (answers.purposeId === 'health' && text.includes('boi bo')) score += 3
-  if (answers.purposeId === 'male' && /minh mang|ba kich|sinh luc/.test(text)) score += 4
-  if (answers.purposeId === 'daily' && /ruou nep|truyen thong|gia de/.test(text)) score += 4
+  if (answers.purposeId === 'health' && /boi bo|duoc lieu|sam/.test(text)) score += 3
+  if (answers.purposeId === 'male' && /minh mang|ba kich|sinh luc|nam gioi/.test(text)) score += 4
+  if (answers.purposeId === 'daily' && /ruou nep|truyen thong|de uong/.test(text)) score += 4
 
   if (answers.preferenceId === 'premium' && item.kind === 'gift-set') score += 2
   if (answers.preferenceId === 'easy' && /de uong|thom|nhe/.test(text)) score += 2
@@ -348,8 +343,7 @@ export interface MatchProductsInput {
   query?: string
 }
 
-/** Core recommendation: match products and gift sets by intent + optional budget/preference */
-export function matchProducts(input: MatchProductsInput): RecommendationItem[] {
+export function matchProducts(catalog: RecommendationItem[], input: MatchProductsInput): RecommendationItem[] {
   const answers: RecommendationAnswers = {
     purposeId: input.intent,
     budgetId: input.budget ?? 'unknown',
@@ -357,7 +351,6 @@ export function matchProducts(input: MatchProductsInput): RecommendationItem[] {
   }
 
   const budget = getBudget(answers.budgetId)
-  const catalog = getCatalogItems()
   const nameMatches = input.query ? detectNamedSlugs(input.query) : []
   let candidatePool = catalog
 
@@ -373,7 +366,8 @@ export function matchProducts(input: MatchProductsInput): RecommendationItem[] {
 
   return [...candidatePool]
     .sort((left, right) => {
-      const scoreDelta = scoreCatalogItem(right, answers, input.query) - scoreCatalogItem(left, answers, input.query)
+      const scoreDelta =
+        scoreCatalogItem(right, answers, input.query) - scoreCatalogItem(left, answers, input.query)
       if (scoreDelta !== 0) return scoreDelta
 
       const nameDelta = Number(nameMatches.includes(right.slug)) - Number(nameMatches.includes(left.slug))
@@ -387,16 +381,13 @@ export function matchProducts(input: MatchProductsInput): RecommendationItem[] {
     .slice(0, 3)
 }
 
-/** Legacy function for step-based flow */
-export function recommendProducts(answers: RecommendationAnswers): RecommendationItem[] {
-  return matchProducts({
+export function recommendProducts(catalog: RecommendationItem[], answers: RecommendationAnswers): RecommendationItem[] {
+  return matchProducts(catalog, {
     intent: answers.purposeId,
     budget: answers.budgetId === 'unknown' ? undefined : answers.budgetId,
     preference: answers.preferenceId,
   })
 }
-
-/* ─── Legacy matchers for option-button fallback ── */
 
 export function matchPurposeInput(input: string): PurposeId | null {
   const intent = detectIntent(input)

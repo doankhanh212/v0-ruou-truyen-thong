@@ -9,6 +9,11 @@ const nextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+  async redirects() {
+    return [
+      { source: '/bang-gia', destination: '/san-pham', permanent: true },
+    ]
+  },
 }
 
 export default nextConfig

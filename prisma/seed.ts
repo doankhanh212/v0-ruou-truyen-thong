@@ -12,7 +12,7 @@ async function main() {
       priceOld: 180000,
       category: "ruou-nep",
       description: "Rượu nếp than truyền thống, hương vị đậm đà, thơm nồng đặc trưng vùng sông nước Cửu Long.",
-      imageUrl: "/images/products/ruou-nep-than.jpg",
+      imageUrl: "/catalog/ruou-nep-poster.jpg",
       tags: ["biếu", "đặc sản"],
       inStock: true,
       featured: true,
@@ -28,7 +28,7 @@ async function main() {
       priceOld: 300000,
       category: "ruou-nep",
       description: "Rượu nếp cái hoa vàng thượng hạng, vị ngọt êm, dễ uống.",
-      imageUrl: "/images/products/ruou-nep-cai-hoa-vang.jpg",
+      imageUrl: "/catalog/ruou-nep-poster.jpg",
       tags: ["uống", "đặc sản"],
       inStock: true,
       featured: true,
@@ -44,7 +44,7 @@ async function main() {
       priceOld: 850000,
       category: "ruou-thuoc",
       description: "Minh Mạng Tửu kết hợp rượu truyền thống với dược liệu quý, chế tác theo bài thuốc cổ phương.",
-      imageUrl: "/images/products/ruou-minh-mang.jpg",
+      imageUrl: "/catalog/minh-mang-tuu-bottle.jpg",
       tags: ["sức khỏe", "biếu"],
       inStock: true,
       featured: true,
@@ -60,7 +60,7 @@ async function main() {
       priceOld: 1500000,
       category: "ruou-thuoc",
       description: "Tây dương sâm kết hợp nhụy hoa nghệ tây, dược liệu quý trong Đông y.",
-      imageUrl: "/images/products/ruou-tay-duong-sam.jpg",
+      imageUrl: "/catalog/tay-duong-sam-tuu-bottle.jpg",
       tags: ["cao cấp", "sức khỏe", "biếu"],
       inStock: true,
       featured: true,
@@ -75,7 +75,7 @@ async function main() {
       price: 120000,
       category: "ruou-trai-cay",
       description: "Rượu mận ngọt dịu, thích hợp cho phái nữ và những ai thích vị nhẹ.",
-      imageUrl: "/images/products/ruou-man.jpg",
+      imageUrl: "/catalog/hoang-hoa-tuu-bottle.jpg",
       tags: ["nhẹ", "trái cây"],
       inStock: true,
       featured: false,
@@ -90,7 +90,7 @@ async function main() {
       price: 130000,
       category: "ruou-trai-cay",
       description: "Rượu dâu tằm đỏ thẫm, vị chua ngọt tự nhiên, bổ dưỡng.",
-      imageUrl: "/images/products/ruou-dau-tam.jpg",
+      imageUrl: "/catalog/ruou-ba-kich-poster.jpg",
       tags: ["nhẹ", "sức khỏe", "trái cây"],
       inStock: true,
       featured: false,
@@ -106,7 +106,7 @@ async function main() {
       priceOld: 320000,
       category: "ruou-nep",
       description: "Phiên bản 1 lít của rượu nếp than truyền thống.",
-      imageUrl: "/images/products/ruou-nep-than-1l.jpg",
+      imageUrl: "/catalog/ruou-nep-poster.jpg",
       tags: ["đặc sản", "uống"],
       inStock: true,
       featured: false,
@@ -122,7 +122,7 @@ async function main() {
       priceOld: 3000000,
       category: "qua-tang",
       description: "Hộp quà sang trọng gồm Tây Dương Sâm Tửu + Minh Mạng Tửu, phù hợp biếu tặng.",
-      imageUrl: "/images/products/combo-cao-cap.jpg",
+      imageUrl: "/catalog/bo-qua-tang-cat-tuong-thinh-vuong.jpg",
       tags: ["biếu", "cao cấp", "combo"],
       inStock: true,
       featured: true,
@@ -137,7 +137,7 @@ async function main() {
       price: 1800000,
       category: "ruou-thuoc",
       description: "Rượu ngâm đông trùng hạ thảo quý hiếm, dược liệu nổi tiếng trong Đông y.",
-      imageUrl: "/images/products/ruou-dong-trung.jpg",
+      imageUrl: "/catalog/hoang-hoa-tuu-poster.jpg",
       tags: ["cao cấp", "sức khỏe"],
       inStock: true,
       featured: false,
@@ -153,7 +153,7 @@ async function main() {
       priceOld: 600000,
       category: "qua-tang",
       description: "Hộp quà phổ thông gồm 2 chai rượu nếp, túi xách đẹp.",
-      imageUrl: "/images/products/combo-pho-thong.jpg",
+      imageUrl: "/catalog/bo-qua-tang-loc-xuan.jpg",
       tags: ["biếu", "combo"],
       inStock: true,
       featured: false,
@@ -164,11 +164,38 @@ async function main() {
     },
   ];
 
+  // Resolve category FK from slug
+  const categorySlugs = [...new Set(products.map((p) => p.category))];
+  for (const slug of categorySlugs) {
+    await prisma.category.upsert({
+      where: { slug },
+      update: {},
+      create: {
+        slug,
+        name: slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+        isActive: true,
+        isDeleted: false,
+      },
+    });
+  }
+  const categoryRows = await prisma.category.findMany({
+    where: { slug: { in: categorySlugs } },
+    select: { id: true, slug: true },
+  });
+  const categoryBySlug = new Map(categoryRows.map((c) => [c.slug, c.id]));
+
   for (const p of products) {
+    const categoryId = categoryBySlug.get(p.category);
+    if (!categoryId) {
+      console.warn(`[seed] skipping ${p.slug} - no category ${p.category}`);
+      continue;
+    }
+    const { category: _legacySlug, ...rest } = p;
+    const data = { ...rest, category: _legacySlug, categoryId };
     await prisma.product.upsert({
       where: { slug: p.slug },
-      update: p,
-      create: p,
+      update: data,
+      create: data,
     });
   }
   console.log(`Seeded ${products.length} products`);

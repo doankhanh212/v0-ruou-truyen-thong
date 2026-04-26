@@ -2,8 +2,13 @@
 
 import Link from 'next/link'
 import { FanpageWidget } from '@/components/fanpage'
+import { track } from '@/utils/track'
 
-export function Footer() {
+interface FooterProps {
+  fanpageUrl?: string
+}
+
+export function Footer({ fanpageUrl }: FooterProps = {}) {
   const currentYear = new Date().getFullYear()
 
   return (
@@ -33,8 +38,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/bang-gia" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
-                  Bảng Giá
+                <Link href="/news" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
+                  Tin Tức
                 </Link>
               </li>
               <li>
@@ -59,6 +64,7 @@ export function Footer() {
                   href="https://zalo.me/84902931119"
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => track('click_zalo', { source: 'footer' })}
                   className="hover:text-white transition-colors"
                 >
                   📱 0909 799 311 – 0902 931 119
@@ -99,7 +105,7 @@ export function Footer() {
 
           <div className="sm:col-span-2 xl:col-span-1">
             <h4 className="mb-4 font-bold">Fanpage</h4>
-            <FanpageWidget />
+            <FanpageWidget fanpageUrl={fanpageUrl} compact />
           </div>
         </div>
 

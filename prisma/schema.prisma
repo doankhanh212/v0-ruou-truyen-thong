@@ -8,27 +8,62 @@ datasource db {
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   name        String
-  slug        String   @unique
+  slug        String          @unique
   price       Int
   priceOld    Int?
   category    String
-  description String?  @db.Text
-  imageUrl    String
+  categoryId  Int
+  description String?         @db.Text
+  imageUrl    String?
   tags        String[]
-  inStock     Boolean  @default(true)
-  featured    Boolean  @default(false)
-  sortOrder   Int      @default(0)
+  inStock     Boolean         @default(true)
+  featured    Boolean         @default(false)
+  isDeleted   Boolean         @default(false)
+  sortOrder   Int             @default(0)
   volume      String?
   alcohol     Float?
   origin      String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  categoryRel Category        @relation(fields: [categoryId], references: [id])
+  images      ProductImage[]
 
   @@index([category])
+  @@index([categoryId])
   @@index([inStock])
+  @@index([isDeleted, inStock])
   @@index([category, featured])
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  slug      String    @unique
+  isActive  Boolean   @default(true)
+  isDeleted Boolean   @default(false)
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  products  Product[]
+
+  @@index([slug, isActive])
+  @@index([isDeleted, isActive, sortOrder])
+}
+
+model ProductImage {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  url       String
+  isPrimary Boolean  @default(false)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
 }
 
 model ChatbotRule {
@@ -64,4 +99,92 @@ model AdminSession {
   token     String   @unique
   expiresAt DateTime
   createdAt DateTime @default(now())
+  // Legacy model retained for migration compatibility.
+  // Runtime admin authentication uses iron-session cookies only.
+}
+
+model Setting {
+  key   String @id
+  value String @db.Text
+}
+
+model Media {
+  id        Int      @id @default(autoincrement())
+  type      String
+  url       String
+  title     String?
+  createdAt DateTime @default(now())
+
+  @@index([type])
+}
+
+model Page {
+  id              Int      @id @default(autoincrement())
+  slug            String   @unique
+  title           String
+  content         String   @db.Text
+  isActive        Boolean  @default(true)
+  isPublished     Boolean  @default(true)
+  metaTitle       String?
+  metaDescription String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([slug, isActive, isPublished])
+}
+
+model Banner {
+  id        Int      @id @default(autoincrement())
+  title     String?
+  subtitle  String?  @db.Text
+  imageUrl  String
+  linkUrl   String?
+  position  String   @default("home_hero")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([position, isActive, sortOrder])
+}
+
+model Section {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  title     String?
+  body      String   @db.Text
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@index([key, isActive])
+}
+
+model Post {
+  id              Int      @id @default(autoincrement())
+  title           String
+  slug            String   @unique
+  content         String   @db.Text
+  image           String?
+  isPublished     Boolean  @default(true)
+  isDeleted       Boolean  @default(false)
+  metaTitle       String?
+  metaDescription String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([slug, isPublished])
+  @@index([isDeleted, isPublished, createdAt])
+  @@index([createdAt])
+}
+
+model ChatbotScript {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  content   String   @db.Text
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key, isActive])
 }

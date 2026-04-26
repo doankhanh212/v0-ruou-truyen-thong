@@ -66,6 +66,7 @@ export function Story() {
                 src="/story-tradition.jpg"
                 alt="Truyền thống rượu thuốc Việt Nam"
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
               />
             </div>

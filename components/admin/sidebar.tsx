@@ -2,13 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Bot, Activity } from "lucide-react";
+import { LayoutDashboard, Package, Bot, Activity, Settings, ImageIcon, FileText, FolderTree, Newspaper, Megaphone, LayoutTemplate, BarChart2 } from "lucide-react";
 
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/categories", label: "Danh mục", icon: FolderTree },
   { href: "/admin/products", label: "Sản phẩm", icon: Package },
+  { href: "/admin/posts", label: "Tin tức", icon: Newspaper },
+  { href: "/admin/pages", label: "Trang CMS", icon: FileText },
+  { href: "/admin/sections", label: "Nội dung Section", icon: LayoutTemplate },
+  { href: "/admin/banner", label: "Banner", icon: Megaphone },
   { href: "/admin/rules", label: "Chatbot Rules", icon: Bot },
+  { href: "/admin/media", label: "Media", icon: ImageIcon },
+  { href: "/admin/settings", label: "Cài đặt", icon: Settings },
   { href: "/admin/tracking", label: "Tracking", icon: Activity },
+  { href: "/admin/analytics", label: "Phân tích", icon: BarChart2 },
 ];
 
 export function AdminSidebar() {

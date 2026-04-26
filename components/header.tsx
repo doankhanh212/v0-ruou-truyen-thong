@@ -5,16 +5,22 @@ import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { ZALO_PHONE } from '@/utils/zalo'
+import { track } from '@/utils/track'
 
 const NAV_LINKS = [
   { href: '/', label: 'Trang chủ' },
   { href: '/san-pham', label: 'Sản phẩm' },
-  { href: '/bang-gia', label: 'Bảng giá' },
+  { href: '/news', label: 'Tin tức' },
   { href: '/gioi-thieu', label: 'Giới thiệu' },
   { href: '/lien-he', label: 'Liên hệ' },
 ]
 
-export function Header() {
+interface HeaderProps {
+  zaloUrl?: string
+}
+
+export function Header({ zaloUrl }: HeaderProps = {}) {
+  const zaloHref = zaloUrl?.trim() || `https://zalo.me/${ZALO_PHONE}`
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
 
@@ -55,9 +61,10 @@ export function Header() {
             </Link>
           ))}
           <a
-            href={`https://zalo.me/${ZALO_PHONE}`}
+            href={zaloHref}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => track('click_zalo', { source: 'header_desktop' })}
             className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#0068FF] px-6 py-2 text-white transition-colors hover:bg-[#0057d6]"
           >
             Chat Zalo
@@ -94,9 +101,10 @@ export function Header() {
               </Link>
             ))}
             <a
-              href={`https://zalo.me/${ZALO_PHONE}`}
+              href={zaloHref}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => track('click_zalo', { source: 'header_mobile' })}
               className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-[#0068FF] px-4 py-2 text-center text-white transition-colors hover:bg-[#0057d6]"
             >
               Chat Zalo

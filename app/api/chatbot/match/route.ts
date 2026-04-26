@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/lib/db";
-import { getCachedProducts } from "@/lib/product-cache";
 import {
   detectBudget,
   detectIntent,
@@ -9,66 +9,24 @@ import {
   type IntentId,
   type PreferenceId,
 } from "@/lib/chatbot-rules";
-import { matchProductsFromDb } from "@/lib/chatbot-db";
+import { rateLimit } from "@/lib/rate-limit";
 
-const INTENT_INTRO: Record<IntentId, string> = {
-  gift: "Với nhu cầu biếu tặng, bên mình xin gợi ý vài bộ quà hiện đang có sẵn, hỗ trợ giao nhanh và đóng gói chỉn chu — rất phù hợp biếu đối tác, gia đình",
-  health: "Về dòng bồi bổ, theo Đông y các dược liệu trong các sản phẩm này thường được sử dụng để hỗ trợ sức khỏe. Bên mình hiện đang có sẵn hàng, hỗ trợ giao nhanh",
-  male: "Cho nam giới, Cửu Long có các dòng cổ phương thường được sử dụng để hỗ trợ sinh lực, hiện đang có sẵn và hỗ trợ giao nhanh trong ngày",
-  daily: "Nếu anh/chị dùng hằng ngày, các dòng rượu nếp truyền thống vừa êm vừa hợp túi tiền, hiện đang có sẵn và hỗ trợ giao nhanh",
-  unknown: "Dựa trên catalog hiện tại, bên mình xin gợi ý vài lựa chọn được nhiều khách chọn nhất — các mẫu này hiện đang có sẵn, hỗ trợ giao nhanh",
-};
+// --- Rate limit -----------------------------------------------------------
+const RATE_LIMIT = { limit: 20, windowSeconds: 60 };
 
-const BUDGET_NOTE: Record<Exclude<BudgetId, "unknown">, string> = {
-  "under-1m": "(trong tầm giá dưới 1 triệu)",
-  "between-1m-2m": "(khoảng 1–2 triệu)",
-  "over-2m": "(phân khúc trên 2 triệu, cao cấp hơn)",
-};
-
-const PREFERENCE_NOTE: Record<PreferenceId, string> = {
-  premium: "ưu tiên cảm giác sang trọng",
-  easy: "thiên hướng dễ uống, nhẹ nhàng",
-  traditional: "giữ nguyên phong vị truyền thống",
-  strength: "nhấn mạnh cổ phương nam giới",
-};
-
-function buildMessage(
-  intent: IntentId,
-  budget: BudgetId,
-  preference: PreferenceId | null,
-  itemNames: string[]
-) {
-  const intro = INTENT_INTRO[intent] ?? INTENT_INTRO.unknown;
-  const budgetText = budget !== "unknown" ? ` ${BUDGET_NOTE[budget]}` : "";
-  const prefText = preference ? `, ${PREFERENCE_NOTE[preference]}` : "";
-  const list = itemNames.length > 0 ? `: ${itemNames.join(", ")}` : "";
-  const nudge = " Anh/chị nhắn Zalo để mình tư vấn kỹ hơn và giữ giá tốt nhất trong hôm nay nhé.";
-  return `${intro}${budgetText}${prefText}${list}.${nudge}`;
+function clientIp(headers: Headers): string {
+  const fwd = headers.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0].trim();
+  return headers.get("x-real-ip") || "127.0.0.1";
 }
 
-const FOLLOW_UP: Record<IntentId, string> = {
-  gift: "Anh/chị đang cần biếu dịp nào ạ — Tết, sinh nhật sếp hay quà doanh nghiệp? Cho mình biết để chọn bộ ưng ý nhất và gửi báo giá theo số lượng nhé.",
-  health: "Anh/chị mua dùng cho bản thân hay biếu ạ? Nhắn giúp mình độ tuổi và mong muốn, mình sẽ tư vấn liều dùng phù hợp và giữ hàng trước.",
-  male: "Anh/chị đang ưu tiên hương vị cổ phương hay thiên hướng dễ uống hơn? Nhắn Zalo để mình chọn đúng dòng và gửi giá ưu đãi theo số lượng.",
-  daily: "Anh/chị thường dùng trong bữa cơm hay dịp tụ họp ạ? Cho mình biết dung tích ưng ý, mình sẽ chốt mẫu hợp khẩu vị và báo giá tốt nhất.",
-  unknown: "Anh/chị cho mình biết đang cần cho dịp gì hoặc khoảng ngân sách nhé, mình sẽ chọn mẫu chuẩn và gửi báo giá ưu đãi qua Zalo ngay.",
-};
-
-const SECONDARY_PUSH: Record<IntentId, string> = {
-  gift: "Các bộ quà hiện đang có sẵn, hỗ trợ giao nhanh trong ngày và tặng kèm túi quà sang trọng. Anh/chị bấm Zalo bên dưới để mình giữ hàng trước giúp nhé.",
-  health: "Các dòng này theo Đông y thường được sử dụng để hỗ trợ sức khỏe, hiện có sẵn số lượng giới hạn. Anh/chị nhắn Zalo để mình tư vấn kỹ hơn và chốt hàng sớm.",
-  male: "Các mẫu cổ phương này đang được nhiều khách đặt, hỗ trợ giao nhanh. Anh/chị bấm Zalo để mình giữ giá ưu đãi và gửi thêm review thực tế nhé.",
-  daily: "Đây là các dòng bán chạy, đang có sẵn, hỗ trợ giao nhanh trong ngày. Anh/chị bấm Zalo để mình báo giá tốt theo số lượng nhé.",
-  unknown: "Nếu chưa chốt được mẫu, anh/chị cứ nhắn Zalo, bên mình sẽ gợi ý thêm theo ngân sách và dịp sử dụng cụ thể.",
-};
-
-const CTA_TEXT: Record<IntentId, string> = {
-  gift: "Nhắn Zalo để giữ bộ quà và được gói quà miễn phí",
-  health: "Nhắn Zalo để được tư vấn dòng phù hợp và giữ giá ưu đãi",
-  male: "Nhắn Zalo để tư vấn riêng và nhận giá tốt theo số lượng",
-  daily: "Nhắn Zalo để chốt giá tốt và hỗ trợ giao nhanh trong hôm nay",
-  unknown: "Nhắn Zalo để được tư vấn chi tiết và hỗ trợ giao nhanh",
-};
+// --- Input validation -----------------------------------------------------
+const MatchInput = z.object({
+  query: z.string().max(500).optional(),
+  purpose: z.string().max(40).optional(),
+  budget: z.string().max(40).optional(),
+  preference: z.string().max(40).optional(),
+});
 
 function normalizeBudget(raw: string | undefined): BudgetId | undefined {
   if (!raw) return undefined;
@@ -88,72 +46,220 @@ function normalizeIntent(raw: string | undefined): IntentId | undefined {
   return detectIntent(raw);
 }
 
-export async function POST(request: NextRequest) {
-  const body = await request.json().catch(() => ({}));
-  const { query, purpose, budget, preference } = body as {
-    query?: string;
-    purpose?: string;
-    budget?: string;
-    preference?: string;
+const INTENT_TO_PURPOSE: Record<IntentId, string> = {
+  gift: "bieu",
+  health: "suc-khoe",
+  male: "suc-khoe",
+  daily: "uong",
+  unknown: "any",
+};
+
+const INTENT_TO_CATEGORY_SLUGS: Record<IntentId, string[] | null> = {
+  gift: ["qua-tang"],
+  health: ["ruou-thuoc"],
+  male: ["ruou-thuoc"],
+  daily: ["ruou-nep", "ruou-trai-cay"],
+  unknown: null,
+};
+
+const BUDGET_RANGE: Record<Exclude<BudgetId, "unknown">, { min: number; max: number }> = {
+  "under-1m": { min: 0, max: 1_000_000 },
+  "between-1m-2m": { min: 1_000_000, max: 2_000_000 },
+  "over-2m": { min: 2_000_000, max: 9_999_999_999 },
+};
+
+// --- Script loader --------------------------------------------------------
+async function loadScripts(keys: string[]): Promise<Record<string, string>> {
+  const rows = await db.chatbotScript.findMany({
+    where: { key: { in: keys }, isActive: true },
+    select: { key: true, content: true },
+  });
+  const map: Record<string, string> = {};
+  for (const row of rows) map[row.key] = row.content;
+  return map;
+}
+
+function script(
+  map: Record<string, string>,
+  key: string,
+  fallback = ""
+): string {
+  return map[key]?.trim() || fallback;
+}
+
+// --- Product matcher ------------------------------------------------------
+async function matchProducts(input: {
+  intent: IntentId;
+  budget: BudgetId;
+  preference: PreferenceId | null;
+  query?: string;
+}) {
+  // 1) Admin override via ChatbotRule (highest priority)
+  const rules = await db.chatbotRule.findMany({
+    where: { isActive: true },
+    orderBy: [{ priority: "desc" }],
+  });
+  const purposeKey = INTENT_TO_PURPOSE[input.intent];
+  const budgetProbe = input.budget !== "unknown" ? BUDGET_RANGE[input.budget] : null;
+
+  for (const rule of rules) {
+    if (rule.purpose !== "any" && rule.purpose !== purposeKey) continue;
+    if (rule.preference && rule.preference !== "any" && input.preference && rule.preference !== input.preference) continue;
+    if (budgetProbe) {
+      if (rule.budgetMin !== null && budgetProbe.max < rule.budgetMin) continue;
+      if (rule.budgetMax !== null && budgetProbe.min > rule.budgetMax) continue;
+    }
+    if (rule.recommendedProducts.length > 0) {
+      const products = await db.product.findMany({
+        where: {
+          id: { in: rule.recommendedProducts },
+          inStock: true,
+          isDeleted: false,
+        },
+        include: { categoryRel: { select: { slug: true, name: true } } },
+      });
+      if (products.length > 0) {
+        const ordered = rule.recommendedProducts
+          .map((id) => products.find((p) => p.id === id))
+          .filter((p): p is (typeof products)[number] => Boolean(p))
+          .slice(0, 3);
+        return { items: ordered, overriddenByRuleId: rule.id };
+      }
+    }
+  }
+
+  // 2) Heuristic match from DB
+  const categorySlugs = INTENT_TO_CATEGORY_SLUGS[input.intent];
+  const where: Record<string, unknown> = {
+    inStock: true,
+    isDeleted: false,
   };
-
-  let intent: IntentId = "unknown";
-  let budgetId: BudgetId = "unknown";
-  let preferenceId: PreferenceId | null = null;
-
-  if (query && typeof query === "string" && query.trim().length > 0) {
-    intent = detectIntent(query);
-    budgetId = detectBudget(query);
-    preferenceId = detectPreference(query);
+  if (categorySlugs) {
+    where.categoryRel = { slug: { in: categorySlugs } };
+  }
+  if (budgetProbe) {
+    where.price = { gte: budgetProbe.min, lte: budgetProbe.max };
   }
 
-  const fallbackIntent = normalizeIntent(purpose);
-  if (intent === "unknown" && fallbackIntent) intent = fallbackIntent;
+  const items = await db.product.findMany({
+    where,
+    orderBy: [{ featured: "desc" }, { sortOrder: "asc" }, { createdAt: "desc" }],
+    take: 3,
+    include: { categoryRel: { select: { slug: true, name: true } } },
+  });
 
-  const fallbackBudget = normalizeBudget(budget);
-  if (budgetId === "unknown" && fallbackBudget) budgetId = fallbackBudget;
+  return { items, overriddenByRuleId: null };
+}
 
-  if (!preferenceId) {
-    const fallbackPref = normalizePreference(preference);
-    if (fallbackPref) preferenceId = fallbackPref;
+// --- Route handler --------------------------------------------------------
+export async function POST(request: NextRequest) {
+  const ip = clientIp(request.headers);
+  const result = await rateLimit(`chatbot:${ip}`, RATE_LIMIT.limit, RATE_LIMIT.windowSeconds);
+  if (!result.success) {
+    return NextResponse.json(
+      { error: "Quá nhiều yêu cầu. Vui lòng thử lại sau ít phút." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(RATE_LIMIT.windowSeconds),
+          "X-RateLimit-Limit": String(result.limit),
+          "X-RateLimit-Remaining": "0",
+        },
+      }
+    );
   }
 
-  const [products, rules] = await Promise.all([
-    getCachedProducts(),
-    db.chatbotRule.findMany({ where: { isActive: true } }),
-  ]);
+  try {
+    const rawBody = await request.json().catch(() => ({}));
+    const parsed = MatchInput.safeParse(rawBody);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Dữ liệu không hợp lệ" }, { status: 400 });
+    }
+    const { query, purpose, budget, preference } = parsed.data;
 
-  const { items, overriddenByRule } = matchProductsFromDb(products, rules, {
-    query: query?.trim() || undefined,
-    intent,
-    budget: budgetId,
-    preference: preferenceId,
-  });
+    let intent: IntentId = "unknown";
+    let budgetId: BudgetId = "unknown";
+    let preferenceId: PreferenceId | null = null;
 
-  const zaloPhone = process.env.ZALO_PHONE || "0000000000";
-  const topNames = items.map((p) => p.name);
-  const zaloText = items.length
-    ? `Xin chào, mình muốn tư vấn: ${topNames.join(", ")}`
-    : "Xin chào, mình cần tư vấn chọn rượu phù hợp";
-  const zaloCTA = `https://zalo.me/${zaloPhone}?text=${encodeURIComponent(zaloText)}`;
+    if (query && query.trim()) {
+      intent = detectIntent(query);
+      budgetId = detectBudget(query);
+      preferenceId = detectPreference(query);
+    }
+    if (intent === "unknown") {
+      const fallback = normalizeIntent(purpose);
+      if (fallback) intent = fallback;
+    }
+    if (budgetId === "unknown") {
+      const fallback = normalizeBudget(budget);
+      if (fallback) budgetId = fallback;
+    }
+    if (!preferenceId) {
+      const fallback = normalizePreference(preference);
+      if (fallback) preferenceId = fallback;
+    }
 
-  const matched = items.length > 0;
-  const message = buildMessage(intent, budgetId, preferenceId, topNames);
-  const followUp = FOLLOW_UP[intent] ?? FOLLOW_UP.unknown;
-  const secondaryPush = SECONDARY_PUSH[intent] ?? SECONDARY_PUSH.unknown;
-  const ctaText = CTA_TEXT[intent] ?? CTA_TEXT.unknown;
+    const { items, overriddenByRuleId } = await matchProducts({
+      intent,
+      budget: budgetId,
+      preference: preferenceId,
+      query: query?.trim() || undefined,
+    });
 
-  return NextResponse.json({
-    matched,
-    intent,
-    budget: budgetId,
-    preference: preferenceId,
-    overriddenByRule: overriddenByRule ? overriddenByRule.id : null,
-    items,
-    message,
-    followUp,
-    secondaryPush,
-    ctaText,
-    zaloCTA,
-  });
+    const scripts = await loadScripts([
+      `intent.intro.${intent}`,
+      `intent.followup.${intent}`,
+      `intent.cta.${intent}`,
+      "intent.intro.unknown",
+      "intent.followup.unknown",
+      "intent.cta.unknown",
+    ]);
+
+    const intro = script(scripts, `intent.intro.${intent}`, script(scripts, "intent.intro.unknown"));
+    const followUp = script(scripts, `intent.followup.${intent}`, script(scripts, "intent.followup.unknown"));
+    const ctaText = script(scripts, `intent.cta.${intent}`, script(scripts, "intent.cta.unknown"));
+
+    const zaloPhone = process.env.ZALO_PHONE || "";
+    const topNames = items.map((p) => p.name);
+    const zaloText = items.length
+      ? `Xin chào, mình muốn tư vấn: ${topNames.join(", ")}`
+      : "Xin chào, mình cần tư vấn chọn rượu phù hợp";
+    const zaloCTA = zaloPhone
+      ? `https://zalo.me/${zaloPhone}?text=${encodeURIComponent(zaloText)}`
+      : null;
+
+    return NextResponse.json(
+      {
+        matched: items.length > 0,
+        intent,
+        budget: budgetId,
+        preference: preferenceId,
+        overriddenByRule: overriddenByRuleId,
+        items: items.map((p) => ({
+          id: p.id,
+          slug: p.slug,
+          name: p.name,
+          price: p.price,
+          image: p.imageUrl,
+          category: p.categoryRel?.slug ?? null,
+        })),
+        intro,
+        followUp,
+        ctaText,
+        zaloCTA,
+      },
+      {
+        headers: {
+          "X-RateLimit-Limit": String(result.limit),
+          "X-RateLimit-Remaining": String(result.remaining),
+        },
+      }
+    );
+  } catch (error) {
+    console.error("[chatbot/match]", error);
+    return NextResponse.json(
+      { error: "Không thể tải tư vấn" },
+      { status: 500 }
+    );
+  }
 }

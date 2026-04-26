@@ -1,32 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { listCatalogProducts } from "@/lib/catalog-service";
+import { z } from "zod";
+import { rateLimit } from "@/lib/rate-limit";
+
+export const revalidate = 60; // Next.js App Router cache standard
+
+const querySchema = z.object({
+  category: z.string().optional(),
+  featured: z.enum(["true", "false"]).optional(),
+  search: z.string().max(100).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(50).default(12),
+});
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = request.nextUrl;
-  const category = searchParams.get("category");
-  const featured = searchParams.get("featured");
-  const search = (searchParams.get("q") || searchParams.get("search"))?.trim();
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
-  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "12")));
-  const skip = (page - 1) * limit;
+  try {
+    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "127.0.0.1";
+    const { success } = await rateLimit(`products_api_${ip}`, 30, 60);
 
-  const where: Record<string, unknown> = { inStock: true };
-  if (category) where.category = category;
-  if (featured === "true") where.featured = true;
-  if (search) where.name = { contains: search, mode: "insensitive" };
+    if (!success) {
+      return NextResponse.json({ error: "Too Many Requests" }, { status: 429 });
+    }
 
-  const [products, total] = await Promise.all([
-    db.product.findMany({
-      where,
-      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-      skip,
-      take: limit,
-    }),
-    db.product.count({ where }),
-  ]);
+    const { searchParams } = request.nextUrl;
+    
+    const parsedQuery = querySchema.safeParse({
+      category: searchParams.get("category") || undefined,
+      featured: searchParams.get("featured") || undefined,
+      search: (searchParams.get("q") || searchParams.get("search"))?.trim() || undefined,
+      page: searchParams.get("page") || undefined,
+      limit: searchParams.get("limit") || undefined,
+    });
 
-  return NextResponse.json(
-    { products, total, page, totalPages: Math.ceil(total / limit) },
-    { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } }
-  );
+    if (!parsedQuery.success) {
+      console.warn(JSON.stringify({ route: "/api/products", error: "Validation Failed", details: parsedQuery.error.format() }));
+      return NextResponse.json({ error: "Invalid parameters" }, { status: 400 });
+    }
+
+    const { category, featured, search, page, limit } = parsedQuery.data;
+
+    const response = await listCatalogProducts({
+      category,
+      featured: featured === "true",
+      search,
+      page,
+      limit,
+    });
+
+    return NextResponse.json(response);
+  } catch (error) {
+    console.error(JSON.stringify({ route: "/api/products", method: "GET", error: error instanceof Error ? error.message : String(error) }));
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }

@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { ExternalLink, MessageCircle, Share2, ThumbsUp } from 'lucide-react'
 
-const FACEBOOK_URL = 'https://www.facebook.com/cuulongmytuu'
+const DEFAULT_FACEBOOK_URL = 'https://www.facebook.com/cuulongmytuu'
 
 const SAMPLE_POSTS = [
   {
@@ -22,7 +22,66 @@ const SAMPLE_POSTS = [
   },
 ]
 
-export function FanpageWidget() {
+interface FanpageWidgetProps {
+  fanpageUrl?: string
+  compact?: boolean
+}
+
+export function FanpageWidget({ fanpageUrl, compact = false }: FanpageWidgetProps = {}) {
+  const FACEBOOK_URL = fanpageUrl?.trim() || DEFAULT_FACEBOOK_URL
+
+  if (compact) {
+    return (
+      <div className="overflow-hidden rounded-2xl border border-white/15 bg-white text-slate-900 shadow-lg">
+        <div className="relative h-20 bg-[#dfe9f7]">
+          <Image
+            src="/catalog/ruou-truyen-thong-cover.jpg"
+            alt="Cover fanpage Cửu Long Mỹ Tửu"
+            fill
+            sizes="(max-width: 768px) 100vw, 400px"
+            className="object-cover opacity-90"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/25 via-transparent to-transparent" />
+        </div>
+        <div className="px-3 pb-3 pt-2">
+          <div className="-mt-7 flex items-end gap-2.5">
+            <div className="relative h-14 w-14 overflow-hidden rounded-xl border-4 border-white bg-white shadow-sm">
+              <Image
+                src="/catalog/cuu-long-my-tuu-cover.jpg"
+                alt="Avatar fanpage Cửu Long Mỹ Tửu"
+                fill
+                sizes="80px"
+                className="object-cover"
+              />
+            </div>
+            <div className="min-w-0 flex-1 pb-0.5">
+              <h3 className="truncate text-sm font-bold text-slate-900">Cửu Long Mỹ Tửu</h3>
+              <p className="text-xs text-slate-500">30.8K người theo dõi</p>
+            </div>
+          </div>
+          <a
+            href={FACEBOOK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#1877F2] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#166FE5]"
+          >
+            <ThumbsUp size={14} />
+            Theo dõi Trang
+          </a>
+          <a
+            href={FACEBOOK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[#1877F2] hover:underline"
+          >
+            Xem fanpage
+            <ExternalLink size={12} />
+          </a>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="overflow-hidden rounded-[24px] border border-white/15 bg-[#f0f2f5] p-3 shadow-[0_16px_40px_rgba(0,0,0,0.2)]">
       <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
@@ -35,6 +94,7 @@ export function FanpageWidget() {
             src="/catalog/ruou-truyen-thong-cover.jpg"
             alt="Cover fanpage Cửu Long Mỹ Tửu"
             fill
+            sizes="(max-width: 768px) 100vw, 400px"
             className="object-cover opacity-90"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 via-transparent to-transparent" />
@@ -47,6 +107,7 @@ export function FanpageWidget() {
                 src="/catalog/cuu-long-my-tuu-cover.jpg"
                 alt="Avatar fanpage Cửu Long Mỹ Tửu"
                 fill
+                sizes="80px"
                 className="object-cover"
               />
             </div>
@@ -89,6 +150,7 @@ export function FanpageWidget() {
                         src="/catalog/cuu-long-my-tuu-cover.jpg"
                         alt="Avatar bài viết Cửu Long Mỹ Tửu"
                         fill
+                        sizes="40px"
                         className="object-cover"
                       />
                     </div>
@@ -102,7 +164,7 @@ export function FanpageWidget() {
 
                   {post.image && (
                     <div className="relative aspect-[16/10] bg-slate-100">
-                      <Image src={post.image} alt="Bài viết fanpage Cửu Long Mỹ Tửu" fill className="object-cover" />
+                      <Image src={post.image} alt="Bài viết fanpage Cửu Long Mỹ Tửu" fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover" />
                     </div>
                   )}
 

@@ -5,17 +5,17 @@ import Link from 'next/link'
 import { Flame, TrendingUp, MessageCircle } from 'lucide-react'
 import { openZalo } from '@/utils/zalo'
 import { track } from '@/utils/track'
-import type { CatalogItem } from '@/data/products'
+import type { CatalogProduct } from '@/lib/catalog'
 
 interface ProductCardProps {
-  item: CatalogItem
+  item: CatalogProduct
   /** Called when user clicks the Zalo button — for parent-level tracking */
-  onZaloClick?: (item: CatalogItem) => void
+  onZaloClick?: (item: CatalogProduct) => void
 }
 
 export function ProductCard({ item, onZaloClick }: ProductCardProps) {
   const handleProductClick = () => {
-    track('click_product', { id: item.id, slug: item.slug, name: item.name, source: 'listing' })
+    track('click_product', { id: item.id, dbId: item.dbId, slug: item.slug, name: item.name, source: 'listing' })
   }
 
   const handleZalo = () => {
@@ -47,6 +47,7 @@ export function ProductCard({ item, onZaloClick }: ProductCardProps) {
           src={item.image}
           alt={item.name}
           fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />

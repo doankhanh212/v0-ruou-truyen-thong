@@ -1,11 +1,7 @@
 import type { Metadata } from 'next'
 import { Be_Vietnam_Pro } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
-import { PageViewTracker } from '@/components/page-view-tracker'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
-import { FloatingButtons } from '@/components/floating-buttons'
-import { Chatbot } from '@/components/chatbot'
+import { getSiteUrl, SITE_NAME } from '@/lib/seo'
 import './globals.css'
 
 const beVietnamPro = Be_Vietnam_Pro({
@@ -16,9 +12,22 @@ const beVietnamPro = Be_Vietnam_Pro({
 })
 
 export const metadata: Metadata = {
-  title: 'Rượu Truyền Thống Cửu Long Mỹ Tửu — Somo Gold',
-  description: 'Rượu truyền thống cao cấp Cửu Long Mỹ Tửu — thương hiệu Somo Gold. Chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống. Đạt ISO 22000:2018 & OCOP 4 sao.',
-  generator: 'v0.app',
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: `${SITE_NAME} — Somo Gold`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description:
+    'Rượu truyền thống cao cấp Cửu Long Mỹ Tửu — thương hiệu Somo Gold. Chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống. Đạt ISO 22000:2018 & OCOP 4 sao.',
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    locale: 'vi_VN',
+    siteName: SITE_NAME,
+    url: getSiteUrl(),
+  },
+  twitter: { card: 'summary_large_image' },
+  robots: { index: true, follow: true },
   icons: {
     icon: [
       {
@@ -46,12 +55,7 @@ export default function RootLayout({
   return (
     <html lang="vi" className={beVietnamPro.variable}>
       <body className="font-sans antialiased">
-        <PageViewTracker />
-        <Header />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
-        <FloatingButtons />
-        <Chatbot />
+        {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

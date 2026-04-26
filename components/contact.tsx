@@ -2,8 +2,9 @@
 
 import { Phone, Mail, MapPin, Building2, Factory } from 'lucide-react'
 import { CTAButton } from '@/components/cta-button'
-import { openZalo } from '@/utils/zalo'
-import { brandVisuals, companyInfo } from '@/data/products'
+import { openZalo, HOTLINE } from '@/utils/zalo'
+import { brandVisuals, companyInfo } from '@/lib/site-content'
+import { track } from '@/utils/track'
 
 export function Contact() {
   return (
@@ -22,6 +23,8 @@ export function Contact() {
               <img
                 src={brandVisuals.contact}
                 alt="Thông tin liên hệ mua hàng Somo Gold"
+                loading="lazy"
+                decoding="async"
                 className="block h-auto w-full"
               />
             </div>
@@ -33,6 +36,8 @@ export function Contact() {
                 <img
                   src={brandVisuals.contactAlt}
                   alt="Bộ quà tặng Lộc Xuân Somo Gold"
+                  loading="lazy"
+                  decoding="async"
                   className="block h-auto w-full"
                 />
               </div>
@@ -67,15 +72,15 @@ export function Contact() {
         </div>
 
         <div className="mb-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <button
-            type="button"
-            onClick={() => openZalo()}
+          <a
+            href={`tel:${HOTLINE}`}
+            onClick={() => track('click_call', { phone: HOTLINE, source: 'contact' })}
             className="flex flex-col items-center p-6 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl hover:shadow-lg transition-shadow text-center w-full"
           >
             <Phone className="text-secondary w-12 h-12 mb-4" />
             <h3 className="text-xl font-semibold text-foreground mb-2">Hotline</h3>
             <p className="text-foreground/70">{companyInfo.phone.join(' – ')}</p>
-          </button>
+          </a>
 
           <a
             href={`mailto:${companyInfo.email}`}
