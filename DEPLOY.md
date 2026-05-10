@@ -205,7 +205,7 @@ Kiểm tra:
 ```bash
 pm2 status
 pm2 logs cuulongmytuu --lines 50
-curl http://localhost:3000/api/health
+curl http://localhost:4271/api/health
 ```
 
 Mong đợi: `{"ok":true,"checks":{"db":true,"redis":true,...}}`
@@ -218,7 +218,7 @@ Mong đợi: `{"ok":true,"checks":{"db":true,"redis":true,...}}`
 
 ```nginx
 upstream nextjs {
-  server 127.0.0.1:3000;
+  server 127.0.0.1:4271;
   keepalive 64;
 }
 

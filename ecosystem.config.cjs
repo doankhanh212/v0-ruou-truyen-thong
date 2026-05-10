@@ -36,7 +36,7 @@ module.exports = {
       time: true,
       env: {
         NODE_ENV: "production",
-        PORT: 3000,
+        PORT: 4271,
         // Trust proxy headers from Nginx so rate-limit reads the real client IP.
         // (Next.js reads X-Forwarded-For automatically; this is documented intent.)
       },

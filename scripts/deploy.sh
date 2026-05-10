@@ -30,7 +30,7 @@ pm2 reload cuulongmytuu
 
 echo "==> Health check..."
 sleep 3
-curl -fsS http://localhost:3000/api/health || (echo "HEALTH FAIL" && exit 1)
+curl -fsS http://localhost:4271/api/health || (echo "HEALTH FAIL" && exit 1)
 
 echo ""
 echo "Deploy OK!"

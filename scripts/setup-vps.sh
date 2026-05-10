@@ -164,7 +164,7 @@ DOMAIN=$(echo "$NEXT_PUBLIC_SITE_URL" | sed -E 's|https?://||;s|/$||')
 NGINX_CONF="/etc/nginx/sites-available/cuulongmytuu"
 cat > "$NGINX_CONF" <<NGINXEOF
 upstream nextjs {
-  server 127.0.0.1:3000;
+  server 127.0.0.1:4271;
   keepalive 64;
 }
 
@@ -304,7 +304,7 @@ ok "PM2 chạy và đã cấu hình autostart"
 # ── Bước 15: Health check ────────────────────────────────────
 step "Health check"
 sleep 5
-HEALTH=$(curl -fsS http://localhost:3000/api/health 2>/dev/null || echo "{}")
+HEALTH=$(curl -fsS http://localhost:4271/api/health 2>/dev/null || echo "{}")
 echo "  $HEALTH"
 if echo "$HEALTH" | grep -q '"ok":true'; then
   ok "App đang chạy: http://localhost:3000"
