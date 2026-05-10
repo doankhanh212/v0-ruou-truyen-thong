@@ -48,7 +48,7 @@ export async function fetchAllCatalogProducts(
   baseParams: CatalogListParams = {},
   init?: RequestInit
 ): Promise<CatalogProduct[]> {
-  const PAGE_SIZE = 100;
+  const PAGE_SIZE = 50;
   const HARD_CAP = 5000; // safety net against runaway loops
   const all: CatalogProduct[] = [];
   let page = 1;
