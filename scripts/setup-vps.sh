@@ -29,8 +29,16 @@ if [ ! -f "$ENV_FILE" ]; then
   fail ".env không tồn tại tại $ENV_FILE\nHãy tạo file .env trước khi chạy script này."
 fi
 
-# Đọc biến từ .env
-set -a; source "$ENV_FILE"; set +a
+# Đọc biến từ .env — dùng grep/sed thay vì source để tránh lỗi $2a$ trong bcrypt hash
+_env_get() {
+  grep -E "^${1}=" "$ENV_FILE" | head -1 | sed -E "s|^${1}=||;s|^['\"]||;s|['\"]$||"
+}
+DATABASE_URL=$(_env_get DATABASE_URL)
+REDIS_URL=$(_env_get REDIS_URL)
+ADMIN_USERNAME=$(_env_get ADMIN_USERNAME)
+ADMIN_PASSWORD_HASH=$(_env_get ADMIN_PASSWORD_HASH)
+SESSION_SECRET=$(_env_get SESSION_SECRET)
+NEXT_PUBLIC_SITE_URL=$(_env_get NEXT_PUBLIC_SITE_URL)
 
 # Kiểm tra các biến bắt buộc
 MISSING=()
