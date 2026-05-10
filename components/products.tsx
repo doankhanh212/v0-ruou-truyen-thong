@@ -9,9 +9,9 @@ import { Flame, TrendingUp } from 'lucide-react'
 import { track } from '@/utils/track'
 
 const URGENCY: Record<string, string> = {
-  'minh-mang-tuu': 'Chi con 8 chai hom nay',
-  'tay-duong-sam-tuu': 'Dang co 6 nguoi xem',
-  'ruou-ba-kich': 'Ban chay nhat tuan',
+  'minh-mang-tuu': 'Chỉ còn 8 chai hôm nay',
+  'tay-duong-sam-tuu': 'Đang có 6 người xem',
+  'ruou-ba-kich': 'Bán chạy nhất tuần',
 }
 
 export function Products() {
@@ -32,13 +32,13 @@ export function Products() {
           }`}
         >
           <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-secondary">
-            Cuu Long My Tuu
+            Cửu Long Mỹ Tửu
           </p>
           <h2 className="mb-4 text-3xl font-bold text-primary md:text-4xl">
-            Dong San Pham Cao Cap
+            Dòng Sản Phẩm Cao Cấp
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-foreground/60">
-            Thuong hieu Somo Gold - dat tieu chuan ISO 22000:2018 va OCOP 4 sao
+            Thương hiệu Somo Gold — đạt tiêu chuẩn ISO 22000:2018 và OCOP 4 sao
           </p>
         </div>
 
@@ -82,7 +82,7 @@ export function Products() {
                       {product.isBestSeller ? (
                         <span className="flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
                           <Flame size={11} />
-                          Ban chay
+                          Bán chạy
                         </span>
                       ) : null}
                       {product.tag && !product.isBestSeller ? (
@@ -139,10 +139,10 @@ export function Products() {
 
                   <div className="flex flex-col gap-3 border-t border-border/50 pt-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <span className="block text-lg font-bold text-primary">{product.price}d</span>
+                      <span className="block text-lg font-bold text-primary">{product.price}đ</span>
                     </div>
                     <CTAButton
-                      label="Tu van ngay"
+                      label="Tư vấn ngay"
                       productName={product.name}
                       className="btn-lift w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-primary/20 hover:bg-secondary sm:w-auto"
                     />
@@ -153,23 +153,23 @@ export function Products() {
           </div>
         ) : (
           <div className="rounded-2xl border border-border/60 bg-slate-50 px-6 py-12 text-center text-foreground/60">
-            Danh muc hien chua co san pham dang ban.
+            Danh mục hiện chưa có sản phẩm đang bán.
           </div>
         )}
 
         <div className="mt-14 text-center">
           <p className="mb-6 text-sm text-foreground/50">
-            Dang co <strong>23 khach</strong> xem san pham ngay luc nay
+            Đang có <strong>23 khách</strong> xem sản phẩm ngay lúc này
           </p>
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/san-pham"
               className="btn-lift inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border-2 border-primary bg-white px-8 py-4 text-base font-bold text-primary transition-all hover:bg-primary/5 sm:w-auto"
             >
-              Xem tat ca san pham
+              Xem tất cả sản phẩm
             </Link>
             <CTAButton
-              label="Chat Zalo de duoc tu van"
+              label="Chat Zalo để được tư vấn"
               className="btn-lift w-full rounded-2xl bg-[#0068FF] px-8 py-4 text-base font-bold text-white shadow-lg shadow-blue-500/25 sm:w-auto"
             />
           </div>

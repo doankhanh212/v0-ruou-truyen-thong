@@ -26,6 +26,7 @@ export function DashboardChart() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
     // Convert month/year selection → from/to date strings expected by the API
     const mm = String(month).padStart(2, "0");
@@ -33,33 +34,61 @@ export function DashboardChart() {
     const from = `${year}-${mm}-01`;
     const to = `${year}-${mm}-${String(daysInMonth).padStart(2, "0")}`;
 
-    fetch(`/api/admin/analytics?from=${from}&to=${to}`)
-      .then((r) => r.json())
-      .then((data) => {
-        // Map trafficByDay → DayData[] (extract day number, rename fields)
-        type RawDay = { date: string; views: number; zalo: number; calls: number };
-        const mapped: DayData[] = (data.trafficByDay ?? []).map((row: RawDay) => ({
-          day: new Date(row.date + "T12:00:00").getDate(),
-          page_view: row.views,
-          click_zalo: row.zalo,
-          click_call: row.calls,
-        }));
-        setDaily(mapped);
+    // Pre-fill 1..daysInMonth so the chart shows the full month even when
+    // some days have zero events. Real data overlays via merging by day.
+    const baseline: DayData[] = Array.from({ length: daysInMonth }, (_, i) => ({
+      day: i + 1,
+      page_view: 0,
+      click_zalo: 0,
+      click_call: 0,
+    }));
 
-        // Map overview → Totals
+    fetch(`/api/admin/analytics?from=${from}&to=${to}`, { cache: "no-store" })
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+        type RawDay = { date: string; views: number; zalo: number; calls: number };
+        const byDay = new Map<number, RawDay>();
+        for (const row of (data.trafficByDay ?? []) as RawDay[]) {
+          const d = Number(row.date.split("-")[2]);
+          if (Number.isFinite(d)) byDay.set(d, row);
+        }
+        const merged = baseline.map((b) => {
+          const hit = byDay.get(b.day);
+          return hit
+            ? { day: b.day, page_view: hit.views, click_zalo: hit.zalo, click_call: hit.calls }
+            : b;
+        });
+        setDaily(merged);
+
         const ov = data.overview ?? {};
         const pv = ov.totalViews ?? 0;
         const zl = ov.totalZaloClicks ?? 0;
         const cc = ov.totalCalls ?? 0;
         setTotals({ page_view: pv, click_zalo: zl, click_call: cc, total: pv + zl + cc });
       })
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        if (cancelled) return;
+        console.error("[dashboard-chart] load failed:", err);
+        setDaily(baseline);
+        setTotals({ page_view: 0, click_zalo: 0, click_call: 0, total: 0 });
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [month, year]);
 
-  // SVG line chart
-  const W = 700;
-  const H = 250;
-  const PAD = { top: 20, right: 20, bottom: 30, left: 40 };
+  // SVG line chart — wider so 30-31 day labels don't crowd
+  const W = 900;
+  const H = 260;
+  const PAD = { top: 20, right: 20, bottom: 32, left: 40 };
   const chartW = W - PAD.left - PAD.right;
   const chartH = H - PAD.top - PAD.bottom;
 
@@ -138,14 +167,44 @@ export function DashboardChart() {
               );
             })}
 
-            {/* X axis labels */}
+            {/* X axis: tick mark + day number for EVERY single day (1..N) */}
             {daily.map((d, i) => {
-              if (daily.length > 15 && d.day % 5 !== 0 && d.day !== 1) return null;
               const x = PAD.left + i * xStep;
               return (
-                <text key={d.day} x={x} y={H - 5} textAnchor="middle" className="text-[10px] fill-gray-400">
-                  {d.day}
-                </text>
+                <g key={d.day}>
+                  <line
+                    x1={x}
+                    y1={PAD.top + chartH}
+                    x2={x}
+                    y2={PAD.top + chartH + 4}
+                    stroke="#9ca3af"
+                    strokeWidth={1}
+                  />
+                  <text
+                    x={x}
+                    y={H - 6}
+                    textAnchor="middle"
+                    fontSize={8}
+                    className="fill-gray-500"
+                  >
+                    {d.day}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Data point dots so admin sees there ARE 30 data points */}
+            {daily.map((d, i) => {
+              const x = PAD.left + i * xStep;
+              const yView = PAD.top + chartH - (d.page_view / maxVal) * chartH;
+              return (
+                <circle
+                  key={`pv-${d.day}`}
+                  cx={x}
+                  cy={yView}
+                  r={2}
+                  fill={COLORS.page_view}
+                />
               );
             })}
 

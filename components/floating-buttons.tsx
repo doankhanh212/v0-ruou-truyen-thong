@@ -14,7 +14,7 @@ export function FloatingButtons() {
         <a
           href={`tel:${HOTLINE}`}
           onClick={() => track('click_call', { phone: HOTLINE, source: 'floating_buttons' })}
-          aria-label="Goi hotline"
+          aria-label="Gọi hotline"
           title={`Hotline: ${HOTLINE}`}
           className="flex h-11 w-11 items-center justify-center rounded-full bg-red-500 text-white shadow-lg transition-all hover:scale-110 hover:bg-red-600 sm:h-12 sm:w-12"
         >
@@ -24,7 +24,7 @@ export function FloatingButtons() {
 
       <div className="group flex flex-col items-end gap-1.5">
         <span className="whitespace-nowrap rounded-full bg-[#0068FF] px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
-          Tu van mien phi
+          Tư vấn miễn phí
         </span>
 
         <div className="flex items-center gap-2">
@@ -34,7 +34,7 @@ export function FloatingButtons() {
           <button
             type="button"
             onClick={() => openZalo(ZALO_PHONE)}
-            aria-label="Nhan Zalo"
+            aria-label="Nhắn Zalo"
             title="Chat Zalo"
             className="zalo-pulse flex h-12 w-12 select-none items-center justify-center rounded-full bg-[#0068FF] text-base font-bold text-white shadow-xl transition-transform hover:scale-110 hover:bg-[#0057d6] sm:h-14 sm:w-14 sm:text-lg"
           >

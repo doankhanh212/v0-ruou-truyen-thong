@@ -14,10 +14,40 @@ async function requireAuth() {
 }
 
 const POST_HTML_OPTIONS: sanitizeHtml.IOptions = {
-  allowedTags: ["h1", "h2", "h3", "h4", "p", "br", "hr", "ul", "ol", "li", "strong", "em", "b", "i", "a", "img", "blockquote"],
+  allowedTags: [
+    "h1", "h2", "h3", "h4",
+    "p", "br", "hr", "blockquote",
+    "ul", "ol", "li",
+    "strong", "em", "b", "i", "u", "s",
+    "a", "img",
+    "code", "pre",
+    "span",
+  ],
   allowedAttributes: {
-    a: ["href", "target", "rel"],
-    img: ["src", "alt", "width", "height"],
+    a: ["href", "target", "rel", "class"],
+    img: ["src", "alt", "width", "height", "class"],
+    p: ["style"],
+    h1: ["style"], h2: ["style"], h3: ["style"], h4: ["style"],
+    span: ["style"],
+  },
+  // Tiptap stores alignment as inline style; whitelist only this property/values.
+  allowedStyles: {
+    "*": {
+      "text-align": [/^left$/, /^right$/, /^center$/, /^justify$/],
+    },
+  },
+  allowedSchemes: ["http", "https", "mailto", "tel"],
+  allowedSchemesByTag: { img: ["http", "https"] },
+  transformTags: {
+    a: (tagName, attribs) => ({
+      tagName,
+      attribs: {
+        href: attribs.href || "",
+        rel: "noopener noreferrer",
+        target: "_blank",
+        class: attribs.class || "",
+      },
+    }),
   },
 };
 

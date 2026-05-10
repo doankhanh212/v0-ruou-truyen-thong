@@ -24,7 +24,7 @@ export function ProductDetailClient({
     return (
       <div className="min-h-screen bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl rounded-3xl border border-gray-200 bg-white p-10 text-center shadow-sm">
-          <p className="text-sm text-gray-500">Dang tai chi tiet san pham...</p>
+          <p className="text-sm text-gray-500">Đang tải chi tiết sản phẩm...</p>
         </div>
       </div>
     );
@@ -34,13 +34,13 @@ export function ProductDetailClient({
     return (
       <div className="min-h-screen bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl rounded-3xl border border-red-200 bg-white p-10 text-center shadow-sm">
-          <h1 className="text-2xl font-bold text-gray-900">Khong the tai chi tiet san pham</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Không thể tải chi tiết sản phẩm</h1>
           <p className="mt-3 text-sm text-red-700">{error}</p>
           <Link
             href="/san-pham"
             className="mt-6 inline-flex min-h-11 items-center justify-center rounded-2xl border border-gray-200 px-5 py-3 text-sm font-bold text-gray-700 transition-colors hover:border-blue-300 hover:text-blue-700"
           >
-            Quay lai danh sach san pham
+            Quay lại danh sách sản phẩm
           </Link>
         </div>
       </div>
@@ -51,15 +51,15 @@ export function ProductDetailClient({
     return (
       <div className="min-h-screen bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl rounded-3xl border border-gray-200 bg-white p-10 text-center shadow-sm">
-          <h1 className="text-2xl font-bold text-gray-900">Khong tim thay san pham</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Không tìm thấy sản phẩm</h1>
           <p className="mt-3 text-sm text-gray-500">
-            San pham nay chua co trong co so du lieu hoac tam thoi khong kha dung.
+            Sản phẩm này chưa có trong cơ sở dữ liệu hoặc tạm thời không khả dụng.
           </p>
           <Link
             href="/san-pham"
             className="mt-6 inline-flex min-h-11 items-center justify-center rounded-2xl border border-gray-200 px-5 py-3 text-sm font-bold text-gray-700 transition-colors hover:border-blue-300 hover:text-blue-700"
           >
-            Quay lai danh sach san pham
+            Quay lại danh sách sản phẩm
           </Link>
         </div>
       </div>
@@ -77,11 +77,11 @@ export function ProductDetailClient({
             className="inline-flex min-h-11 w-fit items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:border-blue-300 hover:text-blue-700"
           >
             <ChevronLeft size={16} />
-            Quay lai san pham
+            Quay lại sản phẩm
           </Link>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-              Cuu Long My Tuu
+              Cửu Long Mỹ Tửu
             </p>
             <h1 className="mt-1 text-3xl font-bold text-gray-900 md:text-4xl">{product.name}</h1>
           </div>
@@ -142,18 +142,18 @@ export function ProductDetailClient({
 
             <div className="grid gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-gray-600 sm:grid-cols-2">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Thong tin</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Thông tin</p>
                 <p className="mt-1 font-medium text-gray-900">{product.alcohol}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Phu hop</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Phù hợp</p>
                 <p className="mt-1 font-medium text-gray-900">{product.target}</p>
               </div>
             </div>
           </div>
 
           <div>
-            <h2 className="text-sm font-bold uppercase tracking-wide text-gray-500">Diem noi bat</h2>
+            <h2 className="text-sm font-bold uppercase tracking-wide text-gray-500">Điểm nổi bật</h2>
             <div className="mt-3 space-y-2.5">
               {product.benefits.map((benefit) => (
                 <div key={benefit} className="flex items-start gap-2 text-sm text-gray-700">
@@ -166,7 +166,7 @@ export function ProductDetailClient({
 
           {product.ingredients.length > 0 ? (
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-wide text-gray-500">Thanh phan</h2>
+              <h2 className="text-sm font-bold uppercase tracking-wide text-gray-500">Thành phần</h2>
               <div className="mt-3 flex flex-wrap gap-2">
                 {product.ingredients.map((ingredient) => (
                   <span
@@ -183,17 +183,17 @@ export function ProductDetailClient({
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
-              onClick={() => openZalo(undefined, `Xin chao, toi muon tu van ${product.name}`)}
+              onClick={() => openZalo(undefined, `Xin chào, tôi muốn tư vấn ${product.name}`)}
               className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#0068FF] px-5 py-3 text-base font-bold text-white transition-colors hover:bg-[#0057d6] sm:w-auto"
             >
               <MessageCircle size={18} />
-              Tu van qua Zalo
+              Tư vấn qua Zalo
             </button>
             <Link
               href="/lien-he"
               className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-gray-200 px-5 py-3 text-base font-bold text-gray-700 transition-colors hover:border-blue-300 hover:text-blue-700 sm:w-auto"
             >
-              Gui yeu cau lien he
+              Gửi yêu cầu liên hệ
             </Link>
           </div>
         </div>
@@ -203,17 +203,17 @@ export function ProductDetailClient({
         <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
           <div className="flex items-center gap-3 border-b border-gray-200 px-6 py-4">
             <Package2 size={18} className="text-blue-600" />
-            <h2 className="text-lg font-bold text-gray-900">Bang gia tham khao</h2>
+            <h2 className="text-lg font-bold text-gray-900">Bảng giá tham khảo</h2>
           </div>
 
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 text-sm">
               <thead className="bg-slate-50 text-left text-gray-500">
                 <tr>
-                  <th className="px-6 py-3 font-semibold">Quy cach</th>
-                  <th className="px-6 py-3 font-semibold">Dung tich</th>
-                  <th className="px-6 py-3 font-semibold">Gia chua VAT</th>
-                  <th className="px-6 py-3 font-semibold">Gia co VAT</th>
+                  <th className="px-6 py-3 font-semibold">Quy cách</th>
+                  <th className="px-6 py-3 font-semibold">Dung tích</th>
+                  <th className="px-6 py-3 font-semibold">Giá chưa VAT</th>
+                  <th className="px-6 py-3 font-semibold">Giá có VAT</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white text-gray-700">
@@ -222,10 +222,10 @@ export function ProductDetailClient({
                     <td className="px-6 py-4">{option.packaging}</td>
                     <td className="px-6 py-4">{option.volume}</td>
                     <td className="px-6 py-4 font-semibold text-gray-900">
-                      {formatCatalogPrice(option.priceBeforeVAT)}d
+                      {formatCatalogPrice(option.priceBeforeVAT)}đ
                     </td>
                     <td className="px-6 py-4 font-semibold text-blue-700">
-                      {formatCatalogPrice(option.priceWithVAT)}d
+                      {formatCatalogPrice(option.priceWithVAT)}đ
                     </td>
                   </tr>
                 ))}

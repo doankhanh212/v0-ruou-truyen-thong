@@ -8,10 +8,26 @@ import { absoluteUrl, metaDescription, metaTitle, SITE_NAME } from "@/lib/seo";
 import { isAuthenticated } from "@/lib/auth";
 
 const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
-  allowedTags: ["h1", "h2", "h3", "h4", "p", "br", "hr", "ul", "ol", "li", "strong", "em", "b", "i", "a", "img", "blockquote"],
+  allowedTags: [
+    "h1", "h2", "h3", "h4",
+    "p", "br", "hr", "blockquote",
+    "ul", "ol", "li",
+    "strong", "em", "b", "i", "u", "s",
+    "a", "img",
+    "code", "pre",
+    "span",
+  ],
   allowedAttributes: {
-    a: ["href", "target", "rel"],
-    img: ["src", "alt", "width", "height"],
+    a: ["href", "target", "rel", "class"],
+    img: ["src", "alt", "width", "height", "class"],
+    p: ["style"],
+    h1: ["style"], h2: ["style"], h3: ["style"], h4: ["style"],
+    span: ["style"],
+  },
+  allowedStyles: {
+    "*": {
+      "text-align": [/^left$/, /^right$/, /^center$/, /^justify$/],
+    },
   },
 };
 

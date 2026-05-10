@@ -3,7 +3,8 @@ import { listCatalogProducts } from "@/lib/catalog-service";
 import { z } from "zod";
 import { rateLimit } from "@/lib/rate-limit";
 
-export const revalidate = 60; // Next.js App Router cache standard
+// Route reads request.headers (rate-limit on client IP) → must be dynamic.
+export const dynamic = "force-dynamic";
 
 const querySchema = z.object({
   category: z.string().optional(),

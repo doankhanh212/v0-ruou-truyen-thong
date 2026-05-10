@@ -188,3 +188,14 @@ model ChatbotScript {
 
   @@index([key, isActive])
 }
+
+model SeoPage {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String?  @db.Text
+  keywords    String?  @db.Text
+  ogImage     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

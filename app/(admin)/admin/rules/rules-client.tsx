@@ -18,16 +18,43 @@ type Rule = {
 
 type Product = { id: number; name: string };
 
+/**
+ * Whitelisted purposes — must match `INTENT_TO_PURPOSE` in
+ * `app/api/chatbot/match/route.ts`. If you add a value here, add it there too.
+ */
+const PURPOSE_OPTIONS = [
+  { value: "any", label: "Tất cả mục đích" },
+  { value: "bieu", label: "Mua làm quà biếu" },
+  { value: "suc-khoe", label: "Bồi bổ sức khỏe" },
+  { value: "uong", label: "Uống hàng ngày" },
+] as const;
+
+const PREFERENCE_OPTIONS = [
+  { value: "any", label: "Không yêu cầu" },
+  { value: "premium", label: "Cao cấp / sang trọng" },
+  { value: "easy", label: "Nhẹ, dễ uống" },
+  { value: "traditional", label: "Truyền thống" },
+  { value: "strength", label: "Cổ phương / nam giới" },
+] as const;
+
 const EMPTY_FORM = {
-  purpose: "",
+  purpose: "any",
   budgetMin: "",
   budgetMax: "",
-  preference: "",
+  preference: "any",
   note: "",
   priority: "0",
   isActive: true,
   recommendedProducts: [] as number[],
 };
+
+function purposeLabel(value: string): string {
+  return PURPOSE_OPTIONS.find((p) => p.value === value)?.label ?? value;
+}
+function preferenceLabel(value: string | null): string {
+  if (!value) return "—";
+  return PREFERENCE_OPTIONS.find((p) => p.value === value)?.label ?? value;
+}
 
 export function RulesClient() {
   const [rules, setRules] = useState<Rule[]>([]);
@@ -69,10 +96,10 @@ export function RulesClient() {
 
   function openEdit(rule: Rule) {
     setForm({
-      purpose: rule.purpose,
+      purpose: rule.purpose || "any",
       budgetMin: rule.budgetMin != null ? String(rule.budgetMin) : "",
       budgetMax: rule.budgetMax != null ? String(rule.budgetMax) : "",
-      preference: rule.preference ?? "",
+      preference: rule.preference || "any",
       note: rule.note ?? "",
       priority: String(rule.priority),
       isActive: rule.isActive,
@@ -94,17 +121,22 @@ export function RulesClient() {
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.purpose.trim()) {
-      setError("Vui lòng nhập mục đích của rule");
+    const validPurpose = PURPOSE_OPTIONS.some((o) => o.value === form.purpose);
+    if (!validPurpose) {
+      setError("Vui lòng chọn mục đích hợp lệ");
+      return;
+    }
+    if (form.recommendedProducts.length === 0) {
+      setError("Hãy chọn ít nhất 1 sản phẩm để gợi ý");
       return;
     }
     setSaving(true);
     setError(null);
     const payload = {
-      purpose: form.purpose.trim(),
+      purpose: form.purpose,
       budgetMin: form.budgetMin ? Number(form.budgetMin) : null,
       budgetMax: form.budgetMax ? Number(form.budgetMax) : null,
-      preference: form.preference.trim() || null,
+      preference: form.preference === "any" ? null : form.preference,
       note: form.note.trim() || null,
       priority: Number(form.priority) || 0,
       isActive: form.isActive,
@@ -165,16 +197,23 @@ export function RulesClient() {
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="md:col-span-2">
               <label className="mb-1 block text-xs font-medium text-gray-600">
-                Mục đích <span className="text-red-500">*</span>
+                Mục đích khách <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
+              <select
                 value={form.purpose}
                 onChange={(e) => setForm({ ...form, purpose: e.target.value })}
-                placeholder="vd: Mua tặng bạn bè, Uống vào dịp Tết..."
                 required
                 className="w-full rounded border px-3 py-2 text-sm"
-              />
+              >
+                {PURPOSE_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-gray-500">
+                Khi khách trả lời chatbot khớp với mục đích này, rule sẽ được áp dụng.
+              </p>
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-gray-600">
@@ -185,7 +224,7 @@ export function RulesClient() {
                 min={0}
                 value={form.budgetMin}
                 onChange={(e) => setForm({ ...form, budgetMin: e.target.value })}
-                placeholder="0"
+                placeholder="Không giới hạn"
                 className="w-full rounded border px-3 py-2 text-sm"
               />
             </div>
@@ -206,13 +245,17 @@ export function RulesClient() {
               <label className="mb-1 block text-xs font-medium text-gray-600">
                 Sở thích / khẩu vị
               </label>
-              <input
-                type="text"
+              <select
                 value={form.preference}
                 onChange={(e) => setForm({ ...form, preference: e.target.value })}
-                placeholder="vd: nhẹ, ngọt, mạnh..."
                 className="w-full rounded border px-3 py-2 text-sm"
-              />
+              >
+                {PREFERENCE_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-gray-600">
@@ -300,13 +343,13 @@ export function RulesClient() {
           <tbody>
             {rules.map((r) => (
               <TR key={r.id}>
-                <TD>{r.purpose}</TD>
+                <TD>{purposeLabel(r.purpose)}</TD>
                 <TD className="text-xs">
                   {r.budgetMin ? `${r.budgetMin.toLocaleString("vi-VN")}đ` : "—"}
                   {" → "}
                   {r.budgetMax ? `${r.budgetMax.toLocaleString("vi-VN")}đ` : "—"}
                 </TD>
-                <TD>{r.preference ?? "—"}</TD>
+                <TD>{preferenceLabel(r.preference)}</TD>
                 <TD>{r.recommendedProducts.length}</TD>
                 <TD>{r.priority}</TD>
                 <TD>

@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ChevronLeft, ChevronRight,
   SlidersHorizontal, Filter, X,
@@ -21,9 +21,9 @@ const ALL_CATEGORY = { id: 'all', label: 'Tất cả' }
 type CategoryOption = { id: string; label: string }
 
 const PRICE_RANGES = [
-  { id: 'all', label: 'Tat ca muc gia', min: 0, max: Infinity },
-  { id: 'under1m', label: 'Duoi 1.000.000d', min: 0, max: 1000000 },
-  { id: 'over1m', label: 'Tren 1.000.000d', min: 1000000, max: Infinity },
+  { id: 'all', label: 'Tất cả mức giá', min: 0, max: Infinity },
+  { id: 'under1m', label: 'Dưới 1.000.000đ', min: 0, max: 1000000 },
+  { id: 'over1m', label: 'Trên 1.000.000đ', min: 1000000, max: Infinity },
 ]
 
 interface RecommendPreset {
@@ -35,22 +35,32 @@ interface RecommendPreset {
   match: (item: CatalogProduct) => boolean
 }
 
+// Strip Vietnamese diacritics → lowercase ASCII for fuzzy keyword matching.
+function stripDiacritics(input: string): string {
+  return input
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'd')
+    .toLowerCase()
+}
+
 const RECOMMEND_PRESETS: RecommendPreset[] = [
   {
     id: 'gift',
-    label: 'Mua lam qua',
+    label: 'Mua làm quà',
     icon: <Gift size={15} />,
     color: 'border-amber-300 text-amber-700 hover:bg-amber-50',
     activeColor: 'bg-amber-500 text-white border-amber-500',
     match: (item) =>
       item.kind === 'gift-set' ||
       item.category === 'qua-tang' ||
-      item.target.toLowerCase().includes('bieu') ||
-      item.tag?.toLowerCase().includes('qua') === true,
+      stripDiacritics(item.target).includes('bieu') ||
+      (item.tag ? stripDiacritics(item.tag).includes('qua') : false),
   },
   {
     id: 'health',
-    label: 'Duoc lieu quy',
+    label: 'Dược liệu quý',
     icon: <Heart size={15} />,
     color: 'border-green-300 text-green-700 hover:bg-green-50',
     activeColor: 'bg-green-600 text-white border-green-600',
@@ -58,25 +68,35 @@ const RECOMMEND_PRESETS: RecommendPreset[] = [
       item.category === 'ruou-thuoc' ||
       item.benefits.some((benefit) =>
         ['duoc lieu', 'co phuong', 'dong y', 'boi bo'].some((keyword) =>
-          benefit.toLowerCase().includes(keyword)
+          stripDiacritics(benefit).includes(keyword)
         )
       ),
   },
   {
     id: 'male',
-    label: 'Nam gioi',
+    label: 'Nam giới',
     icon: <Users size={15} />,
     color: 'border-blue-300 text-blue-700 hover:bg-blue-50',
     activeColor: 'bg-blue-600 text-white border-blue-600',
     match: (item) =>
-      item.target.toLowerCase().includes('nam') ||
+      stripDiacritics(item.target).includes('nam') ||
       item.benefits.some((benefit) =>
-        ['co phuong', 'nam gioi', 'sinh luc'].some((keyword) => benefit.toLowerCase().includes(keyword))
+        ['co phuong', 'nam gioi', 'sinh luc'].some((keyword) =>
+          stripDiacritics(benefit).includes(keyword)
+        )
       ),
   },
 ]
 
 export default function SanPhamPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50" />}>
+      <SanPhamPageInner />
+    </Suspense>
+  )
+}
+
+function SanPhamPageInner() {
   const { products: allItems, loading, error } = useAllCatalogProducts()
   const searchParams = useSearchParams()
   const initialSearch = searchParams?.get('q')?.trim() || ''
@@ -113,10 +133,11 @@ export default function SanPhamPage() {
   const filtered = useMemo(() => {
     return allItems.filter((item) => {
       if (search.trim()) {
-        const query = search.toLowerCase()
-        const haystack = [item.name, item.target, item.description, item.category]
-          .join(' ')
-          .toLowerCase()
+        // Diacritic-insensitive search: "ruou" matches "Rượu", "Rượu" matches "ruou".
+        const query = stripDiacritics(search)
+        const haystack = stripDiacritics(
+          [item.name, item.target, item.description, item.category].join(' ')
+        )
         if (!haystack.includes(query)) return false
       }
 
@@ -204,13 +225,13 @@ export default function SanPhamPage() {
     <div className="space-y-5">
       <div className="md:hidden">
         <h4 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-          Tim kiem
+          Tìm kiếm
         </h4>
         <input
           type="text"
           value={search}
           onChange={(event) => handleSearch(event.target.value)}
-          placeholder="Ten san pham..."
+          placeholder="Tên sản phẩm..."
           className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
       </div>
@@ -218,7 +239,7 @@ export default function SanPhamPage() {
       <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
         <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-gray-900">
           <Filter size={14} className="text-blue-600" />
-          Danh muc
+          Danh mục
         </h3>
         <ul className="space-y-1">
           {categories.map((entry) => (
@@ -240,7 +261,7 @@ export default function SanPhamPage() {
       </div>
 
       <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-        <h3 className="mb-4 text-sm font-bold text-gray-900">Muc gia</h3>
+        <h3 className="mb-4 text-sm font-bold text-gray-900">Mức giá</h3>
         <ul className="space-y-1">
           {PRICE_RANGES.map((entry) => (
             <li key={entry.id}>
@@ -267,7 +288,7 @@ export default function SanPhamPage() {
           className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition-all hover:bg-red-100"
         >
           <X size={14} />
-          Xoa tat ca bo loc
+          Xóa tất cả bộ lọc
         </button>
       ) : null}
     </div>
@@ -279,14 +300,14 @@ export default function SanPhamPage() {
         <div className="mx-auto grid max-w-7xl gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:px-8">
           <div>
             <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-blue-600">
-              Cuu Long My Tuu - Somo Gold
+              Cửu Long Mỹ Tửu — Somo Gold
             </p>
-            <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">Tat Ca San Pham</h1>
+            <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">Tất cả sản phẩm</h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-gray-500">
-              Catalog hien duoc tai tu API cong khai, su dung du lieu co so du lieu lam nguon chinh cho ca danh sach va chat tu van.
+              Danh mục rượu truyền thống cao cấp — cập nhật trực tiếp từ kho sản phẩm chính thức.
             </p>
             <p className="mt-2 text-sm text-gray-400">
-              {loading ? 'Dang tai san pham...' : `${filtered.length} san pham${hasActiveFilter ? ' (dang loc)' : ''}`}
+              {loading ? 'Đang tải sản phẩm...' : `${filtered.length} sản phẩm${hasActiveFilter ? ' (đang lọc)' : ''}`}
             </p>
             {error ? (
               <p className="mt-2 text-sm text-red-700">
@@ -326,7 +347,7 @@ export default function SanPhamPage() {
         <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
           <div className="mb-3 flex items-center gap-2">
             <Sparkles size={16} className="text-blue-600" />
-            <span className="text-sm font-bold text-gray-700">Goi y nhanh cho ban</span>
+            <span className="text-sm font-bold text-gray-700">Gợi ý nhanh cho bạn</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {RECOMMEND_PRESETS.map((preset) => (
@@ -349,7 +370,7 @@ export default function SanPhamPage() {
                 className="flex items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-500 transition-all hover:bg-gray-50"
               >
                 <X size={13} />
-                Bo goi y
+                Bỏ gợi ý
               </button>
             ) : null}
           </div>
@@ -362,7 +383,7 @@ export default function SanPhamPage() {
               type="text"
               value={search}
               onChange={(event) => handleSearch(event.target.value)}
-              placeholder="Tim ten san pham..."
+              placeholder="Tìm tên sản phẩm..."
               className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
             {search ? (
@@ -383,7 +404,7 @@ export default function SanPhamPage() {
                 type="text"
                 value={search}
                 onChange={(event) => handleSearch(event.target.value)}
-                placeholder="Tim san pham..."
+                placeholder="Tìm sản phẩm..."
                 className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-9 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               {search ? (
@@ -402,7 +423,7 @@ export default function SanPhamPage() {
               className="flex min-h-11 flex-shrink-0 items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-700 shadow-sm"
             >
               <SlidersHorizontal size={15} />
-              Loc
+              Lọc
               {hasActiveFilter ? <span className="h-2 w-2 rounded-full bg-blue-600" /> : null}
             </button>
           </div>
@@ -438,7 +459,7 @@ export default function SanPhamPage() {
                 onClick={clearAll}
                 className="text-xs font-semibold text-red-500 hover:underline"
               >
-                Xoa tat ca
+                Xóa tất cả
               </button>
             ) : null}
           </div>
@@ -452,7 +473,7 @@ export default function SanPhamPage() {
             />
             <div className="absolute inset-y-0 left-0 w-[min(20rem,86vw)] overflow-y-auto bg-gray-50 shadow-2xl">
               <div className="flex items-center justify-between border-b border-gray-200 bg-white p-4">
-                <h3 className="font-bold text-gray-900">Bo loc</h3>
+                <h3 className="font-bold text-gray-900">Bộ lọc</h3>
                 <button
                   type="button"
                   onClick={() => setShowMobileFilter(false)}
@@ -492,7 +513,7 @@ export default function SanPhamPage() {
             ) : error ? (
               <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-12 text-center">
                 <p className="text-lg font-semibold text-red-800">
-                  Khong the tai danh muc san pham
+                  Không thể tải danh mục sản phẩm
                 </p>
                 <p className="mt-2 text-sm text-red-700">
                   {error}
@@ -507,17 +528,17 @@ export default function SanPhamPage() {
             ) : (
               <div className="py-20 text-center">
                 <p className="mb-2 text-lg font-medium text-gray-500">
-                  Khong tim thay san pham
+                  Không tìm thấy sản phẩm
                 </p>
                 <p className="mb-6 text-sm text-gray-400">
-                  Thu thay doi tu khoa hoac bo loc
+                  Thử thay đổi từ khóa hoặc bộ lọc
                 </p>
                 <button
                   type="button"
                   onClick={clearAll}
                   className="font-semibold text-blue-600 hover:underline"
                 >
-                  Xoa bo loc
+                  Xóa bộ lọc
                 </button>
               </div>
             )}
@@ -560,7 +581,7 @@ export default function SanPhamPage() {
                 </div>
 
                 <p className="mt-3 text-center text-sm text-gray-400">
-                  Trang {page} / {totalPages} - {filtered.length} san pham
+                  Trang {page} / {totalPages} — {filtered.length} sản phẩm
                 </p>
               </>
             ) : null}

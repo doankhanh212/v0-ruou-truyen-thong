@@ -1,35 +1,39 @@
 import type { Metadata } from 'next'
 import { Contact } from '@/components/contact'
-import { getPageBySlug, sanitizePageHtml } from '@/lib/pages'
+import { getSeoBySlug } from '@/lib/seo-pages'
+import { absoluteUrl, SITE_NAME } from '@/lib/seo'
 
-const FALLBACK_TITLE = 'Liên Hệ - Rượu Truyền Thống'
+const FALLBACK_TITLE = 'Liên hệ — Rượu truyền thống'
 const FALLBACK_DESC = 'Liên hệ mua rượu truyền thống. Hotline, Zalo, email — tư vấn miễn phí, giao hàng toàn quốc.'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const page = await getPageBySlug('lien-he')
+  const seo = await getSeoBySlug('lien-he')
+  const title = seo?.title || FALLBACK_TITLE
+  const description = seo?.description || FALLBACK_DESC
+  const ogImage = seo?.ogImage ? absoluteUrl(seo.ogImage) : undefined
   return {
-    title: page?.metaTitle || FALLBACK_TITLE,
-    description: page?.metaDescription || FALLBACK_DESC,
+    title,
+    description,
+    keywords: seo?.keywords || undefined,
+    alternates: { canonical: '/lien-he' },
+    openGraph: {
+      type: 'website',
+      url: absoluteUrl('/lien-he'),
+      title,
+      description,
+      siteName: SITE_NAME,
+      images: ogImage ? [{ url: ogImage, alt: title }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ogImage ? [ogImage] : undefined,
+    },
   }
 }
 
-export default async function LienHePage() {
-  const page = await getPageBySlug('lien-he')
-
-  if (page) {
-    return (
-      <div className="bg-white">
-        <article className="container mx-auto max-w-3xl px-4 py-12">
-          <h1 className="text-3xl font-bold mb-6">{page.title}</h1>
-          <div
-            className="prose prose-lg max-w-none"
-            dangerouslySetInnerHTML={{ __html: sanitizePageHtml(page.content) }}
-          />
-        </article>
-      </div>
-    )
-  }
-
+export default function LienHePage() {
   return (
     <div className="bg-white">
       <Contact />
