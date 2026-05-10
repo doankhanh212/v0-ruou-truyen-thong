@@ -11,6 +11,8 @@ import {
   Bot,
   Settings,
   Activity,
+  Info,
+  Phone,
   type LucideIcon,
 } from "lucide-react";
 
@@ -50,11 +52,19 @@ export const ADMIN_MENU: MenuGroup[] = [
     items: [
       { href: "/admin/products", label: "Sản phẩm", icon: Package },
       { href: "/admin/categories", label: "Danh mục", icon: FolderTree },
-      { href: "/admin/posts", label: "Tin tức / Blog", icon: Newspaper },
       { href: "/admin/sections", label: "Nội dung Section", icon: LayoutTemplate },
       { href: "/admin/banner", label: "Banner", icon: Megaphone },
       { href: "/admin/media", label: "Thư viện ảnh", icon: ImageIcon },
       { href: "/admin/seo", label: "SEO Pages", icon: Search },
+    ],
+  },
+  {
+    id: "static-pages",
+    label: "Quản lý trang tĩnh",
+    items: [
+      { href: "/admin/posts", label: "Tin tức / Blog", icon: Newspaper },
+      { href: "/admin/pages/gioi-thieu", label: "Giới thiệu", icon: Info },
+      { href: "/admin/pages/lien-he", label: "Liên hệ", icon: Phone },
     ],
   },
   {
