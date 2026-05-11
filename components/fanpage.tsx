@@ -1,12 +1,12 @@
 import Image from 'next/image'
 import { ExternalLink, MessageCircle, Share2, ThumbsUp } from 'lucide-react'
 
-const DEFAULT_FACEBOOK_URL = 'https://www.facebook.com/cuulongmytuu'
+const DEFAULT_FACEBOOK_URL = ''
 
 const SAMPLE_POSTS = [
   {
     date: 'khoảng 3 tháng trước',
-    text: 'BỘ SƯU TẬP CỬU LONG MỸ TỬU - BÌNH SỨ BÁT TRÀNG CAO CẤP. Lựa chọn quà biếu chỉn chu cho gia đình, đối tác và khách hàng dịp lễ Tết.',
+    text: 'BỘ SƯU TẬP RƯỢU TRUYỀN THỐNG - BÌNH SỨ BÁT TRÀNG CAO CẤP. Lựa chọn quà biếu chỉn chu cho gia đình, đối tác và khách hàng dịp lễ Tết.',
     image: '/catalog/bo-qua-tang-loc-xuan.jpg',
     likes: 186,
     comments: 21,
@@ -14,7 +14,7 @@ const SAMPLE_POSTS = [
   },
   {
     date: 'khoảng 2 tháng trước',
-    text: 'Tây Dương Sâm Tửu là dòng quà biếu cao cấp nổi bật của Somo Gold với bình sứ Bát Tràng, nhụy hoa nghệ tây và nhiều quy cách đóng gói đẹp mắt.',
+    text: 'Tây Dương Sâm Tửu là dòng quà biếu cao cấp nổi bật với bình sứ Bát Tràng, nhụy hoa nghệ tây và nhiều quy cách đóng gói đẹp mắt.',
     image: '/catalog/tay-duong-sam-tuu-poster.jpg',
     likes: 124,
     comments: 17,
@@ -36,7 +36,7 @@ export function FanpageWidget({ fanpageUrl, compact = false }: FanpageWidgetProp
         <div className="relative h-20 bg-[#dfe9f7]">
           <Image
             src="/catalog/ruou-truyen-thong-cover.jpg"
-            alt="Cover fanpage Cửu Long Mỹ Tửu"
+            alt="Cover fanpage Rượu Truyền Thống"
             fill
             sizes="(max-width: 768px) 100vw, 400px"
             className="object-cover opacity-90"
@@ -48,14 +48,14 @@ export function FanpageWidget({ fanpageUrl, compact = false }: FanpageWidgetProp
             <div className="relative h-14 w-14 overflow-hidden rounded-xl border-4 border-white bg-white shadow-sm">
               <Image
                 src="/catalog/cuu-long-my-tuu-cover.jpg"
-                alt="Avatar fanpage Cửu Long Mỹ Tửu"
+                alt="Avatar fanpage Rượu Truyền Thống"
                 fill
                 sizes="80px"
                 className="object-cover"
               />
             </div>
             <div className="min-w-0 flex-1 pb-0.5">
-              <h3 className="truncate text-sm font-bold text-slate-900">Cửu Long Mỹ Tửu</h3>
+              <h3 className="truncate text-sm font-bold text-slate-900">Rượu Truyền Thống</h3>
               <p className="text-xs text-slate-500">30.8K người theo dõi</p>
             </div>
           </div>
@@ -92,7 +92,7 @@ export function FanpageWidget({ fanpageUrl, compact = false }: FanpageWidgetProp
         <div className="relative h-28 bg-[#dfe9f7]">
           <Image
             src="/catalog/ruou-truyen-thong-cover.jpg"
-            alt="Cover fanpage Cửu Long Mỹ Tửu"
+            alt="Cover fanpage Rượu Truyền Thống"
             fill
             sizes="(max-width: 768px) 100vw, 400px"
             className="object-cover opacity-90"
@@ -105,7 +105,7 @@ export function FanpageWidget({ fanpageUrl, compact = false }: FanpageWidgetProp
             <div className="relative h-20 w-20 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-md">
               <Image
                 src="/catalog/cuu-long-my-tuu-cover.jpg"
-                alt="Avatar fanpage Cửu Long Mỹ Tửu"
+                alt="Avatar fanpage Rượu Truyền Thống"
                 fill
                 sizes="80px"
                 className="object-cover"
@@ -113,7 +113,7 @@ export function FanpageWidget({ fanpageUrl, compact = false }: FanpageWidgetProp
             </div>
             <div className="min-w-0 flex-1 pb-1">
               <h3 className="truncate text-lg font-bold text-slate-900">
-                Cửu Long Mỹ Tửu
+                Rượu Truyền Thống
               </h3>
               <p className="text-sm text-slate-500">30.8K người theo dõi</p>
             </div>
@@ -148,14 +148,14 @@ export function FanpageWidget({ fanpageUrl, compact = false }: FanpageWidgetProp
                     <div className="relative h-10 w-10 overflow-hidden rounded-full bg-slate-100">
                       <Image
                         src="/catalog/cuu-long-my-tuu-cover.jpg"
-                        alt="Avatar bài viết Cửu Long Mỹ Tửu"
+                        alt="Avatar bài viết Rượu Truyền Thống"
                         fill
                         sizes="40px"
                         className="object-cover"
                       />
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-slate-900">Cửu Long Mỹ Tửu</p>
+                      <p className="truncate text-sm font-semibold text-slate-900">Rượu Truyền Thống</p>
                       <p className="text-xs text-slate-400">{post.date}</p>
                     </div>
                   </div>
@@ -164,7 +164,7 @@ export function FanpageWidget({ fanpageUrl, compact = false }: FanpageWidgetProp
 
                   {post.image && (
                     <div className="relative aspect-[16/10] bg-slate-100">
-                      <Image src={post.image} alt="Bài viết fanpage Cửu Long Mỹ Tửu" fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover" />
+                      <Image src={post.image} alt="Bài viết fanpage Rượu Truyền Thống" fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover" />
                     </div>
                   )}
 
@@ -173,38 +173,19 @@ export function FanpageWidget({ fanpageUrl, compact = false }: FanpageWidgetProp
                       <ThumbsUp size={13} className="text-[#1877F2]" />
                       {post.likes}
                     </span>
-                    <span>{post.comments} bình luận</span>
-                    <span>{post.shares} chia sẻ</span>
-                  </div>
-
-                  <div className="grid grid-cols-3 border-t border-slate-100 px-2 py-2">
-                    <button type="button" className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg text-xs font-medium text-slate-500 transition-colors hover:bg-slate-50 sm:text-sm">
-                      <ThumbsUp size={15} />
-                      Thích
-                    </button>
-                    <button type="button" className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg text-xs font-medium text-slate-500 transition-colors hover:bg-slate-50 sm:text-sm">
-                      <MessageCircle size={15} />
-                      Bình luận
-                    </button>
-                    <button type="button" className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg text-xs font-medium text-slate-500 transition-colors hover:bg-slate-50 sm:text-sm">
-                      <Share2 size={15} />
-                      Chia sẻ
-                    </button>
+                    <span className="inline-flex items-center gap-1">
+                      <MessageCircle size={13} />
+                      {post.comments}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <Share2 size={13} />
+                      {post.shares}
+                    </span>
                   </div>
                 </article>
               ))}
             </div>
           </div>
-
-          <a
-            href={FACEBOOK_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#1877F2] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#166FE5]"
-          >
-            Xem fanpage thật
-            <ExternalLink size={15} />
-          </a>
         </div>
       </div>
     </div>

@@ -108,6 +108,7 @@ function adaptDbProduct(product: ProductWithRelations): CatalogProduct {
     price,
     priceMin: product.price,
     image: gallery[0] ?? "/placeholder.jpg",
+    imageAlt: product.imageAlt ?? undefined,
     detailImage: gallery[1] ?? gallery[0] ?? "/placeholder.jpg",
     gallery,
     description: product.description || "",

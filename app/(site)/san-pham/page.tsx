@@ -1,17 +1,15 @@
 'use client'
 
-import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ChevronLeft, ChevronRight,
   SlidersHorizontal, Filter, X,
-  Search, Sparkles, Gift, Heart, Users,
+  Search, Gift, Heart, Users,
 } from 'lucide-react'
 import { ProductCard } from '@/components/product-card'
 import { useAllCatalogProducts } from '@/hooks/use-catalog-products'
 import type { CatalogProduct } from '@/lib/catalog'
-import { brandVisuals } from '@/lib/site-content'
 import { track } from '@/utils/track'
 
 const ITEMS_PER_PAGE = 6
@@ -296,86 +294,22 @@ function SanPhamPageInner() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="border-b border-gray-200 bg-white">
-        <div className="mx-auto grid max-w-7xl gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:px-8">
-          <div>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-blue-600">
-              Cửu Long Mỹ Tửu — Somo Gold
-            </p>
-            <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">Tất cả sản phẩm</h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-gray-500">
-              Danh mục rượu truyền thống cao cấp — cập nhật trực tiếp từ kho sản phẩm chính thức.
-            </p>
-            <p className="mt-2 text-sm text-gray-400">
-              {loading ? 'Đang tải sản phẩm...' : `${filtered.length} sản phẩm${hasActiveFilter ? ' (đang lọc)' : ''}`}
-            </p>
-            {error ? (
-              <p className="mt-2 text-sm text-red-700">
-                {error}
-              </p>
-            ) : null}
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="relative overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
-              <div className="relative aspect-[4/5] bg-slate-100">
-                <Image
-                  src={brandVisuals.collection}
-                  alt="Bộ sưu tập Cửu Long Mỹ Tửu"
-                  fill
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                  className="object-cover"
-                />
-              </div>
-            </div>
-            <div className="relative overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
-              <div className="relative aspect-[4/5] bg-slate-100">
-                <Image
-                  src={brandVisuals.gifts}
-                  alt="Quà tặng cao cấp Somo Gold"
-                  fill
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                  className="object-cover"
-                />
-              </div>
-            </div>
-          </div>
+      <div className="bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-8 text-center sm:px-6 lg:px-8">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-blue-600">
+            Rượu Truyền Thống
+          </p>
+          <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">Sản phẩm rượu</h1>
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-gray-500">
+            Danh mục rượu truyền thống cao cấp — cập nhật trực tiếp từ kho sản phẩm chính thức.
+          </p>
+          {error ? (
+            <p className="mt-3 text-sm text-red-700">{error}</p>
+          ) : null}
         </div>
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <div className="mb-3 flex items-center gap-2">
-            <Sparkles size={16} className="text-blue-600" />
-            <span className="text-sm font-bold text-gray-700">Gợi ý nhanh cho bạn</span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {RECOMMEND_PRESETS.map((preset) => (
-              <button
-                key={preset.id}
-                type="button"
-                onClick={() => handleRecommend(preset.id)}
-                className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition-all ${
-                  recommend === preset.id ? preset.activeColor : preset.color
-                }`}
-              >
-                {preset.icon}
-                {preset.label}
-              </button>
-            ))}
-            {recommend ? (
-              <button
-                type="button"
-                onClick={() => setRecommend(null)}
-                className="flex items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-500 transition-all hover:bg-gray-50"
-              >
-                <X size={13} />
-                Bỏ gợi ý
-              </button>
-            ) : null}
-          </div>
-        </div>
-
         <div className="mb-6 flex items-center gap-3">
           <div className="relative hidden max-w-md flex-1 md:block">
             <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />

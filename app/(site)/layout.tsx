@@ -2,6 +2,7 @@ import { PageViewTracker } from '@/components/page-view-tracker'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { FloatingButtons } from '@/components/floating-buttons'
+import { ChatbotWidget } from '@/components/chatbot-widget'
 import { getSettings } from '@/lib/settings'
 
 export default async function SiteLayout({
@@ -18,6 +19,7 @@ export default async function SiteLayout({
       <main className="min-h-screen">{children}</main>
       <Footer fanpageUrl={settings.fanpage_url} />
       <FloatingButtons />
+      <ChatbotWidget />
     </>
   )
 }

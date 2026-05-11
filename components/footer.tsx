@@ -21,10 +21,10 @@ export function Footer({ fanpageUrl }: FooterProps = {}) {
               <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-primary font-bold text-lg">
                 𝔐
               </div>
-              <h3 className="font-bold text-lg">Cửu Long Mỹ Tửu</h3>
+              <h3 className="font-bold text-lg">Rượu Truyền Thống</h3>
             </div>
             <p className="text-white/70 text-sm leading-relaxed">
-              Rượu truyền thống cao cấp — Công Ty Cổ Phần Somo Gold. Đạt tiêu chuẩn ISO 22000:2018 & OCOP 4 sao.
+              Rượu truyền thống cao cấp — chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống. Đạt ISO 22000:2018 & OCOP 4 sao.
             </p>
           </div>
 
@@ -112,19 +112,8 @@ export function Footer({ fanpageUrl }: FooterProps = {}) {
         <div className="border-t border-white/20 pt-8">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row md:gap-6">
             <p className="text-center text-sm text-white/70 md:text-left">
-              © {currentYear} Cửu Long Mỹ Tửu — Somo Gold. Tất cả các quyền được bảo lưu.
+              © {currentYear} Rượu Truyền Thống. Tất cả các quyền được bảo lưu.
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-4 md:justify-end">
-              <a href="https://www.facebook.com/cuulongmytuu" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
-                Facebook
-              </a>
-              <a href="https://www.instagram.com/cuulongmytuu" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
-                Instagram
-              </a>
-              <a href="https://www.tiktok.com/@cuulongmytuu" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm text-white/70 transition-colors hover:text-white">
-                TikTok
-              </a>
-            </div>
           </div>
         </div>
       </div>

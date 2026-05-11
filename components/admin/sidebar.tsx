@@ -158,7 +158,7 @@ export function AdminSidebar() {
 function SidebarBrand() {
   return (
     <Link href="/admin/dashboard" className="block">
-      <p className="font-semibold text-[#8B1A1A]">Cửu Long Mỹ Tửu</p>
+      <p className="font-semibold text-[#8B1A1A]">Rượu Truyền Thống</p>
       <p className="text-xs text-gray-500">Admin Panel</p>
     </Link>
   );

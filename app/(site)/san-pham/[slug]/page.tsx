@@ -34,7 +34,7 @@ export async function generateMetadata({
       title,
       description,
       siteName: SITE_NAME,
-      images: [{ url: imageUrl, alt: product.name }],
+      images: [{ url: imageUrl, alt: product.imageAlt || product.name }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -75,13 +75,22 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   const description = metaDescription(catalog.description) || catalog.name
   const canonical = `/san-pham/${catalog.slug}`
 
+  // priceValidUntil = 1 year from now — Google requires a future date.
+  const priceValidUntil = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0]
+
   const productJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: catalog.name,
-    image: [absoluteUrl(catalog.image)],
+    image: (catalog.gallery && catalog.gallery.length > 0
+      ? catalog.gallery
+      : [catalog.image]
+    ).map((url) => absoluteUrl(url)),
     description,
     sku: catalog.slug,
+    mpn: catalog.slug,
     brand: { '@type': 'Brand', name: SITE_NAME },
     category: categoryLabel,
     offers: {
@@ -89,6 +98,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       url: absoluteUrl(canonical),
       price: String(raw.price),
       priceCurrency: 'VND',
+      priceValidUntil,
+      itemCondition: 'https://schema.org/NewCondition',
       availability: 'https://schema.org/InStock',
       seller: { '@type': 'Organization', name: SITE_NAME },
     },

@@ -32,7 +32,7 @@ export function Products() {
           }`}
         >
           <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-secondary">
-            Cửu Long Mỹ Tửu
+            Rượu Truyền Thống
           </p>
           <h2 className="mb-4 text-3xl font-bold text-primary md:text-4xl">
             Dòng Sản Phẩm Cao Cấp

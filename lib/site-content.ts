@@ -16,7 +16,7 @@ export const brandVisuals: BrandVisuals = {
 
 export const companyInfo = {
   name: "Cong Ty Co Phan Somo Gold",
-  brand: "Cuu Long My Tuu",
+  brand: "Rượu Truyền Thống",
   phone: ["0909 799 311", "0902 931 119"],
   email: "somogold@somogroup.vn",
   address: "29 Nguyen Khac Nhu, P. Cau Ong Lanh, TP. Ho Chi Minh",

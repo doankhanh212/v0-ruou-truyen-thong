@@ -17,6 +17,8 @@ model Product {
   categoryId  Int
   description String?         @db.Text
   imageUrl    String?
+  imageAlt    String?
+  viewCount   Int             @default(0)
   tags        String[]
   inStock     Boolean         @default(true)
   featured    Boolean         @default(false)

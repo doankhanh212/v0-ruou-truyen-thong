@@ -3,8 +3,8 @@
  * Strip HTML and normalise text for <meta>, og:*, twitter:*, and JSON-LD.
  */
 
-export const SITE_NAME = "Cửu Long Mỹ Tửu";
-export const SITE_BRAND = "Somo Gold";
+export const SITE_NAME = "Rượu Truyền Thống";
+export const SITE_BRAND = "Rượu Truyền Thống";
 export const SITE_LOCALE = "vi_VN";
 
 export function getSiteUrl(): string {
@@ -17,7 +17,7 @@ export function getSiteUrl(): string {
   if (!raw) {
     if (process.env.NODE_ENV === "production") {
       throw new Error(
-        "NEXT_PUBLIC_SITE_URL is required in production. Set it to the canonical site URL (e.g. https://cuulongmytuu.vn)."
+        "NEXT_PUBLIC_SITE_URL is required in production. Set it to the canonical site URL (e.g. https://yourdomain.com)."
       );
     }
     return "http://localhost:3000";

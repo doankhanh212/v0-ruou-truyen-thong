@@ -20,7 +20,7 @@ const nextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [
       // Add external image hosts here if you ever serve from a CDN/storage bucket.
-      // Example: { protocol: 'https', hostname: 'cdn.cuulongmytuu.vn' },
+      // Example: { protocol: 'https', hostname: 'cdn.yourdomain.com' },
     ],
   },
 

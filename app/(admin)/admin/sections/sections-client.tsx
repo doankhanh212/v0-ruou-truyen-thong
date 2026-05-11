@@ -35,7 +35,7 @@ const FIELD_META: Record<string, FieldMeta> = {
   },
   "home.hero.title_accent": {
     label: "Tiêu đề nhấn (dòng 2, in đậm khác màu)",
-    hint: "Phần nổi bật của tiêu đề, hiển thị màu khác. Ví dụ: 'Cửu Long Mỹ Tửu'",
+    hint: "Phần nổi bật của tiêu đề, hiển thị màu khác. Ví dụ: 'Truyền Thống'",
     icon: Sparkles,
   },
   "home.hero.subtitle": {

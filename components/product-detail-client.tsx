@@ -2,15 +2,76 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { CheckCircle2, ChevronLeft, MessageCircle, Package2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CheckCircle2, ChevronLeft, Eye, MessageCircle, Package2, Users } from "lucide-react";
 import { useCatalogProduct } from "@/hooks/use-catalog-products";
 import { formatCatalogPrice } from "@/lib/catalog";
 import { openZalo } from "@/utils/zalo";
+import { getSessionId } from "@/utils/track";
 
 interface ProductDetailClientProps {
   slug: string;
   categoryHref?: string;
   categoryLabel?: string;
+}
+
+function formatViewCount(value: number): string {
+  if (value < 1000) return String(value);
+  if (value < 1_000_000) return `${(value / 1000).toFixed(1).replace(/\.0$/, "")}K`;
+  return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+}
+
+function useProductViews(slug: string) {
+  const [total, setTotal] = useState<number | null>(null);
+  const [viewing, setViewing] = useState<number>(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    const sessionId = getSessionId();
+
+    async function heartbeat() {
+      try {
+        await fetch(`/api/products/${slug}/views`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId }),
+          keepalive: true,
+        });
+      } catch {
+        // Best effort — tracking failures must never break the page.
+      }
+    }
+
+    async function poll() {
+      try {
+        const res = await fetch(`/api/products/${slug}/views`, { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) {
+          setTotal(typeof data.total === "number" ? data.total : 0);
+          setViewing(typeof data.viewing === "number" ? data.viewing : 0);
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    // Fire one heartbeat immediately, then refresh state.
+    heartbeat().then(poll);
+
+    // Heartbeat every 30 s so other clients see this user as "viewing".
+    const heartbeatTimer = setInterval(heartbeat, 30_000);
+    // Live count poll every 15 s — independent of heartbeat cadence.
+    const pollTimer = setInterval(poll, 15_000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(heartbeatTimer);
+      clearInterval(pollTimer);
+    };
+  }, [slug]);
+
+  return { total, viewing };
 }
 
 export function ProductDetailClient({
@@ -19,6 +80,8 @@ export function ProductDetailClient({
   categoryLabel,
 }: ProductDetailClientProps) {
   const { product, loading, error } = useCatalogProduct(slug);
+  const { total: totalViews, viewing: viewingNow } = useProductViews(slug);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   if (loading) {
     return (
@@ -67,6 +130,8 @@ export function ProductDetailClient({
   }
 
   const itemGallery = product.gallery?.length ? product.gallery : [product.image];
+  const safeActiveIndex = Math.min(activeImageIndex, itemGallery.length - 1);
+  const mainImage = itemGallery[safeActiveIndex] ?? product.image;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -79,11 +144,31 @@ export function ProductDetailClient({
             <ChevronLeft size={16} />
             Quay lại sản phẩm
           </Link>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-              Cửu Long Mỹ Tửu
-            </p>
-            <h1 className="mt-1 text-3xl font-bold text-gray-900 md:text-4xl">{product.name}</h1>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+                Rượu Truyền Thống
+              </p>
+              <h1 className="mt-1 text-3xl font-bold text-gray-900 md:text-4xl">{product.name}</h1>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              {totalViews !== null && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 font-semibold text-slate-700">
+                  <Eye size={13} />
+                  {formatViewCount(totalViews)} lượt xem
+                </span>
+              )}
+              {viewingNow > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 font-semibold text-emerald-700">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                  </span>
+                  <Users size={13} />
+                  {viewingNow} người đang xem
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -93,8 +178,9 @@ export function ProductDetailClient({
           <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
             <div className="relative aspect-square bg-gradient-to-br from-blue-50 to-white">
               <Image
-                src={itemGallery[0] ?? product.image}
-                alt={product.name}
+                key={mainImage}
+                src={mainImage}
+                alt={product.imageAlt || product.name}
                 fill
                 sizes="(max-width: 1024px) 100vw, 55vw"
                 className="object-cover"
@@ -104,20 +190,32 @@ export function ProductDetailClient({
           </div>
 
           {itemGallery.length > 1 && (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {itemGallery.slice(1).map((image, index) => (
-                <div key={`${image}-${index}`} className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-                  <div className="relative aspect-[4/5] bg-slate-50">
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {itemGallery.map((image, index) => {
+                const isActive = index === safeActiveIndex;
+                return (
+                  <button
+                    key={`${image}-${index}`}
+                    type="button"
+                    onClick={() => setActiveImageIndex(index)}
+                    aria-label={`Xem ảnh ${index + 1}`}
+                    aria-current={isActive}
+                    className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border-2 transition-all sm:h-24 sm:w-24 ${
+                      isActive
+                        ? "border-blue-500 shadow-md ring-2 ring-blue-100"
+                        : "border-gray-200 opacity-70 hover:opacity-100"
+                    }`}
+                  >
                     <Image
                       src={image}
-                      alt={`${product.name} mẫu ${index + 2}`}
+                      alt={`${product.name} ảnh ${index + 1}`}
                       fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      sizes="96px"
                       className="object-cover"
                     />
-                  </div>
-                </div>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { CTAButton } from '@/components/cta-button'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { SectionsMap, SectionValue } from '@/lib/sections'
 
 const TRUST_BADGES = [
@@ -13,9 +13,18 @@ const TRUST_BADGES = [
   'Tư vấn miễn phí 24/7',
 ]
 
+const AUTOPLAY_MS = 2000
+
+interface BannerItem {
+  imageUrl: string
+  title?: string | null
+  linkUrl?: string | null
+}
+
 interface HeroProps {
   bannerUrl?: string | null
   bannerAlt?: string | null
+  banners?: BannerItem[]
   sections?: Partial<SectionsMap>
 }
 
@@ -23,13 +32,45 @@ function val(sections: Partial<SectionsMap> | undefined, key: keyof SectionsMap)
   return sections?.[key] ?? { text: '', image: null }
 }
 
-export function Hero({ bannerUrl, bannerAlt, sections }: HeroProps = {}) {
+export function Hero({ bannerUrl, bannerAlt, banners, sections }: HeroProps = {}) {
   const [isVisible, setIsVisible] = useState(false)
+
+  // Normalize: prefer banners[] (carousel). Fallback to single bannerUrl for backward compat.
+  const slides: BannerItem[] = (banners && banners.length > 0)
+    ? banners
+    : (bannerUrl && bannerUrl.trim()
+        ? [{ imageUrl: bannerUrl, title: bannerAlt ?? null, linkUrl: null }]
+        : [])
+
+  const [activeIndex, setActiveIndex] = useState(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
     const t = setTimeout(() => setIsVisible(true), 80)
     return () => clearTimeout(t)
   }, [])
+
+  // Auto-rotate carousel when there are multiple slides
+  useEffect(() => {
+    if (slides.length <= 1) return
+    intervalRef.current = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % slides.length)
+    }, AUTOPLAY_MS)
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [slides.length])
+
+  function goTo(index: number) {
+    setActiveIndex(((index % slides.length) + slides.length) % slides.length)
+    // Reset autoplay timer so user click feels responsive
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = setInterval(() => {
+        setActiveIndex((prev) => (prev + 1) % slides.length)
+      }, AUTOPLAY_MS)
+    }
+  }
 
   const badge = val(sections, 'home.hero.badge')
   const title = val(sections, 'home.hero.title')
@@ -40,7 +81,8 @@ export function Hero({ bannerUrl, bannerAlt, sections }: HeroProps = {}) {
   const statNumber = val(sections, 'home.hero.stat_number')
   const statLabel = val(sections, 'home.hero.stat_label')
 
-  const heroImage = bannerUrl && bannerUrl.trim() ? bannerUrl : null
+  const hasSlides = slides.length > 0
+  const showControls = slides.length > 1
 
   return (
     <section
@@ -51,7 +93,6 @@ export function Hero({ bannerUrl, bannerAlt, sections }: HeroProps = {}) {
           'linear-gradient(135deg, #eff6ff 0%, #ffffff 50%, #f0f9ff 100%)',
       }}
     >
-      {/* Decorative blobs */}
       <div className="pointer-events-none absolute right-0 top-0 h-[320px] w-[320px] -translate-y-1/3 translate-x-1/3 rounded-full bg-primary/5 blur-3xl sm:h-[420px] sm:w-[420px] md:h-[480px] md:w-[480px]" />
       <div className="pointer-events-none absolute bottom-0 left-0 h-60 w-60 -translate-x-1/4 translate-y-1/3 rounded-full bg-secondary/5 blur-3xl sm:h-72 sm:w-72 md:h-80 md:w-80" />
 
@@ -112,7 +153,6 @@ export function Hero({ bannerUrl, bannerAlt, sections }: HeroProps = {}) {
               </div>
             )}
 
-            {/* Trust badges (decorative — not CMS content) */}
             <div className="flex flex-wrap gap-2 sm:gap-2.5 md:gap-3">
               {TRUST_BADGES.map((b) => (
                 <div
@@ -126,24 +166,83 @@ export function Hero({ bannerUrl, bannerAlt, sections }: HeroProps = {}) {
             </div>
           </div>
 
-          {/* ── Right: image (from Banner table only) ── */}
+          {/* ── Right: image carousel ── */}
           <div
             className={`transition-all duration-1000 delay-300 ${
               isVisible ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'
             }`}
           >
-            <div className="relative h-[240px] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-xl shadow-primary/10 sm:h-[320px] sm:rounded-3xl sm:shadow-2xl md:h-[400px] lg:h-[460px]">
-              {heroImage ? (
+            <div className="group relative h-[240px] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-xl shadow-primary/10 sm:h-[320px] sm:rounded-3xl sm:shadow-2xl md:h-[400px] lg:h-[460px]">
+              {hasSlides ? (
                 <>
-                  <Image
-                    src={heroImage}
-                    alt={bannerAlt?.trim() || 'Banner trang chủ'}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover"
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-primary/30 via-transparent to-transparent" />
+                  {/* Slides */}
+                  {slides.map((slide, i) => {
+                    const inner = (
+                      <Image
+                        src={slide.imageUrl}
+                        alt={slide.title?.trim() || 'Banner trang chủ'}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover"
+                        priority={i === 0}
+                      />
+                    )
+                    return (
+                      <div
+                        key={`${slide.imageUrl}-${i}`}
+                        className={`absolute inset-0 transition-opacity duration-700 ${
+                          i === activeIndex ? 'opacity-100' : 'opacity-0'
+                        }`}
+                        aria-hidden={i !== activeIndex}
+                      >
+                        {slide.linkUrl ? (
+                          <Link href={slide.linkUrl} className="block h-full w-full">
+                            {inner}
+                          </Link>
+                        ) : (
+                          inner
+                        )}
+                      </div>
+                    )
+                  })}
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary/30 via-transparent to-transparent" />
+
+                  {/* Prev / next */}
+                  {showControls && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => goTo(activeIndex - 1)}
+                        aria-label="Banner trước"
+                        className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-primary opacity-0 shadow-md backdrop-blur-sm transition-opacity hover:bg-white group-hover:opacity-100 sm:left-3 sm:h-10 sm:w-10"
+                      >
+                        <ChevronLeft size={18} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => goTo(activeIndex + 1)}
+                        aria-label="Banner sau"
+                        className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-primary opacity-0 shadow-md backdrop-blur-sm transition-opacity hover:bg-white group-hover:opacity-100 sm:right-3 sm:h-10 sm:w-10"
+                      >
+                        <ChevronRight size={18} />
+                      </button>
+
+                      {/* Dots */}
+                      <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+                        {slides.map((_, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => goTo(i)}
+                            aria-label={`Banner ${i + 1}`}
+                            className={`h-2 rounded-full transition-all ${
+                              i === activeIndex ? 'w-6 bg-white' : 'w-2 bg-white/60 hover:bg-white/80'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </>
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-center text-sm text-slate-500">
@@ -155,7 +254,7 @@ export function Hero({ bannerUrl, bannerAlt, sections }: HeroProps = {}) {
               )}
 
               {statNumber.text || statLabel.text ? (
-                <div className="absolute bottom-3 left-3 rounded-xl bg-white/90 px-3 py-2 shadow-xl backdrop-blur-sm sm:bottom-4 sm:left-4 sm:rounded-2xl sm:px-4 sm:py-3 md:bottom-6 md:left-6 md:px-5 md:py-4">
+                <div className="absolute bottom-3 left-3 z-10 rounded-xl bg-white/90 px-3 py-2 shadow-xl backdrop-blur-sm sm:bottom-4 sm:left-4 sm:rounded-2xl sm:px-4 sm:py-3 md:bottom-6 md:left-6 md:px-5 md:py-4">
                   {statNumber.text ? (
                     <p className="text-lg font-bold text-primary sm:text-xl md:text-2xl">
                       {statNumber.text}
@@ -167,7 +266,7 @@ export function Hero({ bannerUrl, bannerAlt, sections }: HeroProps = {}) {
                 </div>
               ) : null}
 
-              <div className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 shadow-lg backdrop-blur-sm sm:right-4 sm:top-4 sm:px-3 sm:py-1.5 md:right-6 md:top-6 md:px-4 md:py-2">
+              <div className="absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 shadow-lg backdrop-blur-sm sm:right-4 sm:top-4 sm:px-3 sm:py-1.5 md:right-6 md:top-6 md:px-4 md:py-2">
                 <span className="text-xs text-amber-500 sm:text-sm md:text-base">★★★★★</span>
                 <span className="text-xs font-bold text-foreground sm:text-sm">4.9</span>
               </div>

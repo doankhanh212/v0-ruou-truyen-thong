@@ -17,13 +17,18 @@ const POSITION_LABEL: Record<string, string> = {
   home_hero: "Trang chủ — Hero",
 };
 
+// Kích thước khuyến nghị cho từng vị trí banner.
+// Tỉ lệ Hero hiện tại trên frontend là ~5:4 (h-[460px] @ width 50vw trên desktop ≈ 720×460)
+// nhưng để đẹp trên mọi viewport, đề xuất rộng hơn để Next/Image có thể downscale.
+const SIZE_HINT: Record<string, string> = {
+  home_hero: "Kích thước khuyến nghị: 1200 × 900 px (tỉ lệ ~4:3) — file ≤ 3MB, định dạng JPG/PNG/WebP.",
+};
+
 export function BannerClient() {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [positions, setPositions] = useState<string[]>(["home_hero"]);
   const [loading, setLoading] = useState(true);
   const [file, setFile] = useState<File | null>(null);
-  const [title, setTitle] = useState("");
-  const [subtitle, setSubtitle] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [position, setPosition] = useState("home_hero");
   const [sortOrder, setSortOrder] = useState(0);
@@ -33,8 +38,6 @@ export function BannerClient() {
   // Edit state
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
   const [editFile, setEditFile] = useState<File | null>(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editSubtitle, setEditSubtitle] = useState("");
   const [editLinkUrl, setEditLinkUrl] = useState("");
   const [editPosition, setEditPosition] = useState("home_hero");
   const [editSortOrder, setEditSortOrder] = useState(0);
@@ -70,11 +73,9 @@ export function BannerClient() {
     setSubmitting(true);
     setError(null);
     try {
-      // Reuse existing media upload to store file (returns /uploads/... URL)
       const fd = new FormData();
       fd.append("file", file);
       fd.append("type", "banner");
-      if (title) fd.append("title", title);
       const uploadRes = await fetch("/api/media", { method: "POST", body: fd });
       if (!uploadRes.ok) {
         const data = await uploadRes.json().catch(() => ({}));
@@ -88,8 +89,6 @@ export function BannerClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           imageUrl: uploaded.url,
-          title: title || undefined,
-          subtitle: subtitle || undefined,
           linkUrl: linkUrl || undefined,
           position,
           sortOrder,
@@ -102,8 +101,6 @@ export function BannerClient() {
         return;
       }
       setFile(null);
-      setTitle("");
-      setSubtitle("");
       setLinkUrl("");
       setSortOrder(0);
       const input = document.getElementById("banner-file") as HTMLInputElement | null;
@@ -142,8 +139,6 @@ export function BannerClient() {
 
   function openEdit(b: Banner) {
     setEditingBanner(b);
-    setEditTitle(b.title ?? "");
-    setEditSubtitle(b.subtitle ?? "");
     setEditLinkUrl(b.linkUrl ?? "");
     setEditPosition(b.position);
     setEditSortOrder(b.sortOrder);
@@ -159,12 +154,10 @@ export function BannerClient() {
     setEditError(null);
     try {
       let imageUrl = editImageUrl;
-      // If a new file was selected, upload it first
       if (editFile) {
         const fd = new FormData();
         fd.append("file", editFile);
         fd.append("type", "banner");
-        if (editTitle) fd.append("title", editTitle);
         const uploadRes = await fetch("/api/media", { method: "POST", body: fd });
         if (!uploadRes.ok) {
           const data = await uploadRes.json().catch(() => ({}));
@@ -180,8 +173,6 @@ export function BannerClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           imageUrl,
-          title: editTitle || null,
-          subtitle: editSubtitle || null,
           linkUrl: editLinkUrl || null,
           position: editPosition,
           sortOrder: editSortOrder,
@@ -205,7 +196,8 @@ export function BannerClient() {
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Banner</h1>
       <p className="text-sm text-gray-600">
-        Banner hiển thị ở các vị trí trọng yếu của frontend. Tắt <em>isActive</em> để ẩn mà không xóa.
+        Banner hiển thị ở các vị trí trọng yếu của frontend. Có thể thêm nhiều ảnh — frontend sẽ tự động chạy slide.
+        Tắt <em>isActive</em> để ẩn mà không xóa.
       </p>
 
       <form onSubmit={handleCreate} className="space-y-3 rounded border bg-white p-4">
@@ -226,7 +218,9 @@ export function BannerClient() {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">Thứ tự</label>
+            <label className="mb-1 block text-xs font-medium text-gray-600">
+              Thứ tự (nhỏ hiển thị trước)
+            </label>
             <input
               type="number"
               value={sortOrder}
@@ -234,36 +228,20 @@ export function BannerClient() {
               className="w-full rounded border px-3 py-2 text-sm"
             />
           </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">Tiêu đề (tùy chọn)</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded border px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">Link (tùy chọn)</label>
+          <div className="md:col-span-2">
+            <label className="mb-1 block text-xs font-medium text-gray-600">
+              Link khi click (tùy chọn)
+            </label>
             <input
               type="url"
               value={linkUrl}
               onChange={(e) => setLinkUrl(e.target.value)}
               className="w-full rounded border px-3 py-2 text-sm"
-              placeholder="https://..."
+              placeholder="https://... hoặc /san-pham"
             />
           </div>
           <div className="md:col-span-2">
-            <label className="mb-1 block text-xs font-medium text-gray-600">Phụ đề (tùy chọn)</label>
-            <textarea
-              value={subtitle}
-              onChange={(e) => setSubtitle(e.target.value)}
-              className="w-full rounded border px-3 py-2 text-sm"
-              rows={2}
-            />
-          </div>
-          <div className="md:col-span-2">
-            <label className="mb-1 block text-xs font-medium text-gray-600">Ảnh (≤ 3MB)</label>
+            <label className="mb-1 block text-xs font-medium text-gray-600">Ảnh banner</label>
             <input
               id="banner-file"
               type="file"
@@ -271,6 +249,9 @@ export function BannerClient() {
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               className="w-full text-sm"
             />
+            <p className="mt-1 text-xs text-amber-700">
+              💡 {SIZE_HINT[position] ?? "Kích thước khuyến nghị: 1200 × 900 px, ≤ 3MB."}
+            </p>
           </div>
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
@@ -318,37 +299,19 @@ export function BannerClient() {
                 className="w-full rounded border px-3 py-2 text-sm"
               />
             </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">Tiêu đề</label>
-              <input
-                type="text"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                className="w-full rounded border px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">Link</label>
+            <div className="md:col-span-2">
+              <label className="mb-1 block text-xs font-medium text-gray-600">Link khi click</label>
               <input
                 type="url"
                 value={editLinkUrl}
                 onChange={(e) => setEditLinkUrl(e.target.value)}
                 className="w-full rounded border px-3 py-2 text-sm"
-                placeholder="https://..."
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="mb-1 block text-xs font-medium text-gray-600">Phụ đề</label>
-              <textarea
-                value={editSubtitle}
-                onChange={(e) => setEditSubtitle(e.target.value)}
-                className="w-full rounded border px-3 py-2 text-sm"
-                rows={2}
+                placeholder="https://... hoặc /san-pham"
               />
             </div>
             <div className="md:col-span-2">
               <label className="mb-1 block text-xs font-medium text-gray-600">
-                Ảnh mới (để trống giữ nguyên ảnh cũ)
+                Ảnh mới (để trống để giữ ảnh cũ)
               </label>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={editImageUrl} alt="" className="mb-2 h-16 w-auto rounded border object-cover" />
@@ -358,6 +321,9 @@ export function BannerClient() {
                 onChange={(e) => setEditFile(e.target.files?.[0] ?? null)}
                 className="w-full text-sm"
               />
+              <p className="mt-1 text-xs text-amber-700">
+                💡 {SIZE_HINT[editPosition] ?? "Kích thước khuyến nghị: 1200 × 900 px, ≤ 3MB."}
+              </p>
             </div>
           </div>
           {editError && <p className="text-sm text-red-600">{editError}</p>}
@@ -382,9 +348,9 @@ export function BannerClient() {
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {banners.map((b) => (
             <div key={b.id} className="overflow-hidden rounded border bg-white">
-              <div className="aspect-[16/9] w-full bg-gray-100">
+              <div className="aspect-[4/3] w-full bg-gray-100">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={b.imageUrl} alt={b.title ?? b.position} className="h-full w-full object-cover" />
+                <img src={b.imageUrl} alt={b.position} className="h-full w-full object-cover" />
               </div>
               <div className="space-y-1 p-3">
                 <div className="flex items-center justify-between">
@@ -399,8 +365,9 @@ export function BannerClient() {
                     {b.isActive ? "Hiển thị" : "Ẩn"}
                   </span>
                 </div>
-                {b.title && <p className="text-sm font-medium">{b.title}</p>}
-                {b.subtitle && <p className="text-xs text-gray-600">{b.subtitle}</p>}
+                {b.linkUrl && (
+                  <p className="truncate text-xs text-blue-600" title={b.linkUrl}>🔗 {b.linkUrl}</p>
+                )}
                 <p className="text-xs text-gray-400">Thứ tự: {b.sortOrder}</p>
                 <div className="flex flex-wrap gap-2 pt-2">
                   <button
@@ -421,6 +388,7 @@ export function BannerClient() {
                     type="button"
                     onClick={() => handleSort(b, -1)}
                     className="rounded border px-2 py-1 text-xs hover:bg-gray-50"
+                    title="Lên trên"
                   >
                     ↑
                   </button>
@@ -428,6 +396,7 @@ export function BannerClient() {
                     type="button"
                     onClick={() => handleSort(b, 1)}
                     className="rounded border px-2 py-1 text-xs hover:bg-gray-50"
+                    title="Xuống dưới"
                   >
                     ↓
                   </button>

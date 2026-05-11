@@ -3,17 +3,29 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { Table, THead, TR, TH, TD } from "@/components/admin/table";
-import { Button, Field, Input } from "@/components/admin/form";
-import { AdminCard, AdminEmpty, AdminPageHeader } from "@/components/admin/ui";
+import { Button } from "@/components/admin/form";
+import { AdminEmpty, AdminPageHeader } from "@/components/admin/ui";
 import { slugify } from "@/lib/slug";
+import {
+  CheckCircle2,
+  AlertCircle,
+  Save,
+  Eye,
+  Pencil,
+  ImageIcon,
+  ExternalLink,
+  Globe,
+  Loader2,
+  X,
+  ArrowLeft,
+} from "lucide-react";
 
-// Tiptap is heavy + uses contenteditable → load only on the client.
 const TiptapEditor = dynamic(
   () => import("@/components/admin/tiptap-editor").then((m) => m.TiptapEditor),
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-[320px] items-center justify-center rounded-lg border bg-gray-50 text-sm text-gray-400">
+      <div className="flex h-[480px] items-center justify-center rounded-lg border bg-gray-50 text-sm text-gray-400">
         Đang tải trình soạn thảo...
       </div>
     ),
@@ -61,6 +73,8 @@ export function PostsClient() {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [viewMode, setViewMode] = useState<"edit" | "preview">("edit");
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -90,6 +104,7 @@ export function PostsClient() {
     setViewMode("edit");
     setShowForm(true);
     setError(null);
+    setSuccess(false);
   }
 
   function openEdit(p: Post) {
@@ -107,6 +122,7 @@ export function PostsClient() {
     setViewMode("edit");
     setShowForm(true);
     setError(null);
+    setSuccess(false);
   }
 
   function updateTitle(title: string) {
@@ -151,10 +167,12 @@ export function PostsClient() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setSuccess(false);
     if (!form.title.trim() || !form.content.trim()) {
       setError("Vui lòng nhập tiêu đề và nội dung");
       return;
     }
+    setSaving(true);
     const payload = {
       title: form.title,
       slug: form.slug,
@@ -177,11 +195,19 @@ export function PostsClient() {
         setError(data.error || "Lưu thất bại");
         return;
       }
-      setShowForm(false);
+      const saved = await res.json();
+      // Khi tạo mới → giữ form mở để admin sửa tiếp; khi update → cập nhật ID local
+      if (!editingId && saved?.id) {
+        setEditingId(saved.id);
+      }
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
       await load();
     } catch (err) {
       console.error("[admin posts save]", err);
       setError("Không kết nối được tới server");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -210,9 +236,311 @@ export function PostsClient() {
 
   const previewSrcDoc = useMemo(() => {
     const safe = form.content || "<p><em>(Chưa có nội dung)</em></p>";
-    return `<!doctype html><html><head><meta charset="utf-8" /><style>body{font-family:ui-sans-serif,system-ui,sans-serif;max-width:720px;margin:20px auto;padding:0 16px;line-height:1.65;color:#111827}h1,h2,h3,h4{margin-top:1.6em;line-height:1.3}img{max-width:100%;height:auto;border-radius:8px}a{color:#1d4ed8}</style></head><body>${safe}</body></html>`;
-  }, [form.content]);
+    const heroImg = form.image
+      ? `<img src="${form.image}" alt="" style="width:100%;max-height:280px;object-fit:cover;border-radius:12px;margin-bottom:24px"/>`
+      : "";
+    const title = form.title ? `<h1>${form.title}</h1>` : "";
+    return `<!doctype html><html><head><meta charset="utf-8" /><style>body{font-family:ui-sans-serif,system-ui,sans-serif;max-width:720px;margin:20px auto;padding:0 16px;line-height:1.65;color:#111827}h1{margin:0 0 12px;font-size:28px}h2,h3,h4{margin-top:1.6em;line-height:1.3}img{max-width:100%;height:auto;border-radius:8px;display:block;margin:1em auto}a{color:#1d4ed8}table{border-collapse:collapse;width:100%;margin:1em 0}th,td{border:1px solid #e5e7eb;padding:8px}th{background:#f9fafb}blockquote{border-left:4px solid #8B1A1A;background:#fffbeb;padding:8px 16px;margin:1em 0}</style></head><body>${heroImg}${title}${safe}</body></html>`;
+  }, [form.content, form.image, form.title]);
 
+  const charCount = form.content.replace(/<[^>]+>/g, "").length;
+  const wordCount = form.content.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
+
+  // ── EDIT MODE: full-screen 2-column editor ───────────────────────────────
+  if (showForm) {
+    return (
+      <form onSubmit={save} className="space-y-4">
+        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50"
+              title="Quay lại danh sách"
+            >
+              <ArrowLeft size={16} />
+            </button>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">
+                {editingId ? "Sửa bài viết" : "Bài viết mới"}
+              </h1>
+              <p className="mt-0.5 text-xs text-gray-500">
+                {editingId
+                  ? `ID #${editingId} — chỉnh sửa nội dung và meta SEO`
+                  : "Tạo bài viết mới hiển thị tại trang /news"}
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {editingId && form.slug && (
+              <a
+                href={`/news/${form.slug}${form.isPublished ? "" : "?preview=true"}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                <ExternalLink size={13} /> Xem bài
+              </a>
+            )}
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex items-center gap-1.5 rounded-lg bg-[#8B1A1A] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6f1414] disabled:opacity-50"
+            >
+              {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+              {saving ? "Đang lưu..." : editingId ? "Lưu thay đổi" : "Tạo bài"}
+            </button>
+          </div>
+        </div>
+
+        {error && (
+          <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+        {success && (
+          <div className="flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0" />
+            <span>Đã lưu thành công!</span>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {/* LEFT — content */}
+          <div className="space-y-4 lg:col-span-2">
+            <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+              <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+                <h2 className="text-sm font-bold text-gray-900">Nội dung bài viết</h2>
+                <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-0.5 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("edit")}
+                    className={`flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition-colors ${
+                      viewMode === "edit" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    <Pencil size={11} /> Soạn thảo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("preview")}
+                    className={`flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition-colors ${
+                      viewMode === "preview" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    <Eye size={11} /> Xem trước
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-4 p-4">
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                    Tiêu đề bài viết <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={form.title}
+                    onChange={(e) => updateTitle(e.target.value)}
+                    required
+                    placeholder="VD: 5 lợi ích sức khoẻ của rượu Ba Kích..."
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-base font-medium focus:border-[#8B1A1A] focus:outline-none focus:ring-1 focus:ring-[#8B1A1A]/30"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                    Đường dẫn (slug) <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex items-center gap-1 rounded-lg border border-gray-300 px-2 focus-within:border-[#8B1A1A] focus-within:ring-1 focus-within:ring-[#8B1A1A]/30">
+                    <span className="text-xs text-gray-400">/news/</span>
+                    <input
+                      type="text"
+                      value={form.slug}
+                      onChange={(e) => updateSlug(e.target.value)}
+                      required
+                      className="flex-1 border-0 px-1 py-2 text-sm focus:outline-none focus:ring-0"
+                    />
+                  </div>
+                </div>
+
+                {viewMode === "edit" ? (
+                  <TiptapEditor
+                    value={form.content}
+                    onChange={(html) => setForm((c) => ({ ...c, content: html }))}
+                    placeholder="Bắt đầu viết bài..."
+                    className="min-h-[480px]"
+                  />
+                ) : (
+                  <div className="overflow-hidden rounded-lg border border-gray-200">
+                    <iframe
+                      title="Preview"
+                      srcDoc={previewSrcDoc}
+                      className="block h-[640px] w-full bg-white"
+                      sandbox=""
+                    />
+                  </div>
+                )}
+
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-3 text-xs text-gray-400">
+                  <span>{wordCount} từ · {charCount} ký tự</span>
+                  <span className="text-gray-400">~ {Math.max(1, Math.ceil(wordCount / 200))} phút đọc</span>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* RIGHT — sidebar */}
+          <div className="space-y-4">
+            {/* Hero image */}
+            <section className="rounded-xl border border-gray-200 bg-white">
+              <div className="flex items-center gap-2 border-b border-gray-100 px-4 py-3">
+                <ImageIcon size={14} className="text-gray-500" />
+                <h2 className="text-sm font-bold text-gray-900">Ảnh đại diện</h2>
+              </div>
+              <div className="space-y-3 p-4">
+                <div className="aspect-video overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+                  {form.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={form.image} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full flex-col items-center justify-center text-xs text-gray-400">
+                      <ImageIcon size={28} className="mb-2 text-gray-300" />
+                      Chưa có ảnh
+                    </div>
+                  )}
+                </div>
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) uploadImage(file);
+                    e.currentTarget.value = "";
+                  }}
+                />
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => imageInputRef.current?.click()}
+                    disabled={uploadingImage}
+                    className="flex flex-1 items-center justify-center gap-1 rounded-md bg-[#8B1A1A] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#6f1414] disabled:opacity-50"
+                  >
+                    {uploadingImage ? (
+                      <>
+                        <Loader2 size={12} className="animate-spin" /> Đang tải...
+                      </>
+                    ) : form.image ? (
+                      "Đổi ảnh"
+                    ) : (
+                      "Tải ảnh lên"
+                    )}
+                  </button>
+                  {form.image && (
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, image: "" })}
+                      className="flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100"
+                    >
+                      <X size={11} /> Gỡ
+                    </button>
+                  )}
+                </div>
+                <p className="text-[11px] text-gray-400">
+                  Khuyến nghị: 1200×675 px (16:9). Hiển thị ở đầu bài và trong list /news.
+                </p>
+              </div>
+            </section>
+
+            {/* Publish */}
+            <section className="rounded-xl border border-gray-200 bg-white">
+              <div className="border-b border-gray-100 px-4 py-3">
+                <h2 className="text-sm font-bold text-gray-900">Xuất bản</h2>
+              </div>
+              <div className="p-4">
+                <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-gray-200 p-3 hover:border-amber-300 hover:bg-amber-50">
+                  <input
+                    type="checkbox"
+                    checked={form.isPublished}
+                    onChange={(e) => setForm({ ...form, isPublished: e.target.checked })}
+                    className="mt-0.5 h-4 w-4 rounded border-gray-300"
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-gray-900">Xuất bản công khai</p>
+                    <p className="mt-0.5 text-xs text-gray-500">
+                      Bỏ chọn để giữ nháp — chỉ admin xem được qua link preview.
+                    </p>
+                  </div>
+                </label>
+              </div>
+            </section>
+
+            {/* SEO */}
+            <section className="rounded-xl border border-gray-200 bg-white">
+              <div className="flex items-center gap-2 border-b border-gray-100 px-4 py-3">
+                <Globe size={14} className="text-gray-500" />
+                <h2 className="text-sm font-bold text-gray-900">SEO</h2>
+              </div>
+              <div className="space-y-3 p-4">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-gray-700">Meta Title</label>
+                  <input
+                    type="text"
+                    value={form.metaTitle}
+                    onChange={(e) => setForm({ ...form, metaTitle: e.target.value })}
+                    placeholder="Để trống sẽ dùng tiêu đề bài"
+                    maxLength={70}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#8B1A1A] focus:outline-none focus:ring-1 focus:ring-[#8B1A1A]/30"
+                  />
+                  <p className="mt-1 flex justify-between text-[11px] text-gray-400">
+                    <span>Hiển thị trên Google</span>
+                    <span className={form.metaTitle.length > 60 ? "text-amber-600" : ""}>
+                      {form.metaTitle.length}/70
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-gray-700">Meta Description</label>
+                  <textarea
+                    value={form.metaDescription}
+                    onChange={(e) => setForm({ ...form, metaDescription: e.target.value })}
+                    placeholder="Mô tả ngắn cho Google"
+                    rows={3}
+                    maxLength={170}
+                    className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#8B1A1A] focus:outline-none focus:ring-1 focus:ring-[#8B1A1A]/30"
+                  />
+                  <p className="mt-1 flex justify-between text-[11px] text-gray-400">
+                    <span>Đoạn mô tả dưới tiêu đề</span>
+                    <span className={form.metaDescription.length > 160 ? "text-amber-600" : ""}>
+                      {form.metaDescription.length}/170
+                    </span>
+                  </p>
+                </div>
+
+                <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-3">
+                  <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                    Xem trước trên Google
+                  </p>
+                  <p className="truncate text-sm font-medium text-blue-700">
+                    {form.metaTitle || form.title || "(Chưa có tiêu đề)"}
+                  </p>
+                  <p className="text-[11px] text-green-700">yourdomain.com/news/{form.slug || "..."}</p>
+                  <p className="mt-1 line-clamp-2 text-xs text-gray-600">
+                    {form.metaDescription || "(Chưa có mô tả — Google sẽ tự lấy đoạn đầu nội dung)"}
+                  </p>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </form>
+    );
+  }
+
+  // ── LIST MODE ────────────────────────────────────────────────────────────
   return (
     <>
       <AdminPageHeader
@@ -221,185 +549,11 @@ export function PostsClient() {
         actions={<Button onClick={openCreate}>+ Thêm bài viết</Button>}
       />
 
-      {showForm && (
-        <AdminCard
-          title={editingId ? "Sửa bài viết" : "Thêm bài viết"}
-          className="mb-6"
-        >
-          <form onSubmit={save} className="space-y-5">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <Field label="Tiêu đề">
-                <Input
-                  value={form.title}
-                  onChange={(e) => updateTitle(e.target.value)}
-                  required
-                />
-              </Field>
-              <Field label="Slug (tự sinh từ tiêu đề)">
-                <Input
-                  value={form.slug}
-                  onChange={(e) => updateSlug(e.target.value)}
-                  required
-                />
-              </Field>
-            </div>
-
-            <div>
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-sm text-gray-700">Nội dung bài viết</span>
-                <div className="inline-flex rounded-lg border bg-gray-50 p-0.5 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("edit")}
-                    className={`rounded-md px-3 py-1 font-semibold ${
-                      viewMode === "edit"
-                        ? "bg-white text-gray-900 shadow"
-                        : "text-gray-500"
-                    }`}
-                  >
-                    Soạn thảo
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("preview")}
-                    className={`rounded-md px-3 py-1 font-semibold ${
-                      viewMode === "preview"
-                        ? "bg-white text-gray-900 shadow"
-                        : "text-gray-500"
-                    }`}
-                  >
-                    Xem trước
-                  </button>
-                </div>
-              </div>
-
-              {viewMode === "edit" ? (
-                <TiptapEditor
-                  value={form.content}
-                  onChange={(html) => setForm((c) => ({ ...c, content: html }))}
-                  placeholder="Bắt đầu viết bài..."
-                />
-              ) : (
-                <div className="overflow-hidden rounded-lg border">
-                  <iframe
-                    title="Preview"
-                    srcDoc={previewSrcDoc}
-                    className="block h-[520px] w-full bg-white"
-                    sandbox=""
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:p-4">
-              <p className="text-sm font-medium text-slate-700">Ảnh đại diện</p>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-                <div className="h-32 w-48 flex-shrink-0 overflow-hidden rounded border bg-white">
-                  {form.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={form.image}
-                      alt="Ảnh đại diện"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs text-slate-400">
-                      Chưa có ảnh
-                    </div>
-                  )}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <input
-                    ref={imageInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) uploadImage(file);
-                      e.currentTarget.value = "";
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => imageInputRef.current?.click()}
-                    disabled={uploadingImage}
-                  >
-                    {uploadingImage
-                      ? "Đang tải lên..."
-                      : form.image
-                        ? "Đổi ảnh"
-                        : "Tải ảnh lên"}
-                  </Button>
-                  {form.image && (
-                    <button
-                      type="button"
-                      onClick={() => setForm({ ...form, image: "" })}
-                      className="text-left text-xs text-red-600 hover:underline"
-                    >
-                      Gỡ ảnh
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <Field label="Meta Title (SEO)">
-                <Input
-                  value={form.metaTitle}
-                  onChange={(e) => setForm({ ...form, metaTitle: e.target.value })}
-                />
-              </Field>
-              <Field label="Meta Description (SEO)">
-                <Input
-                  value={form.metaDescription}
-                  onChange={(e) =>
-                    setForm({ ...form, metaDescription: e.target.value })
-                  }
-                />
-              </Field>
-            </div>
-
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={form.isPublished}
-                onChange={(e) => setForm({ ...form, isPublished: e.target.checked })}
-              />
-              Xuất bản
-            </label>
-
-            {error && <p className="text-sm text-red-600">{error}</p>}
-            <div className="flex flex-wrap gap-2">
-              <Button type="submit">Lưu</Button>
-              {editingId && form.slug ? (
-                <a
-                  href={`/news/${form.slug}?preview=true`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center rounded border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                >
-                  Xem trước trên trang
-                </a>
-              ) : null}
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setShowForm(false)}
-              >
-                Huỷ
-              </Button>
-            </div>
-          </form>
-        </AdminCard>
-      )}
-
       {loading ? (
-        <AdminCard>
-          <p className="text-sm text-gray-500">Đang tải...</p>
-        </AdminCard>
+        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
+          <Loader2 size={16} className="mx-auto mb-2 animate-spin text-gray-400" />
+          Đang tải...
+        </div>
       ) : posts.length === 0 ? (
         <AdminEmpty
           title="Chưa có bài viết nào."
@@ -419,12 +573,28 @@ export function PostsClient() {
           <tbody>
             {posts.map((p) => (
               <TR key={p.id}>
-                <TD>{p.title}</TD>
-                <TD className="font-mono text-xs">/news/{p.slug}</TD>
+                <TD>
+                  <div className="flex items-center gap-3">
+                    {p.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.image}
+                        alt=""
+                        className="h-10 w-14 flex-shrink-0 rounded object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-10 w-14 flex-shrink-0 items-center justify-center rounded bg-amber-50 text-amber-300">
+                        <ImageIcon size={14} />
+                      </div>
+                    )}
+                    <span className="line-clamp-2 font-medium text-gray-900">{p.title}</span>
+                  </div>
+                </TD>
+                <TD className="font-mono text-xs text-gray-500">/news/{p.slug}</TD>
                 <TD>
                   <button
                     onClick={() => togglePublish(p)}
-                    className={`text-xs px-2 py-1 rounded ${
+                    className={`text-xs px-2 py-1 rounded font-semibold ${
                       p.isPublished
                         ? "bg-green-100 text-green-700"
                         : "bg-yellow-100 text-yellow-700"
@@ -447,7 +617,7 @@ export function PostsClient() {
                   </a>
                   <button
                     onClick={() => openEdit(p)}
-                    className="text-sm text-[#8B1A1A] hover:underline"
+                    className="text-sm font-semibold text-[#8B1A1A] hover:underline"
                   >
                     Sửa
                   </button>

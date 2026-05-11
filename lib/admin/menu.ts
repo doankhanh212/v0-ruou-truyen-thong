@@ -9,6 +9,7 @@ import {
   Image as ImageIcon,
   Search,
   Bot,
+  Sparkles,
   Settings,
   Activity,
   Info,
@@ -70,7 +71,10 @@ export const ADMIN_MENU: MenuGroup[] = [
   {
     id: "automation",
     label: "Tự động hoá",
-    items: [{ href: "/admin/rules", label: "Chatbot Rules", icon: Bot }],
+    items: [
+      { href: "/admin/chatbot-ai", label: "Chatbot AI", icon: Sparkles },
+      { href: "/admin/rules", label: "Chatbot Rules", icon: Bot },
+    ],
   },
   {
     id: "system",

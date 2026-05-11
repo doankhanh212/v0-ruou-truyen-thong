@@ -29,7 +29,7 @@ function createSessionId() {
   return `session_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
 }
 
-function getSessionId() {
+export function getSessionId() {
   const now = Date.now()
 
   try {

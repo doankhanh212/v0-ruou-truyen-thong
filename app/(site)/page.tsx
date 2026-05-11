@@ -4,7 +4,7 @@ import { Hero } from '@/components/hero'
 import { Trust } from '@/components/trust'
 import { Products } from '@/components/products'
 import { CTA } from '@/components/cta'
-import { getPrimaryBanner } from '@/lib/banners'
+import { getActiveBanners } from '@/lib/banners'
 import { getSections } from '@/lib/sections'
 import { absoluteUrl, metaDescription, metaTitle, SITE_NAME } from '@/lib/seo'
 
@@ -44,10 +44,15 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Home({ searchParams }: HomeProps) {
   const { section } = await searchParams
-  const [banner, sections] = await Promise.all([
-    getPrimaryBanner('home_hero'),
+  const [banners, sections] = await Promise.all([
+    getActiveBanners('home_hero'),
     getSections(),
   ])
+  const heroBanners = banners.map((b) => ({
+    imageUrl: b.imageUrl,
+    title: b.title,
+    linkUrl: b.linkUrl,
+  }))
 
   const orgJsonLd = {
     '@context': 'https://schema.org',
@@ -76,8 +81,7 @@ export default async function Home({ searchParams }: HomeProps) {
       />
       <HomeSectionScroll section={section} />
       <Hero
-        bannerUrl={banner?.imageUrl}
-        bannerAlt={banner?.title}
+        banners={heroBanners}
         sections={sections}
       />
       <Trust />

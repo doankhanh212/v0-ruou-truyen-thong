@@ -3,6 +3,7 @@ import sanitizeHtml from "sanitize-html";
 import { isAuthenticated } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { adminRateGuard } from "@/lib/admin-rate-limit";
+import { PAGE_HTML_OPTIONS } from "@/lib/sanitize-page-html";
 
 async function requireAuth() {
   if (!(await isAuthenticated())) {
@@ -10,46 +11,6 @@ async function requireAuth() {
   }
   return null;
 }
-
-const PAGE_HTML_OPTIONS: sanitizeHtml.IOptions = {
-  allowedTags: [
-    "h1", "h2", "h3", "h4",
-    "p", "br", "hr", "blockquote",
-    "ul", "ol", "li",
-    "strong", "em", "b", "i", "u", "s",
-    "a", "img",
-    "code", "pre",
-    "span", "div",
-    "table", "thead", "tbody", "tr", "th", "td",
-  ],
-  allowedAttributes: {
-    a: ["href", "target", "rel", "class"],
-    img: ["src", "alt", "width", "height", "class"],
-    p: ["style"],
-    h1: ["style"], h2: ["style"], h3: ["style"], h4: ["style"],
-    span: ["style"],
-    div: ["style", "class"],
-    td: ["style"], th: ["style"],
-  },
-  allowedStyles: {
-    "*": {
-      "text-align": [/^left$/, /^right$/, /^center$/, /^justify$/],
-    },
-  },
-  allowedSchemes: ["http", "https", "mailto", "tel"],
-  allowedSchemesByTag: { img: ["http", "https"] },
-  transformTags: {
-    a: (tagName, attribs) => ({
-      tagName,
-      attribs: {
-        href: attribs.href || "",
-        rel: "noopener noreferrer",
-        target: "_blank",
-        class: attribs.class || "",
-      },
-    }),
-  },
-};
 
 export async function GET(
   _request: NextRequest,

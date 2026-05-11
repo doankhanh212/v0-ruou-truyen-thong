@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import { Lock } from "lucide-react";
 import type { SettingsMap } from "@/lib/settings";
 
 type Field = {
@@ -21,14 +22,20 @@ const PRIMARY_FIELDS: Field[] = [
   { key: "phone", label: "Điện thoại", placeholder: "Người liên hệ hoặc số phụ trách" },
   { key: "zalo_url", label: "Zalo", placeholder: "https://zalo.me/0902931119" },
   { key: "zalo_oaid", label: "OAID Zalo", placeholder: "OAID Zalo" },
-  { key: "website", label: "Website", placeholder: "https://cuulongmytuu.vn/" },
-  { key: "fanpage_url", label: "Fanpage", placeholder: "https://www.facebook.com/cuulongmytuu/" },
+  { key: "website", label: "Website", placeholder: "https://yourdomain.com/" },
+  { key: "fanpage_url", label: "Fanpage", placeholder: "https://www.facebook.com/your-page/" },
   { key: "copyright", label: "Copyright", placeholder: "Bản quyền © 2026 ..." },
   { key: "home_page_size", label: "Phân trang chủ", placeholder: "16", helper: "Số sản phẩm hiển thị trên trang chủ" },
   { key: "google_map_coords", label: "Tọa độ Google Map", placeholder: "10.762667797410737,106.68600295483124" },
 ];
 
 const EMBED_FIELDS: Field[] = [
+  {
+    key: "gtm_id",
+    label: "Google Tag Manager ID",
+    placeholder: "GTM-XXXXXXX",
+    helper: "Để trống nếu không dùng. GTM sẽ tự động không inject script khi rỗng.",
+  },
   {
     key: "google_map_embed",
     label: "Tọa độ google map iframe",
@@ -85,6 +92,135 @@ function SettingsInput({
   );
 }
 
+function PasswordSection() {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+
+  const inputClass = "w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100";
+
+  function reset() {
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  }
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    setMessage(null);
+
+    if (newPassword !== confirmPassword) {
+      setMessage({ kind: "err", text: "Mật khẩu xác nhận không khớp" });
+      return;
+    }
+    if (newPassword.length < 10) {
+      setMessage({ kind: "err", text: "Mật khẩu mới phải có ít nhất 10 ký tự" });
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/admin/password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setMessage({ kind: "err", text: data.error || "Đổi mật khẩu thất bại" });
+        return;
+      }
+      reset();
+      setMessage({ kind: "ok", text: "Đã đổi mật khẩu. Lần đăng nhập tiếp theo dùng mật khẩu mới." });
+    } catch {
+      setMessage({ kind: "err", text: "Không kết nối được tới server" });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="flex items-center gap-2 border-b border-slate-200 px-5 py-3">
+        <Lock size={16} className="text-sky-600" />
+        <h2 className="text-lg font-semibold text-slate-800">Bảo mật — Đổi mật khẩu</h2>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4 px-5 py-5">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-800">Mật khẩu hiện tại:</label>
+            <input
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-800">Mật khẩu mới:</label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              autoComplete="new-password"
+              required
+              minLength={10}
+              className={inputClass}
+            />
+            <p className="mt-1 text-xs text-slate-500">Tối thiểu 10 ký tự, có cả chữ và số.</p>
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-800">Xác nhận mật khẩu mới:</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+              required
+              className={inputClass}
+            />
+          </div>
+        </div>
+
+        {message ? (
+          <div
+            className={`rounded-md border px-4 py-3 text-sm ${
+              message.kind === "ok"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                : "border-rose-200 bg-rose-50 text-rose-700"
+            }`}
+          >
+            {message.text}
+          </div>
+        ) : null}
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="inline-flex items-center rounded bg-sky-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-sky-700 disabled:opacity-50"
+          >
+            {submitting ? "Đang đổi..." : "Đổi mật khẩu"}
+          </button>
+          <button
+            type="button"
+            onClick={reset}
+            disabled={submitting}
+            className="inline-flex items-center rounded bg-slate-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-600 disabled:opacity-50"
+          >
+            Làm lại
+          </button>
+        </div>
+      </form>
+    </section>
+  );
+}
+
 export function SettingsClient({ initial }: { initial: SettingsMap }) {
   const [values, setValues] = useState<SettingsMap>(initial);
   const [savedValues, setSavedValues] = useState<SettingsMap>(initial);
@@ -127,6 +263,7 @@ export function SettingsClient({ initial }: { initial: SettingsMap }) {
   }
 
   return (
+    <div className="space-y-5">
     <form onSubmit={handleSave} className="space-y-5">
       <div>
         <div className="mb-2 text-sm text-slate-500">
@@ -203,5 +340,7 @@ export function SettingsClient({ initial }: { initial: SettingsMap }) {
         </div>
       </div>
     </form>
+    <PasswordSection />
+    </div>
   );
 }

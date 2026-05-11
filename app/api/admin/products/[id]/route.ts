@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { isAuthenticated } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getSecondaryProductImageUrls, normalizeProductImages } from "@/lib/product-images";
 import { adminRateGuard } from "@/lib/admin-rate-limit";
+
+const altSchema = z
+  .string()
+  .trim()
+  .min(3, "Alt text phải có ít nhất 3 ký tự")
+  .max(160, "Alt text tối đa 160 ký tự")
+  .refine((v) => !/[<>]/.test(v), "Alt text không được chứa < hoặc >");
 
 async function requireAuth() {
   if (!(await isAuthenticated())) {
@@ -54,6 +62,17 @@ export async function PATCH(
         data[field] = body[field];
       }
     }
+  }
+
+  if (body.imageAlt !== undefined) {
+    const altResult = altSchema.safeParse(body.imageAlt);
+    if (!altResult.success) {
+      return NextResponse.json(
+        { error: altResult.error.issues[0]?.message || "Alt text không hợp lệ" },
+        { status: 400 }
+      );
+    }
+    data.imageAlt = altResult.data;
   }
 
   if (body.categoryId !== undefined && body.categoryId !== null) {

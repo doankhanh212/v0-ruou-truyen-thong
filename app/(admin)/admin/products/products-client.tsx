@@ -13,6 +13,7 @@ type Product = {
   category: string;
   categoryId: number | null;
   imageUrl: string | null;
+  imageAlt: string | null;
   description: string | null;
   inStock: boolean;
   featured: boolean;
@@ -35,6 +36,7 @@ const EMPTY_FORM = {
   priceOld: "",
   categoryId: "",
   imageUrl: "",
+  imageAlt: "",
   description: "",
   featured: false,
   inStock: true,
@@ -99,6 +101,7 @@ export function ProductsClient() {
       priceOld: p.priceOld ? String(p.priceOld) : "",
       categoryId: p.categoryId ? String(p.categoryId) : "",
       imageUrl: p.imageUrl || "",
+      imageAlt: p.imageAlt || "",
       description: p.description || "",
       featured: p.featured,
       inStock: p.inStock,
@@ -159,6 +162,16 @@ export function ProductsClient() {
     setForm((current) => ({ ...current, imageUrl: url }));
   }
 
+  function moveGalleryImage(idx: number, direction: -1 | 1) {
+    setImageUrls((current) => {
+      const target = idx + direction;
+      if (target < 0 || target >= current.length) return current;
+      const next = [...current];
+      [next[idx], next[target]] = [next[target], next[idx]];
+      return next;
+    });
+  }
+
   async function save(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -170,6 +183,10 @@ export function ProductsClient() {
       setError("Vui lòng tải lên ảnh chính");
       return;
     }
+    if (!form.imageAlt.trim() || form.imageAlt.trim().length < 3) {
+      setError("Vui lòng nhập Alt text mô tả ảnh (tối thiểu 3 ký tự)");
+      return;
+    }
 
     const payload = {
       name: form.name,
@@ -178,6 +195,7 @@ export function ProductsClient() {
       priceOld: form.priceOld ? Number(form.priceOld) : null,
       categoryId: Number(form.categoryId),
       imageUrl: form.imageUrl,
+      imageAlt: form.imageAlt.trim(),
       description: form.description || null,
       featured: form.featured,
       inStock: form.inStock,
@@ -357,13 +375,24 @@ export function ProductsClient() {
                 )}
               </div>
             </div>
+            <Field label="Alt text (mô tả ảnh — bắt buộc cho SEO & a11y)">
+              <Input
+                value={form.imageAlt}
+                onChange={(e) => setForm({ ...form, imageAlt: e.target.value })}
+                placeholder="VD: Chai rượu nếp than Cửu Long 500ml đóng hộp gỗ"
+                maxLength={160}
+                required
+              />
+            </Field>
           </div>
 
           <div className="space-y-3 rounded border border-slate-200 p-3 sm:p-4">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-700">Ảnh gallery phụ</p>
-                <p className="text-xs text-slate-500">Ảnh xuất hiện bên dưới ảnh chính.</p>
+                <p className="text-sm font-medium text-slate-700">Ảnh phụ (gallery)</p>
+                <p className="text-xs text-slate-500">
+                  Hiển thị dưới dạng thumbnail dưới ảnh chính. Khách bấm để chuyển ảnh. Thứ tự ở đây = thứ tự ngoài trang.
+                </p>
               </div>
               <input
                 ref={galleryInputRef}
@@ -386,28 +415,62 @@ export function ProductsClient() {
               </Button>
             </div>
             {imageUrls.length === 0 ? (
-              <p className="text-xs text-slate-500">Chưa có ảnh phụ nào.</p>
+              <p className="rounded-md border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center text-xs text-slate-500">
+                Chưa có ảnh phụ nào. Bấm "+ Tải ảnh phụ" để thêm.
+              </p>
             ) : (
-              <div className="flex flex-wrap gap-3">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 {imageUrls.map((url, idx) => (
-                  <div key={`${url}-${idx}`} className="relative h-24 w-24 overflow-hidden rounded border bg-white">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt="" className="h-full w-full object-cover" />
-                    <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-black/60 px-1 py-1 text-[10px] text-white opacity-0 transition-opacity hover:opacity-100">
-                      <button
-                        type="button"
-                        onClick={() => promoteGalleryImage(idx)}
-                        className="rounded bg-white/20 px-1 py-0.5 hover:bg-white/30"
-                      >
-                        Đặt chính
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeGalleryImage(idx)}
-                        className="rounded bg-red-500/80 px-1 py-0.5 hover:bg-red-500"
-                      >
-                        Gỡ
-                      </button>
+                  <div
+                    key={`${url}-${idx}`}
+                    className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
+                  >
+                    <div className="relative aspect-square">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt="" className="h-full w-full object-cover" />
+                      <span className="absolute left-1.5 top-1.5 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-white">
+                        #{idx + 1}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-1 border-t border-slate-100 bg-slate-50 px-1.5 py-1.5">
+                      <div className="flex gap-0.5">
+                        <button
+                          type="button"
+                          onClick={() => moveGalleryImage(idx, -1)}
+                          disabled={idx === 0}
+                          title="Di chuyển trái"
+                          className="rounded px-1.5 py-1 text-xs text-slate-600 hover:bg-slate-200 disabled:opacity-30"
+                        >
+                          ←
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveGalleryImage(idx, 1)}
+                          disabled={idx === imageUrls.length - 1}
+                          title="Di chuyển phải"
+                          className="rounded px-1.5 py-1 text-xs text-slate-600 hover:bg-slate-200 disabled:opacity-30"
+                        >
+                          →
+                        </button>
+                      </div>
+                      <div className="flex gap-0.5">
+                        <button
+                          type="button"
+                          onClick={() => promoteGalleryImage(idx)}
+                          title="Đặt làm ảnh chính"
+                          className="rounded px-1.5 py-1 text-[10px] font-semibold text-blue-700 hover:bg-blue-50"
+                        >
+                          Đặt chính
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeGalleryImage(idx)}
+                          title="Gỡ ảnh"
+                          className="rounded px-1.5 py-1 text-[10px] font-semibold text-red-600 hover:bg-red-50"
+                        >
+                          Gỡ
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

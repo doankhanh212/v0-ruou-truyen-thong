@@ -1,7 +1,9 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Be_Vietnam_Pro } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { GoogleTagManager } from '@next/third-parties/google'
 import { getSiteUrl, SITE_NAME } from '@/lib/seo'
+import { getSettings } from '@/lib/settings'
 import './globals.css'
 
 const beVietnamPro = Be_Vietnam_Pro({
@@ -14,11 +16,11 @@ const beVietnamPro = Be_Vietnam_Pro({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: `${SITE_NAME} — Somo Gold`,
+    default: SITE_NAME,
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    'Rượu truyền thống cao cấp Cửu Long Mỹ Tửu — thương hiệu Somo Gold. Chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống. Đạt ISO 22000:2018 & OCOP 4 sao.',
+    'Rượu truyền thống cao cấp — chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống. Đạt ISO 22000:2018 & OCOP 4 sao.',
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
@@ -47,14 +49,26 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#8B1A1A',
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const settings = await getSettings()
+  const gtmId = settings.gtm_id.trim()
+  const validGtmId = /^GTM-[A-Z0-9]+$/.test(gtmId) ? gtmId : null
+
   return (
     <html lang="vi" className={beVietnamPro.variable}>
-      <body className="font-sans antialiased">
+      {validGtmId && <GoogleTagManager gtmId={validGtmId} />}
+      <body className="font-sans antialiased overflow-x-hidden">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

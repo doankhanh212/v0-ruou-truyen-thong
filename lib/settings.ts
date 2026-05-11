@@ -14,6 +14,7 @@ export const SETTING_KEYS = [
   "google_map_coords",
   "google_map_embed",
   "google_analytics",
+  "gtm_id",
 ] as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[number];
@@ -34,6 +35,7 @@ export const DEFAULT_SETTINGS: SettingsMap = {
   google_map_coords: "",
   google_map_embed: "",
   google_analytics: "",
+  gtm_id: "",
 };
 
 let cache: { map: SettingsMap; expiresAt: number } | null = null;

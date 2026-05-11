@@ -196,7 +196,7 @@ export function SeoClient() {
                 value={form.keywords}
                 onChange={(e) => setForm({ ...form, keywords: e.target.value })}
                 maxLength={500}
-                placeholder="vd: rượu truyền thống, somo gold, cửu long mỹ tửu"
+                placeholder="vd: rượu truyền thống, rượu thuốc, rượu nếp"
               />
             </Field>
 

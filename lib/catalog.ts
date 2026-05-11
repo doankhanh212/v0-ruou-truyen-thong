@@ -15,6 +15,7 @@ export interface CatalogProduct {
   price: string;
   priceMin: number;
   image: string;
+  imageAlt?: string;
   detailImage?: string;
   gallery?: string[];
   description: string;

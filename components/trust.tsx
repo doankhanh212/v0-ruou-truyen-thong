@@ -62,7 +62,7 @@ export function Trust() {
               <div className="relative aspect-[16/9]">
                 <Image
                   src={brandVisuals.collection}
-                  alt="Bộ sưu tập Cửu Long Mỹ Tửu"
+                  alt="Bộ sưu tập Rượu Truyền Thống"
                   fill
                   sizes="(max-width: 1024px) 100vw, 60vw"
                   className="object-cover"

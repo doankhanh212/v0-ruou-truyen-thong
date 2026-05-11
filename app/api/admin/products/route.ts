@@ -13,6 +13,15 @@ async function requireAuth() {
   return null;
 }
 
+// Plain-text alt: strip any HTML tags & control chars, then bound length.
+// Block < and > entirely so even encoded entities cannot reach an HTML context.
+const altSchema = z
+  .string()
+  .trim()
+  .min(3, "Alt text phải có ít nhất 3 ký tự")
+  .max(160, "Alt text tối đa 160 ký tự")
+  .refine((v) => !/[<>]/.test(v), "Alt text không được chứa < hoặc >");
+
 const ProductInput = z.object({
   name: z.string().trim().min(1).max(200),
   slug: z.string().trim().min(1).max(200),
@@ -21,6 +30,7 @@ const ProductInput = z.object({
   categoryId: z.coerce.number().int().positive(),
   description: z.string().max(10_000).nullable().optional(),
   imageUrl: z.string().nullable().optional(),
+  imageAlt: altSchema,
   imageUrls: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
   inStock: z.boolean().optional(),
@@ -108,6 +118,7 @@ export async function POST(request: NextRequest) {
         categoryId: category.id,
         description: data.description ?? null,
         imageUrl: normalizedImages.imageUrl,
+        imageAlt: data.imageAlt,
         tags: data.tags ?? [],
         inStock: data.inStock ?? true,
         featured: data.featured ?? false,
