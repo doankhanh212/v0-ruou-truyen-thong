@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import { ADMIN_PASSWORD_SETTING_KEY, isAuthenticated, verifyAdminPassword } from "@/lib/auth";
+import { ADMIN_PASSWORD_SETTING_KEY, getSession, isAuthenticated, verifyAdminPassword } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { adminRateGuard } from "@/lib/admin-rate-limit";
+import { adminRateGuard, clientIp } from "@/lib/admin-rate-limit";
+import { rateLimit } from "@/lib/rate-limit";
 
 const ChangePasswordInput = z
   .object({
@@ -32,6 +33,17 @@ export async function POST(request: NextRequest) {
   }
   const limited = await adminRateGuard(request);
   if (limited) return limited;
+
+  // Stricter per-IP guard specific to password change: a session cookie holder
+  // could otherwise brute-force `currentPassword` at the admin rate (60/min).
+  const ip = clientIp(request);
+  const pwdLimit = await rateLimit(`pwdchange:${ip}`, 5, 600);
+  if (!pwdLimit.success) {
+    return NextResponse.json(
+      { error: "Quá nhiều lần thử. Vui lòng đợi 10 phút." },
+      { status: 429, headers: { "Retry-After": "600" } }
+    );
+  }
 
   let body: unknown;
   try {
@@ -62,5 +74,9 @@ export async function POST(request: NextRequest) {
     create: { key: ADMIN_PASSWORD_SETTING_KEY, value: newHash },
   });
 
-  return NextResponse.json({ ok: true });
+  // Force re-login so any stolen cookie cannot keep using the old credential.
+  const session = await getSession();
+  session.destroy();
+
+  return NextResponse.json({ ok: true, requireRelogin: true });
 }

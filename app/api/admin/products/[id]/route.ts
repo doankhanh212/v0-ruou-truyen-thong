@@ -10,7 +10,7 @@ const altSchema = z
   .trim()
   .min(3, "Alt text phải có ít nhất 3 ký tự")
   .max(160, "Alt text tối đa 160 ký tự")
-  .refine((v) => !/[<>]/.test(v), "Alt text không được chứa < hoặc >");
+  .refine((v) => !/[<>"\x00-\x1f]/.test(v), "Alt text chứa ký tự không hợp lệ");
 
 async function requireAuth() {
   if (!(await isAuthenticated())) {
@@ -29,8 +29,8 @@ export async function PATCH(
   if (limited) return limited;
 
   const { id } = await params;
-  const productId = parseInt(id);
-  if (isNaN(productId)) {
+  const productId = Number.parseInt(id, 10);
+  if (!Number.isInteger(productId) || productId <= 0) {
     return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 
@@ -148,8 +148,8 @@ export async function DELETE(
   if (limited) return limited;
 
   const { id } = await params;
-  const productId = parseInt(id);
-  if (isNaN(productId)) {
+  const productId = Number.parseInt(id, 10);
+  if (!Number.isInteger(productId) || productId <= 0) {
     return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 

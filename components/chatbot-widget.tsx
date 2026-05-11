@@ -215,11 +215,17 @@ export function ChatbotWidget() {
       .slice(-MAX_HISTORY)
       .map((m) => ({ role: m.role, text: m.text }))
 
+    // 45s overall budget — covers the worst case of fallback through every
+    // OpenRouter model. Server already caps each model at 15s.
+    const aborter = new AbortController()
+    const abortTimer = setTimeout(() => aborter.abort(), 45_000)
+
     try {
       const res = await fetch('/api/chatbot/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, history: historyForApi }),
+        signal: aborter.signal,
       })
 
       if (res.status === 503) {
@@ -281,9 +287,14 @@ export function ChatbotWidget() {
         }
         return next
       })
-    } catch {
-      streamBotMessage('⚠️ Không kết nối được tới máy chủ. Vui lòng thử lại.')
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        streamBotMessage('⚠️ Trợ lý phản hồi hơi lâu — bạn thử lại sau ít phút nhé, hoặc Chat Zalo để được tư vấn ngay.')
+      } else {
+        streamBotMessage('⚠️ Không kết nối được tới máy chủ. Vui lòng thử lại.')
+      }
     } finally {
+      clearTimeout(abortTimer)
       setSending(false)
     }
   }

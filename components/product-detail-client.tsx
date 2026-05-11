@@ -27,6 +27,8 @@ function useProductViews(slug: string) {
 
   useEffect(() => {
     let cancelled = false;
+    let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+    let pollTimer: ReturnType<typeof setInterval> | null = null;
     const sessionId = getSessionId();
 
     async function heartbeat() {
@@ -56,18 +58,33 @@ function useProductViews(slug: string) {
       }
     }
 
-    // Fire one heartbeat immediately, then refresh state.
-    heartbeat().then(poll);
+    function startTimers() {
+      if (heartbeatTimer || pollTimer) return;
+      heartbeat().then(poll);
+      heartbeatTimer = setInterval(heartbeat, 30_000);
+      pollTimer = setInterval(poll, 15_000);
+    }
 
-    // Heartbeat every 30 s so other clients see this user as "viewing".
-    const heartbeatTimer = setInterval(heartbeat, 30_000);
-    // Live count poll every 15 s — independent of heartbeat cadence.
-    const pollTimer = setInterval(poll, 15_000);
+    function stopTimers() {
+      if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    }
+
+    function onVisibilityChange() {
+      // Pause heartbeat when the tab is hidden so the live count reflects
+      // real concurrent viewers, not abandoned tabs. The server-side ZSET
+      // entry will TTL out within 60s and the user disappears from the count.
+      if (document.hidden) stopTimers();
+      else { startTimers(); poll(); }
+    }
+
+    if (typeof document !== "undefined" && !document.hidden) startTimers();
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       cancelled = true;
-      clearInterval(heartbeatTimer);
-      clearInterval(pollTimer);
+      stopTimers();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, [slug]);
 

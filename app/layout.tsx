@@ -66,7 +66,7 @@ export default async function RootLayout({
   const validGtmId = /^GTM-[A-Z0-9]+$/.test(gtmId) ? gtmId : null
 
   return (
-    <html lang="vi" className={beVietnamPro.variable}>
+    <html lang="vi" className={beVietnamPro.variable} data-scroll-behavior="smooth">
       {validGtmId && <GoogleTagManager gtmId={validGtmId} />}
       <body className="font-sans antialiased overflow-x-hidden">
         {children}

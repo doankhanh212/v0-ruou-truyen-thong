@@ -164,16 +164,30 @@ export async function callOpenRouter(opts: CommonOpts): Promise<string> {
   let lastError: Error | null = null;
 
   for (const model of OPENROUTER_MODELS) {
-    const res = await fetch(OPENROUTER_API_URL, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        model,
-        messages,
-        max_tokens: opts.maxTokens ?? 400,
-        temperature: opts.temperature ?? 0.7,
-      }),
-    });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20_000);
+
+    let res: Response;
+    try {
+      res = await fetch(OPENROUTER_API_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          model,
+          messages,
+          max_tokens: opts.maxTokens ?? 400,
+          temperature: opts.temperature ?? 0.7,
+        }),
+        signal: controller.signal,
+      });
+    } catch (err) {
+      lastError = err instanceof Error
+        ? new Error(`OpenRouter (model ${model}) timeout/abort: ${err.message}`)
+        : new Error(`OpenRouter (model ${model}) unknown fetch error`);
+      continue;
+    } finally {
+      clearTimeout(timer);
+    }
 
     if (res.ok) {
       const data = await res.json();
@@ -210,17 +224,34 @@ export async function streamOpenRouter(opts: CommonOpts): Promise<ReadableStream
   let lastError: Error | null = null;
 
   for (const model of OPENROUTER_MODELS) {
-    const res = await fetch(OPENROUTER_API_URL, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        model,
-        messages,
-        max_tokens: opts.maxTokens ?? 400,
-        temperature: opts.temperature ?? 0.7,
-        stream: true,
-      }),
-    });
+    // 15s connect timeout per model. The fallback loop walks through 5 models,
+    // so the absolute worst case is 75s — still bounded. Once we get first
+    // byte (`res.body`), the stream itself is no longer subject to this timer.
+    const connectController = new AbortController();
+    const connectTimer = setTimeout(() => connectController.abort(), 15_000);
+
+    let res: Response;
+    try {
+      res = await fetch(OPENROUTER_API_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          model,
+          messages,
+          max_tokens: opts.maxTokens ?? 400,
+          temperature: opts.temperature ?? 0.7,
+          stream: true,
+        }),
+        signal: connectController.signal,
+      });
+    } catch (err) {
+      lastError = err instanceof Error
+        ? new Error(`OpenRouter (model ${model}) timeout/abort: ${err.message}`)
+        : new Error(`OpenRouter (model ${model}) unknown fetch error`);
+      continue;
+    } finally {
+      clearTimeout(connectTimer);
+    }
 
     if (res.ok && res.body) {
       upstream = res;

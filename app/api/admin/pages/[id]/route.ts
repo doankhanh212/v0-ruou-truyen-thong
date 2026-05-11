@@ -20,8 +20,8 @@ export async function GET(
   if (authError) return authError;
 
   const { id } = await params;
-  const pageId = parseInt(id);
-  if (isNaN(pageId)) {
+  const pageId = Number.parseInt(id, 10);
+  if (!Number.isInteger(pageId) || pageId <= 0) {
     return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 
@@ -45,8 +45,8 @@ export async function PATCH(
   if (limited) return limited;
 
   const { id } = await params;
-  const pageId = parseInt(id);
-  if (isNaN(pageId)) {
+  const pageId = Number.parseInt(id, 10);
+  if (!Number.isInteger(pageId) || pageId <= 0) {
     return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 

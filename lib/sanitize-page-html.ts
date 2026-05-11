@@ -60,7 +60,10 @@ export const PAGE_HTML_OPTIONS: sanitizeHtml.IOptions = {
       "line-height": [/^[\d.]+(?:px|em|rem|%)?$/],
       "width": [/^\d+(?:px|%|em|rem)$/, /^auto$/],
       "height": [/^\d+(?:px|%|em|rem)$/, /^auto$/],
-      "border": [/^.{0,80}$/],
+      // Tight border shorthand: `<width> <style> <color?>`. Prevents
+      // attempts to smuggle URL() or other unexpected tokens through the
+      // permissive .{0,80} we had before.
+      "border": [/^\d+(?:px|em|rem)\s+(?:solid|dashed|dotted|double|none)(?:\s+#[0-9a-f]{3,8}|\s+[a-z]+|\s+rgba?\([\d.,\s%]+\))?$/i],
       "border-color": [/^#(0x)?[0-9a-f]+$/i, /^rgba?\(\s*(\d+%?\s*,\s*){2,3}[\d.]+%?\s*\)$/i, /^[a-z]+$/i],
       "padding": [/^\d+(?:px|em|rem|%)(?:\s+\d+(?:px|em|rem|%)){0,3}$/],
       "margin": [/^\d+(?:px|em|rem|%)(?:\s+\d+(?:px|em|rem|%)){0,3}$/],

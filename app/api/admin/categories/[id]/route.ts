@@ -17,8 +17,8 @@ export async function PATCH(
   if (authError) return authError;
 
   const { id } = await params;
-  const categoryId = parseInt(id);
-  if (isNaN(categoryId)) {
+  const categoryId = Number.parseInt(id, 10);
+  if (!Number.isInteger(categoryId) || categoryId <= 0) {
     return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 
@@ -85,8 +85,8 @@ export async function DELETE(
   if (authError) return authError;
 
   const { id } = await params;
-  const categoryId = parseInt(id);
-  if (isNaN(categoryId)) {
+  const categoryId = Number.parseInt(id, 10);
+  if (!Number.isInteger(categoryId) || categoryId <= 0) {
     return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 

@@ -133,7 +133,13 @@ function PasswordSection() {
         return;
       }
       reset();
-      setMessage({ kind: "ok", text: "Đã đổi mật khẩu. Lần đăng nhập tiếp theo dùng mật khẩu mới." });
+      const data = await res.json().catch(() => ({}));
+      setMessage({ kind: "ok", text: "Đã đổi mật khẩu. Đang đăng xuất để bạn đăng nhập lại..." });
+      if (data?.requireRelogin) {
+        setTimeout(() => {
+          window.location.href = "/admin/login";
+        }, 1500);
+      }
     } catch {
       setMessage({ kind: "err", text: "Không kết nối được tới server" });
     } finally {

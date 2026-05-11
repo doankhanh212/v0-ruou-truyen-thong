@@ -196,7 +196,11 @@ export function Hero({ bannerUrl, bannerAlt, banners, sections }: HeroProps = {}
                         aria-hidden={i !== activeIndex}
                       >
                         {slide.linkUrl ? (
-                          <Link href={slide.linkUrl} className="block h-full w-full">
+                          // `relative` is required by Next.js <Image fill>: the
+                          // direct parent must be positioned so the image can
+                          // fill it. Without it, Next 16 logs an invalid-position
+                          // warning in dev.
+                          <Link href={slide.linkUrl} className="relative block h-full w-full">
                             {inner}
                           </Link>
                         ) : (

@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
+import sanitizeHtml from 'sanitize-html'
 import { Story } from '@/components/story'
 import { SocialProof } from '@/components/social-proof'
 import { getSeoBySlug } from '@/lib/seo-pages'
 import { getStaticPage } from '@/lib/static-pages'
 import { absoluteUrl, SITE_NAME } from '@/lib/seo'
+import { PAGE_HTML_OPTIONS } from '@/lib/sanitize-page-html'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,7 +53,7 @@ export default async function GioiThieuPage() {
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-8">{page.title}</h1>
           <div
             className="prose prose-lg max-w-none prose-headings:text-primary prose-a:text-primary"
-            dangerouslySetInnerHTML={{ __html: page.content }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content, PAGE_HTML_OPTIONS) }}
           />
         </div>
       </div>

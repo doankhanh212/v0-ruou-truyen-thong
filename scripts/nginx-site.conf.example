@@ -1,0 +1,96 @@
+# =============================================================================
+# Nginx config for Rượu Truyền Thống (production).
+# Copy to /etc/nginx/sites-available/ruoutruyenthong.conf, edit `server_name`
+# and TLS cert paths, then `ln -s` into sites-enabled and `nginx -t && systemctl reload nginx`.
+# =============================================================================
+
+# --- rate-limit zones (must live in http{} block) ---
+# If you have a separate /etc/nginx/conf.d/ratelimit.conf, put these there.
+limit_req_zone $binary_remote_addr zone=views:10m rate=2r/s;
+limit_req_zone $binary_remote_addr zone=track:10m rate=10r/s;
+limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
+
+server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name yourdomain.com www.yourdomain.com;
+
+    ssl_certificate     /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+
+    # --- security headers ---
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    client_max_body_size 4M;
+
+    # --- view counter heartbeat: hard rate-limit at Nginx layer ---
+    location ~ ^/api/products/.*/views$ {
+        limit_req zone=views burst=10 nodelay;
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        # CRITICAL: overwrite client headers so X-Real-IP is trustworthy.
+        # Without this, attackers spoof X-Forwarded-For to bypass rate limits.
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # --- tracking pixel (page_view etc.) ---
+    location = /api/track {
+        limit_req zone=track burst=20 nodelay;
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # --- admin login: 1 req/s per IP, burst 5 ---
+    location = /api/auth/login {
+        limit_req zone=login burst=5 nodelay;
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # --- uploads: serve directly, never execute, never let MIME be sniffed ---
+    location ^~ /uploads/ {
+        alias /var/www/ruoutruyenthong/public/uploads/;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Content-Disposition "inline" always;
+        expires 30d;
+        access_log off;
+    }
+
+    # --- everything else: pass to Next.js standalone ---
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Streaming (chatbot SSE) — disable buffering to flush tokens immediately.
+        proxy_buffering off;
+        proxy_read_timeout 90s;
+        proxy_send_timeout 90s;
+    }
+}

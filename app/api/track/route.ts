@@ -24,9 +24,11 @@ const METADATA_MAX_BYTES = 4096;
 const DEDUP_WINDOW_SECONDS = 5;
 
 function clientIp(headers: Headers): string {
+  const real = headers.get("x-real-ip");
+  if (real) return real.trim().slice(0, 64);
   const fwd = headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
-  return headers.get("x-real-ip") || "127.0.0.1";
+  if (fwd) return fwd.split(",")[0].trim().slice(0, 64);
+  return "127.0.0.1";
 }
 
 /**

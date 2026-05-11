@@ -20,7 +20,11 @@ const altSchema = z
   .trim()
   .min(3, "Alt text phải có ít nhất 3 ký tự")
   .max(160, "Alt text tối đa 160 ký tự")
-  .refine((v) => !/[<>]/.test(v), "Alt text không được chứa < hoặc >");
+  // Reject angle brackets, raw quotes, and ASCII control chars. React
+  // already escapes attribute values, but defense-in-depth keeps the column
+  // free of anything that could break out of an HTML context later (e.g. if
+  // someone exports the data into a different template engine).
+  .refine((v) => !/[<>"\x00-\x1f]/.test(v), "Alt text chứa ký tự không hợp lệ");
 
 const ProductInput = z.object({
   name: z.string().trim().min(1).max(200),

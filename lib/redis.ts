@@ -34,4 +34,14 @@ redis.on("error", (error) => {
   console.error(JSON.stringify({ module: "Redis", error: error.message }));
 });
 
+// Release the socket on graceful shutdown so PM2 reload doesn't leak TCP
+// connections. ioredis emits "end" once the quit completes.
+if (process.env.NODE_ENV === "production") {
+  const close = async () => {
+    try { await redis.quit(); } catch {}
+  };
+  process.once("SIGTERM", close);
+  process.once("SIGINT", close);
+}
+
 export default redis;
