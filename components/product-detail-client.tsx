@@ -13,6 +13,7 @@ interface ProductDetailClientProps {
   slug: string;
   categoryHref?: string;
   categoryLabel?: string;
+  inStock?: boolean;
 }
 
 function formatViewCount(value: number): string {
@@ -95,6 +96,7 @@ export function ProductDetailClient({
   slug,
   categoryHref,
   categoryLabel,
+  inStock = true,
 }: ProductDetailClientProps) {
   const { product, loading, error } = useCatalogProduct(slug);
   const { total: totalViews, viewing: viewingNow } = useProductViews(slug);
@@ -169,13 +171,18 @@ export function ProductDetailClient({
               <h1 className="mt-1 text-3xl font-bold text-gray-900 md:text-4xl">{product.name}</h1>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs">
-              {totalViews !== null && (
+              {!inStock && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 font-semibold text-red-600 ring-1 ring-red-200">
+                  Tạm hết hàng
+                </span>
+              )}
+              {inStock && totalViews !== null && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 font-semibold text-slate-700">
                   <Eye size={13} />
                   {formatViewCount(totalViews)} lượt xem
                 </span>
               )}
-              {viewingNow > 0 && (
+              {inStock && viewingNow > 0 && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 font-semibold text-emerald-700">
                   <span className="relative flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -295,22 +302,47 @@ export function ProductDetailClient({
             </div>
           ) : null}
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={() => openZalo(undefined, `Xin chào, tôi muốn tư vấn ${product.name}`)}
-              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#0068FF] px-5 py-3 text-base font-bold text-white transition-colors hover:bg-[#0057d6] sm:w-auto"
-            >
-              <MessageCircle size={18} />
-              Tư vấn qua Zalo
-            </button>
-            <Link
-              href="/lien-he"
-              className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-gray-200 px-5 py-3 text-base font-bold text-gray-700 transition-colors hover:border-blue-300 hover:text-blue-700 sm:w-auto"
-            >
-              Gửi yêu cầu liên hệ
-            </Link>
-          </div>
+          {inStock ? (
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => openZalo(undefined, `Xin chào, tôi muốn tư vấn ${product.name}`)}
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#0068FF] px-5 py-3 text-base font-bold text-white transition-colors hover:bg-[#0057d6] sm:w-auto"
+              >
+                <MessageCircle size={18} />
+                Tư vấn qua Zalo
+              </button>
+              <Link
+                href="/lien-he"
+                className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-gray-200 px-5 py-3 text-base font-bold text-gray-700 transition-colors hover:border-blue-300 hover:text-blue-700 sm:w-auto"
+              >
+                Gửi yêu cầu liên hệ
+              </Link>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-red-100 bg-red-50 px-5 py-4 text-sm text-red-700">
+              <p className="font-semibold">Sản phẩm tạm thời hết hàng</p>
+              <p className="mt-1 text-red-600/80">
+                Liên hệ để được thông báo khi có hàng trở lại hoặc xem các sản phẩm tương tự.
+              </p>
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => openZalo(undefined, `Xin chào, tôi muốn hỏi về ${product.name} khi có hàng trở lại`)}
+                  className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#0068FF] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#0057d6] sm:w-auto"
+                >
+                  <MessageCircle size={16} />
+                  Hỏi qua Zalo
+                </button>
+                <Link
+                  href="/san-pham"
+                  className="inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-700 transition-colors hover:border-blue-300 hover:text-blue-700 sm:w-auto"
+                >
+                  Xem sản phẩm khác
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

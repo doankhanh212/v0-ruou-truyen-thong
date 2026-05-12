@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Flame, TrendingUp, MessageCircle } from 'lucide-react'
+import { Flame, MessageCircle } from 'lucide-react'
 import { openZalo } from '@/utils/zalo'
 import { track } from '@/utils/track'
 import type { CatalogProduct } from '@/lib/catalog'
@@ -33,12 +33,6 @@ export function ProductCard({ item, onZaloClick }: ProductCardProps) {
             <span className="flex items-center gap-1 bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-sm">
               <Flame size={11} />
               Bán chạy
-            </span>
-          )}
-          {item.tag && !item.isBestSeller && (
-            <span className="flex items-center gap-1 bg-blue-600 text-white text-xs px-2.5 py-1 rounded-full font-semibold shadow-sm">
-              <TrendingUp size={11} />
-              {item.tag}
             </span>
           )}
         </div>

@@ -50,7 +50,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   const [catalog, raw] = await Promise.all([
     getCatalogProductBySlug(slug),
     db.product.findFirst({
-      where: { slug, inStock: true, isDeleted: false },
+      where: { slug, isDeleted: false },
       select: {
         name: true,
         slug: true,
@@ -100,7 +100,9 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       priceCurrency: 'VND',
       priceValidUntil,
       itemCondition: 'https://schema.org/NewCondition',
-      availability: 'https://schema.org/InStock',
+      availability: catalog.inStock
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
       seller: { '@type': 'Organization', name: SITE_NAME },
     },
   }
@@ -142,6 +144,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         slug={slug}
         categoryHref={categoryHref}
         categoryLabel={categoryLabel}
+        inStock={catalog.inStock ?? true}
       />
     </>
   )

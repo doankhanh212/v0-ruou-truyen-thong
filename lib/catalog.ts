@@ -26,6 +26,7 @@ export interface CatalogProduct {
   pricing: CatalogPricingOption[];
   isBestSeller?: boolean;
   tag?: string;
+  inStock?: boolean;
 }
 
 export interface CatalogListParams {

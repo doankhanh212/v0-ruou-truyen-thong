@@ -119,6 +119,7 @@ function adaptDbProduct(product: ProductWithRelations): CatalogProduct {
     pricing: toPricing(product, categorySlug),
     isBestSeller: product.featured,
     tag: product.tags[0] ? formatTag(product.tags[0]) : undefined,
+    inStock: product.inStock,
   };
 }
 
@@ -179,7 +180,7 @@ export async function listCatalogProducts(params: CatalogListParams = {}): Promi
 export async function getCatalogProductBySlug(slug: string): Promise<CatalogProduct | null> {
   try {
     const row = await db.product.findFirst({
-      where: { slug, inStock: true, isDeleted: false },
+      where: { slug, isDeleted: false },
       include: {
         images: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] },
         categoryRel: true,

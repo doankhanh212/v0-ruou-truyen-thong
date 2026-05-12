@@ -7,8 +7,8 @@ export const revalidate = 300
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [products, posts] = await Promise.all([
     db.product.findMany({
-      where: { inStock: true, isDeleted: false },
-      select: { slug: true, updatedAt: true },
+      where: { isDeleted: false },
+      select: { slug: true, updatedAt: true, inStock: true },
       orderBy: { updatedAt: 'desc' },
     }),
     db.post.findMany({
@@ -35,8 +35,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const productRoutes: MetadataRoute.Sitemap = products.map((p) => ({
     url: absoluteUrl(`/san-pham/${p.slug}`),
     lastModified: p.updatedAt,
-    changeFrequency: 'weekly',
-    priority: 0.8,
+    changeFrequency: p.inStock ? 'weekly' : 'monthly',
+    priority: p.inStock ? 0.8 : 0.4,
   }))
 
   const postRoutes: MetadataRoute.Sitemap = posts.map((p) => ({

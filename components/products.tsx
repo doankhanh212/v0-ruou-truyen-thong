@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { CTAButton } from '@/components/cta-button'
 import { useFadeIn } from '@/hooks/use-fade-in'
 import { useCatalogProducts } from '@/hooks/use-catalog-products'
-import { Flame, TrendingUp } from 'lucide-react'
+import { Flame } from 'lucide-react'
 import { track } from '@/utils/track'
 
 const URGENCY: Record<string, string> = {
@@ -83,12 +83,6 @@ export function Products() {
                         <span className="flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
                           <Flame size={11} />
                           Bán chạy
-                        </span>
-                      ) : null}
-                      {product.tag && !product.isBestSeller ? (
-                        <span className="flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
-                          <TrendingUp size={11} />
-                          {product.tag}
                         </span>
                       ) : null}
                     </div>

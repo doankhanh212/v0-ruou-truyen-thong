@@ -493,7 +493,9 @@ export function ProductsClient() {
                 checked={form.inStock}
                 onChange={(e) => setForm({ ...form, inStock: e.target.checked })}
               />
-              Còn hàng
+              <span className={form.inStock ? "text-green-700 font-semibold" : "text-red-600 font-semibold"}>
+                {form.inStock ? "Còn hàng" : "Hết hàng"}
+              </span>
             </label>
           </div>
 
