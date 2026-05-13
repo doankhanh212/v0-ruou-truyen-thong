@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { isAuthenticated } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { adminRateGuard } from "@/lib/admin-rate-limit";
+import { getUploadsDir } from "@/lib/uploads-dir";
 
 const MEDIA_TYPES = ["logo", "banner", "slideshow", "popup", "fanpage_image", "section", "product"] as const;
 type MediaType = (typeof MEDIA_TYPES)[number];
@@ -94,8 +95,16 @@ export async function POST(request: NextRequest) {
 
   const ext = EXT_BY_MIME[detected] ?? path.extname(file.name).toLowerCase();
   const filename = `${rawType}-${randomUUID()}${ext}`;
-  const uploadsDir = path.join(process.cwd(), "public", "uploads");
-  await mkdir(uploadsDir, { recursive: true });
+  const uploadsDir = getUploadsDir();
+  try {
+    await mkdir(uploadsDir, { recursive: true });
+  } catch (err) {
+    console.error(JSON.stringify({ module: "MediaUpload", op: "mkdir", dir: uploadsDir, error: String(err) }));
+    return NextResponse.json(
+      { error: "Không tạo được thư mục lưu ảnh trên máy chủ. Liên hệ quản trị hệ thống." },
+      { status: 500 }
+    );
+  }
   const dest = path.join(uploadsDir, filename);
   await writeFile(dest, buffer);
 

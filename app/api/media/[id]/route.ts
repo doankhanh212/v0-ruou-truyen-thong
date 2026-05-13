@@ -3,6 +3,7 @@ import { unlink } from "node:fs/promises";
 import path from "node:path";
 import { isAuthenticated } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getUploadsDir } from "@/lib/uploads-dir";
 
 export async function DELETE(
   _request: NextRequest,
@@ -25,7 +26,7 @@ export async function DELETE(
 
   if (media.url.startsWith("/uploads/")) {
     const filename = path.basename(media.url);
-    const filePath = path.join(process.cwd(), "public", "uploads", filename);
+    const filePath = path.join(getUploadsDir(), filename);
     await unlink(filePath).catch(() => {
       // file might already be gone — continue with DB delete
     });
