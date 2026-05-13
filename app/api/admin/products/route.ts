@@ -3,6 +3,7 @@ import { z } from "zod";
 import { isAuthenticated } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { normalizeProductImages } from "@/lib/product-images";
+import { normalizeProductVariants, type ProductVariantInput } from "@/lib/product-variants";
 import { slugify } from "@/lib/slug";
 import { adminRateGuard } from "@/lib/admin-rate-limit";
 
@@ -26,12 +27,6 @@ const altSchema = z
   // someone exports the data into a different template engine).
   .refine((v) => !/[<>"\x00-\x1f]/.test(v), "Alt text chứa ký tự không hợp lệ");
 
-export const VariantSchema = z.object({
-  size: z.string().trim().min(1).max(50),
-  price: z.coerce.number().int().nonnegative(),
-});
-export type Variant = z.infer<typeof VariantSchema>;
-
 const ProductInput = z.object({
   name: z.string().trim().min(1).max(200),
   slug: z.string().trim().max(200).optional(),
@@ -49,7 +44,7 @@ const ProductInput = z.object({
   volume: z.string().nullable().optional(),
   alcohol: z.coerce.number().nullable().optional(),
   origin: z.string().nullable().optional(),
-  variants: z.array(VariantSchema).nullable().optional(),
+  variants: z.unknown().optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -94,6 +89,12 @@ export async function POST(request: NextRequest) {
       );
     }
     const data = parsed.data;
+    let variants: ProductVariantInput[];
+    try {
+      variants = normalizeProductVariants(data.variants);
+    } catch {
+      return NextResponse.json({ error: "Dữ liệu biến thể không hợp lệ" }, { status: 400 });
+    }
 
     const userSlug = slugify(data.slug ?? "");
     const baseSlug = userSlug || slugify(data.name);
@@ -160,7 +161,7 @@ export async function POST(request: NextRequest) {
         volume: data.volume ?? null,
         alcohol: data.alcohol ?? null,
         origin: data.origin ?? null,
-        variants: data.variants && data.variants.length > 0 ? data.variants : [],
+        variants,
         images: { create: normalizedImages.records },
       },
     });

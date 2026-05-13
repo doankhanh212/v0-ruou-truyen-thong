@@ -161,6 +161,7 @@ export function ProductDetailClient({
   const itemGallery = product.gallery?.length ? product.gallery : [product.image];
   const safeActiveIndex = Math.min(activeImageIndex, itemGallery.length - 1);
   const mainImage = itemGallery[safeActiveIndex] ?? product.image;
+  const selectedPrice = selectedVariant?.price ?? product.priceMin;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -316,26 +317,31 @@ export function ProductDetailClient({
             <div>
               <p className="mb-2.5 text-sm font-bold uppercase tracking-wide text-gray-500">Dung tích</p>
               <div className="flex flex-wrap gap-2">
-                {product.variants.map((v) => {
-                  const isSelected = selectedVariant?.size === v.size;
+                {product.variants.map((v, index) => {
+                  const isSelected =
+                    selectedVariant?.size === v.size &&
+                    selectedVariant?.price === v.price;
                   return (
                     <button
-                      key={v.size}
+                      key={`${v.size}-${v.price}-${index}`}
                       type="button"
                       onClick={() => setSelectedVariant(v)}
-                      className={`rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
+                      className={`rounded-2xl border px-4 py-2 text-left text-sm font-semibold transition-all ${
                         isSelected
                           ? "border-blue-600 bg-blue-600 text-white shadow-sm"
                           : "border-gray-200 bg-white text-gray-700 hover:border-blue-400 hover:text-blue-700"
                       }`}
                     >
-                      {v.size}
+                      <span className="block">{v.size}</span>
+                      <span className={`mt-0.5 block text-xs ${isSelected ? "text-blue-50" : "text-gray-500"}`}>
+                        {formatCatalogPrice(v.price)}đ
+                      </span>
                     </button>
                   );
                 })}
               </div>
               <p className="mt-3 text-2xl font-bold text-blue-700">
-                {formatCatalogPrice(selectedVariant?.price ?? product.priceMin)}đ
+                {formatCatalogPrice(selectedPrice)}đ
               </p>
             </div>
           )}

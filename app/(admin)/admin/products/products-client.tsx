@@ -31,7 +31,7 @@ function VariantEditor({
           <Input
             value={v.size}
             onChange={(e) => update(idx, "size", e.target.value)}
-            placeholder="Dung tích (vd: 500ml)"
+            placeholder="Tên dung tích (vd: 500ml)"
             className="flex-1"
           />
           <Input
@@ -58,11 +58,11 @@ function VariantEditor({
         className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-slate-400 hover:bg-slate-50"
       >
         <Plus size={13} />
-        Thêm dung tích
+        Thêm biến thể
       </button>
       {variants.length > 0 && (
         <p className="text-xs text-slate-400">
-          Dung tích đầu tiên sẽ được hiển thị mặc định khi khách vào trang sản phẩm.
+          Biến thể đầu tiên sẽ được chọn mặc định khi khách vào trang sản phẩm.
         </p>
       )}
     </div>
@@ -83,10 +83,9 @@ type Product = {
   inStock: boolean;
   featured: boolean;
   sortOrder: number;
-  volume?: string | null;
   alcohol?: string | null;
   origin?: string | null;
-  variants?: { size: string; price: number }[] | null;
+  variants?: { size: string; price: number }[];
   images: { id: number; url: string; isPrimary: boolean; sortOrder: number }[];
   categoryRel?: { id: number; name: string; slug: string } | null;
 };
@@ -109,7 +108,6 @@ const EMPTY_FORM = {
   description: "",
   featured: false,
   inStock: true,
-  volume: "",
   alcohol: "",
   origin: "",
   sortOrder: "0",
@@ -176,7 +174,6 @@ export function ProductsClient() {
       description: p.description || "",
       featured: p.featured,
       inStock: p.inStock,
-      volume: p.volume ?? "",
       alcohol: p.alcohol ? String(p.alcohol) : "",
       origin: p.origin ?? "",
       sortOrder: String(p.sortOrder ?? 0),
@@ -186,7 +183,7 @@ export function ProductsClient() {
       p.images?.filter((img) => !img.isPrimary && img.url !== p.imageUrl).map((img) => img.url) || []
     );
     setVariants(
-      p.variants?.map((v) => ({ size: v.size, price: String(v.price) })) ?? []
+      (p.variants ?? []).map((v) => ({ size: v.size, price: String(v.price) }))
     );
     setShowForm(true);
     setError(null);
@@ -262,6 +259,20 @@ export function ProductsClient() {
       return;
     }
 
+    const hasPartialVariant = variants.some((v) => {
+      const hasSize = Boolean(v.size.trim());
+      const hasPrice = Boolean(v.price);
+      return hasSize !== hasPrice;
+    });
+    if (hasPartialVariant) {
+      setError("Mỗi biến thể dung tích cần nhập đủ Tên dung tích và Giá");
+      return;
+    }
+
+    const variantPayload = variants
+      .filter((v) => v.size.trim() && v.price)
+      .map((v) => ({ size: v.size.trim(), price: Number(v.price) }));
+
     const payload = {
       name: form.name,
       slug: form.slug,
@@ -274,13 +285,11 @@ export function ProductsClient() {
       featured: form.featured,
       inStock: form.inStock,
       imageUrls,
-      volume: form.volume || null,
+      volume: variantPayload[0]?.size ?? null,
       alcohol: form.alcohol || null,
       origin: form.origin || null,
       sortOrder: Number(form.sortOrder) || 0,
-      variants: variants.length > 0
-        ? variants.filter((v) => v.size.trim() && v.price).map((v) => ({ size: v.size.trim(), price: Number(v.price) }))
-        : null,
+      variants: variantPayload,
     };
     const url = editingId ? `/api/admin/products/${editingId}` : "/api/admin/products";
     const method = editingId ? "PATCH" : "POST";
@@ -369,13 +378,6 @@ export function ProductsClient() {
                 onChange={(e) => setForm({ ...form, sortOrder: e.target.value })}
               />
             </Field>
-            <Field label="Dung tích mặc định (vd: 500ml)">
-              <Input
-                value={form.volume}
-                onChange={(e) => setForm({ ...form, volume: e.target.value })}
-                placeholder="500ml"
-              />
-            </Field>
             <Field label="Độ cồn (vd: 40%)">
               <Input
                 value={form.alcohol}
@@ -396,7 +398,7 @@ export function ProductsClient() {
             <p className="mb-1 text-sm font-medium text-slate-700">Biến thể dung tích &amp; giá</p>
             <p className="mb-3 text-xs text-slate-500">
               Thêm nhiều dung tích với giá riêng. Khách chọn dung tích → giá tự động cập nhật.
-              Để trống nếu sản phẩm chỉ có 1 loại (dùng Giá bán ở trên).
+              Để trống nếu sản phẩm chỉ có 1 loại (dùng Giá bán ở trên). Khi trống, hệ thống lưu JSON [].
             </p>
             <VariantEditor variants={variants} onChange={setVariants} />
           </div>

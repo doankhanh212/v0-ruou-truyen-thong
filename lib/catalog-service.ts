@@ -80,7 +80,20 @@ function toGallery(product: ProductWithRelations) {
   return unique([primaryImage, ...product.images.map((image) => image.url)]);
 }
 
-function toPricing(product: ProductWithRelations, categorySlug: string): CatalogPricingOption[] {
+function toPricing(
+  product: ProductWithRelations,
+  categorySlug: string,
+  variants: ProductVariant[]
+): CatalogPricingOption[] {
+  if (variants.length > 0) {
+    return variants.map((variant) => ({
+      packaging: categorySlug === "qua-tang" ? "Combo" : "Tiêu chuẩn",
+      volume: variant.size,
+      priceBeforeVAT: variant.price,
+      priceWithVAT: Math.round(variant.price * 1.1),
+    }));
+  }
+
   return [
     {
       packaging: categorySlug === "qua-tang" ? "Combo" : "Tiêu chuẩn",
@@ -91,8 +104,8 @@ function toPricing(product: ProductWithRelations, categorySlug: string): Catalog
   ];
 }
 
-function toVariants(product: ProductWithRelations): ProductVariant[] | undefined {
-  if (!product.variants) return undefined;
+function toVariants(product: ProductWithRelations): ProductVariant[] {
+  if (!product.variants) return [];
   try {
     const raw = Array.isArray(product.variants)
       ? product.variants
@@ -106,9 +119,9 @@ function toVariants(product: ProductWithRelations): ProductVariant[] | undefined
         }
       }
     }
-    return variants.length > 0 ? variants : undefined;
+    return variants;
   } catch {
-    return undefined;
+    return [];
   }
 }
 
@@ -117,7 +130,11 @@ function adaptDbProduct(product: ProductWithRelations): CatalogProduct {
   const gallery = toGallery(product);
   const kind = categorySlug === "qua-tang" ? "gift-set" : "product";
   const benefits = deriveBenefits(categorySlug, product.tags);
-  const price = buildCatalogPriceLabel(product.price, product.priceOld ?? null);
+  const variants = toVariants(product);
+  const variantPrices = variants.map((variant) => variant.price);
+  const priceMin = variantPrices.length > 0 ? Math.min(...variantPrices) : product.price;
+  const priceMax = variantPrices.length > 0 ? Math.max(...variantPrices) : product.priceOld ?? null;
+  const price = buildCatalogPriceLabel(priceMin, priceMax);
 
   return {
     id: product.slug,
@@ -127,7 +144,7 @@ function adaptDbProduct(product: ProductWithRelations): CatalogProduct {
     name: product.name,
     category: categorySlug,
     price,
-    priceMin: product.price,
+    priceMin,
     image: gallery[0] ?? "/placeholder.jpg",
     imageAlt: product.imageAlt ?? undefined,
     detailImage: gallery[1] ?? gallery[0] ?? "/placeholder.jpg",
@@ -137,11 +154,11 @@ function adaptDbProduct(product: ProductWithRelations): CatalogProduct {
     ingredients: [],
     benefits,
     target: deriveTarget(product, categorySlug),
-    pricing: toPricing(product, categorySlug),
+    pricing: toPricing(product, categorySlug, variants),
     isBestSeller: product.featured,
     tag: product.tags[0] ? formatTag(product.tags[0]) : undefined,
     inStock: product.inStock,
-    variants: toVariants(product),
+    variants: variants.length > 0 ? variants : undefined,
   };
 }
 

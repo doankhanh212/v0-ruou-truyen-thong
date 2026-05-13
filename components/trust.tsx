@@ -27,20 +27,20 @@ interface TrustProps {
 export function Trust({ sections }: TrustProps = {}) {
   const { ref, isVisible } = useFadeIn()
 
-  const label = sections?.['home.trust.label']?.text || 'Tại sao chọn chúng tôi'
-  const title = sections?.['home.trust.title']?.text || 'Được tin tưởng vì lý do chính đáng'
+  const label = sections?.['home.trust.label']?.text || 'Tinh Hoa Rượu Việt'
+  const title = sections?.['home.trust.title']?.text || 'Tại sao Rượu Truyền Thống Cửu Long là lựa chọn hàng đầu?'
 
   const card1 = {
-    eyebrow: sections?.['home.trust.card1_eyebrow']?.text || 'Catalog thật',
-    title: sections?.['home.trust.card1_title']?.text || 'Dòng rượu và bộ quà đã lên web bằng ảnh gốc',
-    description: sections?.['home.trust.card1_desc']?.text || 'Từ rượu nếp, ba kích đến Minh Mạng, Hoàng Hoa, Tây Dương Sâm và các bộ quà biếu doanh nghiệp.',
+    eyebrow: sections?.['home.trust.card1_eyebrow']?.text || 'Chất lượng thực',
+    title: sections?.['home.trust.card1_title']?.text || 'Trọn Vẹn Hương Vị Truyền Thống',
+    description: sections?.['home.trust.card1_desc']?.text || '100% hình ảnh trên website là sản phẩm thực tế. Chúng tôi cam kết chất lượng nguyên bản, mang đến trải nghiệm tinh túy nhất từ nhà lò đến tay khách hàng.',
     image: sections?.['home.trust.card1_image']?.image || brandVisuals.collection,
   }
 
   const card2 = {
-    eyebrow: sections?.['home.trust.card2_eyebrow']?.text || 'Biếu tặng cao cấp',
-    title: sections?.['home.trust.card2_title']?.text || 'Phù hợp quà Tết, quà đối tác và khách VIP',
-    description: sections?.['home.trust.card2_desc']?.text || '',
+    eyebrow: sections?.['home.trust.card2_eyebrow']?.text || 'Quà tặng doanh nghiệp',
+    title: sections?.['home.trust.card2_title']?.text || 'Nâng Tầm Đẳng Cấp Biếu Tặng',
+    description: sections?.['home.trust.card2_desc']?.text || 'Thiết kế bình sứ Bát Tràng sang trọng. Lựa chọn hoàn hảo để tri ân đối tác và khách VIP.',
     image: sections?.['home.trust.card2_image']?.image || brandVisuals.gifts,
   }
 

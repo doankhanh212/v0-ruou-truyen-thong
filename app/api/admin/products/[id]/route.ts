@@ -3,8 +3,8 @@ import { z } from "zod";
 import { isAuthenticated } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getSecondaryProductImageUrls, normalizeProductImages } from "@/lib/product-images";
+import { normalizeProductVariants } from "@/lib/product-variants";
 import { adminRateGuard } from "@/lib/admin-rate-limit";
-import { VariantSchema } from "@/app/api/admin/products/route";
 
 const altSchema = z
   .string()
@@ -55,14 +55,10 @@ export async function PATCH(
 
   // Handle variants separately with validation
   if (body.variants !== undefined) {
-    if (body.variants === null || (Array.isArray(body.variants) && body.variants.length === 0)) {
-      data.variants = null;
-    } else if (Array.isArray(body.variants)) {
-      const parsed = z.array(VariantSchema).safeParse(body.variants);
-      if (!parsed.success) {
-        return NextResponse.json({ error: "Dữ liệu biến thể không hợp lệ" }, { status: 400 });
-      }
-      data.variants = parsed.data;
+    try {
+      data.variants = normalizeProductVariants(body.variants);
+    } catch {
+      return NextResponse.json({ error: "Dữ liệu biến thể không hợp lệ" }, { status: 400 });
     }
   }
 

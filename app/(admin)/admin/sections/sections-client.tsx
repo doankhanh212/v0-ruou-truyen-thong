@@ -27,7 +27,28 @@ type FieldMeta = {
   hint: string;
   long?: boolean;
   hasImage?: boolean;
+  imagePrompt?: string;
   icon: LucideIcon;
+};
+
+const DEFAULT_VALUES: Record<string, Value> = {
+  "home.trust.label": { text: "Tinh Hoa Rượu Việt", image: null },
+  "home.trust.title": {
+    text: "Tại sao Rượu Truyền Thống Cửu Long là lựa chọn hàng đầu?",
+    image: null,
+  },
+  "home.trust.card1_eyebrow": { text: "Chất lượng thực", image: null },
+  "home.trust.card1_title": { text: "Trọn Vẹn Hương Vị Truyền Thống", image: null },
+  "home.trust.card1_desc": {
+    text: "100% hình ảnh trên website là sản phẩm thực tế. Chúng tôi cam kết chất lượng nguyên bản, mang đến trải nghiệm tinh túy nhất từ nhà lò đến tay khách hàng.",
+    image: null,
+  },
+  "home.trust.card2_eyebrow": { text: "Quà tặng doanh nghiệp", image: null },
+  "home.trust.card2_title": { text: "Nâng Tầm Đẳng Cấp Biếu Tặng", image: null },
+  "home.trust.card2_desc": {
+    text: "Thiết kế bình sứ Bát Tràng sang trọng. Lựa chọn hoàn hảo để tri ân đối tác và khách VIP.",
+    image: null,
+  },
 };
 
 const FIELD_META: Record<string, FieldMeta> = {
@@ -126,6 +147,8 @@ const FIELD_META: Record<string, FieldMeta> = {
   "home.trust.card1_image": {
     label: "Card 1 — Ảnh nền",
     hint: "Tỉ lệ 16:9. Hiển thị ở card lớn bên trái.",
+    imagePrompt:
+      "Ảnh chụp thực tế phong cách premium documentary, tỉ lệ 16:9, xưởng nấu rượu truyền thống Việt Nam, chum sành, hơi rượu, ánh sáng tự nhiên ấm, sản phẩm rượu thật là điểm nhấn, không chữ, không logo, không minh họa hoạt hình.",
     hasImage: true,
     icon: ImageIcon,
   },
@@ -148,6 +171,8 @@ const FIELD_META: Record<string, FieldMeta> = {
   "home.trust.card2_image": {
     label: "Card 2 — Ảnh nền",
     hint: "Tỉ lệ 4:5 (dọc). Hiển thị ở card nhỏ bên phải.",
+    imagePrompt:
+      "Ảnh chụp sản phẩm quà tặng doanh nghiệp cao cấp, tỉ lệ dọc 4:5, bình sứ Bát Tràng sang trọng đựng rượu truyền thống, hộp quà tinh tế, ánh sáng studio mềm, nền sạch cao cấp, không chữ, không logo, không watermark.",
     hasImage: true,
     icon: ImageIcon,
   },
@@ -262,7 +287,12 @@ export function SectionsClient({ keys, initialValues }: Props) {
   const [values, setValues] = useState<Record<string, Value>>(() => {
     const map: Record<string, Value> = {};
     for (const k of keys) {
-      map[k] = initialValues[k] ?? { text: "", image: null };
+      const initial = initialValues[k] ?? { text: "", image: null };
+      const defaultValue = DEFAULT_VALUES[k];
+      map[k] =
+        defaultValue && !initial.text && !initial.image
+          ? { ...defaultValue }
+          : initial;
     }
     return map;
   });
@@ -491,6 +521,12 @@ export function SectionsClient({ keys, initialValues }: Props) {
                         )}
                       </div>
                       <p className="text-xs text-slate-400">JPG, PNG hoặc WebP — tối đa 3MB</p>
+                      {fieldMeta?.imagePrompt ? (
+                        <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-900">
+                          <p className="font-semibold">Prompt tạo ảnh GPT</p>
+                          <p className="mt-1">{fieldMeta.imagePrompt}</p>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 ) : isLong ? (
