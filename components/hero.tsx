@@ -78,8 +78,6 @@ export function Hero({ bannerUrl, bannerAlt, banners, sections }: HeroProps = {}
   const subtitle = val(sections, 'home.hero.subtitle')
   const ctaPrimary = val(sections, 'home.hero.cta_primary_label')
   const ctaSecondary = val(sections, 'home.hero.cta_secondary_label')
-  const statNumber = val(sections, 'home.hero.stat_number')
-  const statLabel = val(sections, 'home.hero.stat_label')
 
   const hasSlides = slides.length > 0
   const showControls = slides.length > 1
@@ -97,12 +95,12 @@ export function Hero({ bannerUrl, bannerAlt, banners, sections }: HeroProps = {}
       <div className="pointer-events-none absolute bottom-0 left-0 h-60 w-60 -translate-x-1/4 translate-y-1/3 rounded-full bg-secondary/5 blur-3xl sm:h-72 sm:w-72 md:h-80 md:w-80" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2 md:gap-12 lg:gap-14">
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-12">
 
           {/* ── Left: copy ── */}
           <div
-            className={`transition-all duration-1000 ${
-              isVisible ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'
+            className={`min-w-0 transition-opacity duration-700 ${
+              isVisible ? 'opacity-100' : 'opacity-0'
             }`}
           >
             {badge.text ? (
@@ -113,14 +111,14 @@ export function Hero({ bannerUrl, bannerAlt, banners, sections }: HeroProps = {}
             ) : null}
 
             {(title.text || titleAccent.text) && (
-              <h1 className="mb-5 text-3xl font-bold leading-[1.1] text-primary sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
+              <h1 className="mb-5 max-w-full break-words text-3xl font-bold leading-[1.1] text-primary sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl">
                 {title.text ? (
                   <span dangerouslySetInnerHTML={{ __html: title.text }} />
                 ) : null}
                 {title.text && titleAccent.text ? ' ' : null}
                 {titleAccent.text ? (
                   <span
-                    className="whitespace-nowrap text-secondary"
+                    className="text-secondary"
                     dangerouslySetInnerHTML={{ __html: titleAccent.text }}
                   />
                 ) : null}
@@ -168,11 +166,11 @@ export function Hero({ bannerUrl, bannerAlt, banners, sections }: HeroProps = {}
 
           {/* ── Right: image carousel ── */}
           <div
-            className={`transition-all duration-1000 delay-300 ${
-              isVisible ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'
+            className={`min-w-0 w-full transition-opacity delay-150 duration-700 ${
+              isVisible ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-xl shadow-primary/10 sm:rounded-3xl sm:shadow-2xl">
+            <div className="group relative aspect-video w-full overflow-hidden rounded-2xl bg-slate-100 shadow-xl shadow-primary/10 sm:rounded-3xl sm:shadow-2xl">
               {hasSlides ? (
                 <>
                   {/* Slides */}
@@ -257,19 +255,6 @@ export function Hero({ bannerUrl, bannerAlt, banners, sections }: HeroProps = {}
                 </div>
               )}
 
-              {statNumber.text || statLabel.text ? (
-                <div className="absolute bottom-3 left-3 z-10 rounded-xl bg-white/90 px-3 py-2 shadow-xl backdrop-blur-sm sm:bottom-4 sm:left-4 sm:rounded-2xl sm:px-4 sm:py-3 md:bottom-6 md:left-6 md:px-5 md:py-4">
-                  {statNumber.text ? (
-                    <p className="text-lg font-bold text-primary sm:text-xl md:text-2xl">
-                      {statNumber.text}
-                    </p>
-                  ) : null}
-                  {statLabel.text ? (
-                    <p className="text-xs text-foreground/60 sm:text-sm">{statLabel.text}</p>
-                  ) : null}
-                </div>
-              ) : null}
-             
             </div>
           </div>
 
