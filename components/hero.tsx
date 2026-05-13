@@ -99,7 +99,7 @@ export function Hero({ bannerUrl, bannerAlt, banners, sections }: HeroProps = {}
 
           {/* ── Left: copy ── */}
           <div
-            className={`min-w-0 transition-opacity duration-700 ${
+            className={`order-2 min-w-0 transition-opacity duration-700 lg:order-1 ${
               isVisible ? 'opacity-100' : 'opacity-0'
             }`}
           >
@@ -111,7 +111,7 @@ export function Hero({ bannerUrl, bannerAlt, banners, sections }: HeroProps = {}
             ) : null}
 
             {(title.text || titleAccent.text) && (
-              <h1 className="mb-5 max-w-full break-words text-3xl font-bold leading-[1.1] text-primary sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl">
+              <h1 className="mb-5 max-w-full break-words text-4xl font-bold leading-tight text-primary sm:mb-6 md:text-5xl lg:text-6xl">
                 {title.text ? (
                   <span dangerouslySetInnerHTML={{ __html: title.text }} />
                 ) : null}
@@ -166,11 +166,11 @@ export function Hero({ bannerUrl, bannerAlt, banners, sections }: HeroProps = {}
 
           {/* ── Right: image carousel ── */}
           <div
-            className={`min-w-0 w-full transition-opacity delay-150 duration-700 ${
+            className={`order-1 min-w-0 w-full transition-opacity delay-150 duration-700 lg:order-2 ${
               isVisible ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            <div className="group relative aspect-video w-full overflow-hidden rounded-2xl bg-slate-100 shadow-xl shadow-primary/10 sm:rounded-3xl sm:shadow-2xl">
+            <div className="group relative h-full min-h-[400px] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-xl shadow-primary/10 lg:min-h-[550px]">
               {hasSlides ? (
                 <>
                   {/* Slides */}
@@ -181,7 +181,7 @@ export function Hero({ bannerUrl, bannerAlt, banners, sections }: HeroProps = {}
                         alt={slide.title?.trim() || 'Banner trang chủ'}
                         fill
                         sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover"
+                        className="h-full w-full rounded-2xl object-cover object-center shadow-xl"
                         priority={i === 0}
                       />
                     )
