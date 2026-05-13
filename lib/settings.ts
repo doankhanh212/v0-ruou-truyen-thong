@@ -2,20 +2,35 @@ import { db } from "./db";
 import redis from "./redis";
 
 export const SETTING_KEYS = [
+  // Contact
   "address",
   "email",
   "hotline",
   "phone",
+  // Social
   "zalo_url",
   "zalo_oaid",
   "website",
   "fanpage_url",
-  "copyright",
+  // Display
   "home_page_size",
+  // Analytics
   "google_map_coords",
   "google_map_embed",
   "google_analytics",
   "gtm_id",
+  // Header
+  "header_site_name",
+  "header_nav_links",
+  "header_zalo_label",
+  // Footer
+  "footer_brand_name",
+  "footer_brand_desc",
+  "footer_copyright",
+  "footer_phone",
+  "footer_email",
+  "footer_address",
+  "footer_show_fanpage",
 ] as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[number];
@@ -37,6 +52,24 @@ export const DEFAULT_SETTINGS: SettingsMap = {
   google_map_embed: "",
   google_analytics: "",
   gtm_id: "",
+  // Header defaults
+  header_site_name: "Rượu Truyền Thống",
+  header_nav_links: JSON.stringify([
+    { label: "Trang chủ", href: "/" },
+    { label: "Sản phẩm", href: "/san-pham" },
+    { label: "Tin tức", href: "/news" },
+    { label: "Giới thiệu", href: "/gioi-thieu" },
+    { label: "Liên hệ", href: "/lien-he" },
+  ]),
+  header_zalo_label: "Chat Zalo",
+  // Footer defaults
+  footer_brand_name: "Rượu Truyền Thống",
+  footer_brand_desc: "Rượu truyền thống cao cấp — chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống. Đạt ISO 22000:2018 & OCOP 4 sao.",
+  footer_copyright: "Rượu Truyền Thống. Tất cả các quyền được bảo lưu.",
+  footer_phone: "0909 799 311 – 0902 931 119",
+  footer_email: "somogold@somogroup.vn",
+  footer_address: "29 Nguyễn Khắc Nhu, P. Cầu Ông Lãnh, TP. HCM",
+  footer_show_fanpage: "1",
 };
 
 let cache: { map: SettingsMap; expiresAt: number } | null = null;

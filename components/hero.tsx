@@ -172,7 +172,7 @@ export function Hero({ bannerUrl, bannerAlt, banners, sections }: HeroProps = {}
               isVisible ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'
             }`}
           >
-            <div className="group relative h-[240px] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-xl shadow-primary/10 sm:h-[320px] sm:rounded-3xl sm:shadow-2xl md:h-[400px] lg:h-[460px]">
+            <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-xl shadow-primary/10 sm:rounded-3xl sm:shadow-2xl">
               {hasSlides ? (
                 <>
                   {/* Slides */}

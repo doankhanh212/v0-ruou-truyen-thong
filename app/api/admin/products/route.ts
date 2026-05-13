@@ -28,7 +28,7 @@ const altSchema = z
 
 const ProductInput = z.object({
   name: z.string().trim().min(1).max(200),
-  slug: z.string().trim().min(1).max(200),
+  slug: z.string().trim().max(200).optional(),
   price: z.coerce.number().int().nonnegative(),
   priceOld: z.coerce.number().int().nonnegative().nullable().optional(),
   categoryId: z.coerce.number().int().positive(),
@@ -88,23 +88,45 @@ export async function POST(request: NextRequest) {
     }
     const data = parsed.data;
 
-    const cleanSlug = slugify(data.slug) || slugify(data.name);
-    if (!cleanSlug) {
+    const userSlug = slugify(data.slug ?? "");
+    const baseSlug = userSlug || slugify(data.name);
+    if (!baseSlug) {
       return NextResponse.json({ error: "Slug không hợp lệ" }, { status: 400 });
     }
 
-    const [existing, category] = await Promise.all([
-      db.product.findUnique({ where: { slug: cleanSlug } }),
+    // Kịch bản 1: người dùng tự nhập slug → báo lỗi nếu trùng
+    // Kịch bản 2: hệ thống tự sinh từ tên → tự thêm hậu tố -1, -2, ...
+    const userProvidedSlug = Boolean(userSlug);
+
+    const [existingForUserSlug, category] = await Promise.all([
+      userProvidedSlug
+        ? db.product.findUnique({ where: { slug: baseSlug } })
+        : Promise.resolve(null),
       db.category.findFirst({
         where: { id: data.categoryId, isDeleted: false },
         select: { id: true, slug: true },
       }),
     ]);
-    if (existing) {
-      return NextResponse.json({ error: "Slug đã tồn tại" }, { status: 409 });
+    if (userProvidedSlug && existingForUserSlug) {
+      return NextResponse.json({ error: "Đường dẫn này đã tồn tại, vui lòng chọn tên khác" }, { status: 409 });
     }
     if (!category) {
       return NextResponse.json({ error: "Danh mục không hợp lệ" }, { status: 400 });
+    }
+
+    // Với slug tự sinh: tìm suffix chưa trùng
+    let cleanSlug = baseSlug;
+    if (!userProvidedSlug) {
+      const conflicting = await db.product.findMany({
+        where: { slug: { startsWith: baseSlug } },
+        select: { slug: true },
+      });
+      const taken = new Set(conflicting.map((p) => p.slug));
+      if (taken.has(baseSlug)) {
+        let n = 1;
+        while (taken.has(`${baseSlug}-${n}`)) n++;
+        cleanSlug = `${baseSlug}-${n}`;
+      }
     }
 
     const normalizedImages = normalizeProductImages(data.imageUrl ?? null, data.imageUrls ?? []);

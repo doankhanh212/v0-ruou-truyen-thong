@@ -6,26 +6,46 @@ import { track } from '@/utils/track'
 
 interface FooterProps {
   fanpageUrl?: string
+  brandName?: string
+  brandDesc?: string
+  copyright?: string
+  phone?: string
+  email?: string
+  address?: string
+  showFanpage?: boolean
 }
 
-export function Footer({ fanpageUrl }: FooterProps = {}) {
+export function Footer({
+  fanpageUrl,
+  brandName,
+  brandDesc,
+  copyright,
+  phone,
+  email,
+  address,
+  showFanpage = true,
+}: FooterProps = {}) {
   const currentYear = new Date().getFullYear()
+  const name = brandName?.trim() || 'Rượu Truyền Thống'
+  const desc = brandDesc?.trim() || 'Rượu truyền thống cao cấp — chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống.'
+  const copyrightText = copyright?.trim() || `${name}. Tất cả các quyền được bảo lưu.`
+  const phoneText = phone?.trim() || ''
+  const emailText = email?.trim() || ''
+  const addressText = address?.trim() || ''
 
   return (
     <footer className="bg-primary text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-8 grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-[1.1fr_0.8fr_0.9fr_0.9fr_1.3fr]">
+        <div className={`mb-8 grid grid-cols-1 gap-8 sm:grid-cols-2 ${showFanpage ? 'xl:grid-cols-[1.1fr_0.8fr_0.9fr_0.9fr_1.3fr]' : 'xl:grid-cols-4'}`}>
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-primary font-bold text-lg">
                 𝔐
               </div>
-              <h3 className="font-bold text-lg">Rượu Truyền Thống</h3>
+              <h3 className="font-bold text-lg">{name}</h3>
             </div>
-            <p className="text-white/70 text-sm leading-relaxed">
-              Rượu truyền thống cao cấp — chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống. Đạt ISO 22000:2018 & OCOP 4 sao.
-            </p>
+            <p className="text-white/70 text-sm leading-relaxed">{desc}</p>
           </div>
 
           {/* Quick Links */}
@@ -59,25 +79,31 @@ export function Footer({ fanpageUrl }: FooterProps = {}) {
           <div>
             <h4 className="font-bold mb-4">Liên Hệ</h4>
             <ul className="space-y-2 text-sm">
-              <li className="text-white/70">
-                <a
-                  href="https://zalo.me/84902931119"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => track('click_zalo', { source: 'footer' })}
-                  className="hover:text-white transition-colors"
-                >
-                  📱 0909 799 311 – 0902 931 119
-                </a>
-              </li>
-              <li className="text-white/70">
-                <a href="mailto:somogold@somogroup.vn" className="hover:text-white transition-colors">
-                  📧 somogold@somogroup.vn
-                </a>
-              </li>
-              <li className="text-white/70">
-                <span>📍 29 Nguyễn Khắc Nhu, P. Cầu Ông Lãnh, TP. HCM</span>
-              </li>
+              {phoneText && (
+                <li className="text-white/70">
+                  <a
+                    href={fanpageUrl ? `https://zalo.me/${phoneText.replace(/\D/g, '')}` : '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => track('click_zalo', { source: 'footer' })}
+                    className="hover:text-white transition-colors"
+                  >
+                    📱 {phoneText}
+                  </a>
+                </li>
+              )}
+              {emailText && (
+                <li className="text-white/70">
+                  <a href={`mailto:${emailText}`} className="hover:text-white transition-colors">
+                    📧 {emailText}
+                  </a>
+                </li>
+              )}
+              {addressText && (
+                <li className="text-white/70">
+                  <span>📍 {addressText}</span>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -103,16 +129,18 @@ export function Footer({ fanpageUrl }: FooterProps = {}) {
             </ul>
           </div>
 
-          <div className="sm:col-span-2 xl:col-span-1">
-            <h4 className="mb-4 font-bold">Fanpage</h4>
-            <FanpageWidget fanpageUrl={fanpageUrl} compact />
-          </div>
+          {showFanpage && (
+            <div className="sm:col-span-2 xl:col-span-1">
+              <h4 className="mb-4 font-bold">Fanpage</h4>
+              <FanpageWidget fanpageUrl={fanpageUrl} compact />
+            </div>
+          )}
         </div>
 
         <div className="border-t border-white/20 pt-8">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row md:gap-6">
             <p className="text-center text-sm text-white/70 md:text-left">
-              © {currentYear} Rượu Truyền Thống. Tất cả các quyền được bảo lưu.
+              © {currentYear} {copyrightText}
             </p>
           </div>
         </div>

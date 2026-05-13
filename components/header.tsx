@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import { ZALO_PHONE } from '@/utils/zalo'
 import { track } from '@/utils/track'
 
-const NAV_LINKS = [
+const DEFAULT_NAV = [
   { href: '/', label: 'Trang chủ' },
   { href: '/san-pham', label: 'Sản phẩm' },
   { href: '/news', label: 'Tin tức' },
@@ -15,12 +15,20 @@ const NAV_LINKS = [
   { href: '/lien-he', label: 'Liên hệ' },
 ]
 
+interface NavLink { href: string; label: string }
+
 interface HeaderProps {
   zaloUrl?: string
+  siteName?: string
+  navLinks?: NavLink[]
+  zaloLabel?: string
 }
 
-export function Header({ zaloUrl }: HeaderProps = {}) {
+export function Header({ zaloUrl, siteName, navLinks, zaloLabel }: HeaderProps = {}) {
   const zaloHref = zaloUrl?.trim() || `https://zalo.me/${ZALO_PHONE}`
+  const NAV_LINKS = navLinks && navLinks.length > 0 ? navLinks : DEFAULT_NAV
+  const displayName = siteName?.trim() || 'Rượu Truyền Thống'
+  const btnLabel = zaloLabel?.trim() || 'Chat Zalo'
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
 
@@ -42,7 +50,7 @@ export function Header({ zaloUrl }: HeaderProps = {}) {
           <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg">
             𝔐
           </div>
-          <span className="text-lg font-semibold text-primary hidden sm:inline">Rượu Truyền Thống</span>
+          <span className="text-lg font-semibold text-primary hidden sm:inline">{displayName}</span>
         </Link>
 
         {/* Desktop Menu */}
@@ -67,7 +75,7 @@ export function Header({ zaloUrl }: HeaderProps = {}) {
             onClick={() => track('click_zalo', { source: 'header_desktop' })}
             className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#0068FF] px-6 py-2 text-white transition-colors hover:bg-[#0057d6]"
           >
-            Chat Zalo
+            {btnLabel}
           </a>
         </div>
 
@@ -107,7 +115,7 @@ export function Header({ zaloUrl }: HeaderProps = {}) {
               onClick={() => track('click_zalo', { source: 'header_mobile' })}
               className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-[#0068FF] px-4 py-2 text-center text-white transition-colors hover:bg-[#0057d6]"
             >
-              Chat Zalo
+              {btnLabel}
             </a>
           </div>
         </div>

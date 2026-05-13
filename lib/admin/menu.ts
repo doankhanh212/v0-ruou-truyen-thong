@@ -14,6 +14,7 @@ import {
   Activity,
   Info,
   Phone,
+  PanelTop,
   type LucideIcon,
 } from "lucide-react";
 
@@ -80,6 +81,7 @@ export const ADMIN_MENU: MenuGroup[] = [
     id: "system",
     label: "Hệ thống",
     items: [
+      { href: "/admin/appearance", label: "Header & Footer", icon: PanelTop },
       { href: "/admin/settings", label: "Cài đặt", icon: Settings },
       { href: "/admin/tracking", label: "Tracking logs", icon: Activity },
     ],
