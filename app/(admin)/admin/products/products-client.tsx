@@ -1,8 +1,73 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Plus, Trash2 } from "lucide-react";
 import { Table, THead, TR, TH, TD } from "@/components/admin/table";
 import { Button, Field, Input, Select, Textarea } from "@/components/admin/form";
+
+type Variant = { size: string; price: string };
+
+function VariantEditor({
+  variants,
+  onChange,
+}: {
+  variants: Variant[];
+  onChange: (v: Variant[]) => void;
+}) {
+  function add() {
+    onChange([...variants, { size: "", price: "" }]);
+  }
+  function remove(idx: number) {
+    onChange(variants.filter((_, i) => i !== idx));
+  }
+  function update(idx: number, field: "size" | "price", value: string) {
+    onChange(variants.map((v, i) => (i === idx ? { ...v, [field]: value } : v)));
+  }
+
+  return (
+    <div className="space-y-2">
+      {variants.map((v, idx) => (
+        <div key={idx} className="flex items-center gap-2">
+          <Input
+            value={v.size}
+            onChange={(e) => update(idx, "size", e.target.value)}
+            placeholder="Dung tích (vd: 500ml)"
+            className="flex-1"
+          />
+          <Input
+            type="number"
+            min={0}
+            value={v.price}
+            onChange={(e) => update(idx, "price", e.target.value)}
+            placeholder="Giá (VND)"
+            className="w-36"
+          />
+          <button
+            type="button"
+            onClick={() => remove(idx)}
+            className="flex-shrink-0 rounded p-1.5 text-red-500 hover:bg-red-50"
+            aria-label="Xóa dung tích"
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={add}
+        className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-slate-400 hover:bg-slate-50"
+      >
+        <Plus size={13} />
+        Thêm dung tích
+      </button>
+      {variants.length > 0 && (
+        <p className="text-xs text-slate-400">
+          Dung tích đầu tiên sẽ được hiển thị mặc định khi khách vào trang sản phẩm.
+        </p>
+      )}
+    </div>
+  );
+}
 
 type Product = {
   id: number;
@@ -18,6 +83,10 @@ type Product = {
   inStock: boolean;
   featured: boolean;
   sortOrder: number;
+  volume?: string | null;
+  alcohol?: string | null;
+  origin?: string | null;
+  variants?: { size: string; price: number }[] | null;
   images: { id: number; url: string; isPrimary: boolean; sortOrder: number }[];
   categoryRel?: { id: number; name: string; slug: string } | null;
 };
@@ -55,6 +124,7 @@ export function ProductsClient() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [variants, setVariants] = useState<Variant[]>([]);
   const [uploadingSlot, setUploadingSlot] = useState<"primary" | "gallery" | null>(null);
   const primaryInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -89,6 +159,7 @@ export function ProductsClient() {
     setForm(EMPTY_FORM);
     setEditingId(null);
     setImageUrls([]);
+    setVariants([]);
     setShowForm(true);
     setError(null);
   }
@@ -105,14 +176,17 @@ export function ProductsClient() {
       description: p.description || "",
       featured: p.featured,
       inStock: p.inStock,
-      volume: (p as Product & { volume?: string }).volume ?? "",
-      alcohol: (p as Product & { alcohol?: string }).alcohol ?? "",
-      origin: (p as Product & { origin?: string }).origin ?? "",
+      volume: p.volume ?? "",
+      alcohol: p.alcohol ? String(p.alcohol) : "",
+      origin: p.origin ?? "",
       sortOrder: String(p.sortOrder ?? 0),
     });
     setEditingId(p.id);
     setImageUrls(
       p.images?.filter((img) => !img.isPrimary && img.url !== p.imageUrl).map((img) => img.url) || []
+    );
+    setVariants(
+      p.variants?.map((v) => ({ size: v.size, price: String(v.price) })) ?? []
     );
     setShowForm(true);
     setError(null);
@@ -204,6 +278,9 @@ export function ProductsClient() {
       alcohol: form.alcohol || null,
       origin: form.origin || null,
       sortOrder: Number(form.sortOrder) || 0,
+      variants: variants.length > 0
+        ? variants.filter((v) => v.size.trim() && v.price).map((v) => ({ size: v.size.trim(), price: Number(v.price) }))
+        : null,
     };
     const url = editingId ? `/api/admin/products/${editingId}` : "/api/admin/products";
     const method = editingId ? "PATCH" : "POST";
@@ -292,7 +369,7 @@ export function ProductsClient() {
                 onChange={(e) => setForm({ ...form, sortOrder: e.target.value })}
               />
             </Field>
-            <Field label="Dung tích (vd: 500ml)">
+            <Field label="Dung tích mặc định (vd: 500ml)">
               <Input
                 value={form.volume}
                 onChange={(e) => setForm({ ...form, volume: e.target.value })}
@@ -313,6 +390,15 @@ export function ProductsClient() {
                 placeholder="Việt Nam"
               />
             </Field>
+          </div>
+
+          <div className="rounded border border-slate-200 bg-slate-50 p-3 sm:p-4">
+            <p className="mb-1 text-sm font-medium text-slate-700">Biến thể dung tích &amp; giá</p>
+            <p className="mb-3 text-xs text-slate-500">
+              Thêm nhiều dung tích với giá riêng. Khách chọn dung tích → giá tự động cập nhật.
+              Để trống nếu sản phẩm chỉ có 1 loại (dùng Giá bán ở trên).
+            </p>
+            <VariantEditor variants={variants} onChange={setVariants} />
           </div>
 
           <Field label="Mô tả ngắn">

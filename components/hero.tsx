@@ -269,11 +269,7 @@ export function Hero({ bannerUrl, bannerAlt, banners, sections }: HeroProps = {}
                   ) : null}
                 </div>
               ) : null}
-
-              <div className="absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 shadow-lg backdrop-blur-sm sm:right-4 sm:top-4 sm:px-3 sm:py-1.5 md:right-6 md:top-6 md:px-4 md:py-2">
-                <span className="text-xs text-amber-500 sm:text-sm md:text-base">★★★★★</span>
-                <span className="text-xs font-bold text-foreground sm:text-sm">4.9</span>
-              </div>
+             
             </div>
           </div>
 

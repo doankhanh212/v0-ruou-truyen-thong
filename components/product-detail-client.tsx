@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CheckCircle2, ChevronLeft, Eye, MessageCircle, Package2, Users } from "lucide-react";
 import { useCatalogProduct } from "@/hooks/use-catalog-products";
-import { formatCatalogPrice } from "@/lib/catalog";
+import { formatCatalogPrice, type ProductVariant } from "@/lib/catalog";
 import { openZalo } from "@/utils/zalo";
 import { getSessionId } from "@/utils/track";
 
@@ -101,6 +101,16 @@ export function ProductDetailClient({
   const { product, loading, error } = useCatalogProduct(slug);
   const { total: totalViews, viewing: viewingNow } = useProductViews(slug);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+
+  // Init selected variant khi product vừa load
+  useEffect(() => {
+    if (product?.variants?.length) {
+      setSelectedVariant(product.variants[0]);
+    } else {
+      setSelectedVariant(null);
+    }
+  }, [product?.slug]);
 
   if (loading) {
     return (
@@ -302,11 +312,45 @@ export function ProductDetailClient({
             </div>
           ) : null}
 
+          {product.variants && product.variants.length > 0 && (
+            <div>
+              <p className="mb-2.5 text-sm font-bold uppercase tracking-wide text-gray-500">Dung tích</p>
+              <div className="flex flex-wrap gap-2">
+                {product.variants.map((v) => {
+                  const isSelected = selectedVariant?.size === v.size;
+                  return (
+                    <button
+                      key={v.size}
+                      type="button"
+                      onClick={() => setSelectedVariant(v)}
+                      className={`rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
+                        isSelected
+                          ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                          : "border-gray-200 bg-white text-gray-700 hover:border-blue-400 hover:text-blue-700"
+                      }`}
+                    >
+                      {v.size}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-3 text-2xl font-bold text-blue-700">
+                {formatCatalogPrice(selectedVariant?.price ?? product.priceMin)}đ
+              </p>
+            </div>
+          )}
+
+          {!product.variants?.length && (
+            <p className="text-2xl font-bold text-blue-700">
+              {formatCatalogPrice(product.priceMin)}đ
+            </p>
+          )}
+
           {inStock ? (
             <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
-                onClick={() => openZalo(undefined, `Xin chào, tôi muốn tư vấn ${product.name}`)}
+                onClick={() => openZalo(undefined, `Xin chào, tôi muốn tư vấn ${product.name}${selectedVariant ? ` (${selectedVariant.size})` : ""}`)}
                 className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#0068FF] px-5 py-3 text-base font-bold text-white transition-colors hover:bg-[#0057d6] sm:w-auto"
               >
                 <MessageCircle size={18} />

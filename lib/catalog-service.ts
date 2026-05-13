@@ -2,7 +2,7 @@ import "server-only";
 
 import type { Product as DbProduct, Category as DbCategory, ProductImage } from "@prisma/client";
 import { db } from "@/lib/db";
-import type { CatalogListParams, CatalogListResponse, CatalogPricingOption, CatalogProduct } from "@/lib/catalog";
+import type { CatalogListParams, CatalogListResponse, CatalogPricingOption, CatalogProduct, ProductVariant } from "@/lib/catalog";
 import { buildCatalogPriceLabel } from "@/lib/catalog";
 
 type ProductWithRelations = DbProduct & {
@@ -91,6 +91,27 @@ function toPricing(product: ProductWithRelations, categorySlug: string): Catalog
   ];
 }
 
+function toVariants(product: ProductWithRelations): ProductVariant[] | undefined {
+  if (!product.variants) return undefined;
+  try {
+    const raw = Array.isArray(product.variants)
+      ? product.variants
+      : (JSON.parse(String(product.variants)) as unknown[]);
+    const variants: ProductVariant[] = [];
+    for (const item of raw) {
+      if (item && typeof item === "object") {
+        const v = item as Record<string, unknown>;
+        if (typeof v.size === "string" && typeof v.price === "number") {
+          variants.push({ size: v.size, price: v.price });
+        }
+      }
+    }
+    return variants.length > 0 ? variants : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 function adaptDbProduct(product: ProductWithRelations): CatalogProduct {
   const categorySlug = product.categoryRel?.slug ?? "";
   const gallery = toGallery(product);
@@ -120,6 +141,7 @@ function adaptDbProduct(product: ProductWithRelations): CatalogProduct {
     isBestSeller: product.featured,
     tag: product.tags[0] ? formatTag(product.tags[0]) : undefined,
     inStock: product.inStock,
+    variants: toVariants(product),
   };
 }
 

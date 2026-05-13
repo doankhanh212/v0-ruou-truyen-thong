@@ -27,6 +27,7 @@ model Product {
   volume      String?
   alcohol     Float?
   origin      String?
+  variants    Json?
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 

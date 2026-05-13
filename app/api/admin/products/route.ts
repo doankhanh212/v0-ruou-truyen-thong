@@ -26,6 +26,12 @@ const altSchema = z
   // someone exports the data into a different template engine).
   .refine((v) => !/[<>"\x00-\x1f]/.test(v), "Alt text chứa ký tự không hợp lệ");
 
+export const VariantSchema = z.object({
+  size: z.string().trim().min(1).max(50),
+  price: z.coerce.number().int().nonnegative(),
+});
+export type Variant = z.infer<typeof VariantSchema>;
+
 const ProductInput = z.object({
   name: z.string().trim().min(1).max(200),
   slug: z.string().trim().max(200).optional(),
@@ -43,6 +49,7 @@ const ProductInput = z.object({
   volume: z.string().nullable().optional(),
   alcohol: z.coerce.number().nullable().optional(),
   origin: z.string().nullable().optional(),
+  variants: z.array(VariantSchema).nullable().optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -153,6 +160,7 @@ export async function POST(request: NextRequest) {
         volume: data.volume ?? null,
         alcohol: data.alcohol ?? null,
         origin: data.origin ?? null,
+        variants: data.variants && data.variants.length > 0 ? data.variants : null,
         images: { create: normalizedImages.records },
       },
     });

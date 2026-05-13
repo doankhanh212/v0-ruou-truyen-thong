@@ -5,6 +5,11 @@ export interface CatalogPricingOption {
   priceWithVAT: number;
 }
 
+export interface ProductVariant {
+  size: string;
+  price: number;
+}
+
 export interface CatalogProduct {
   id: string;
   dbId?: number;
@@ -27,6 +32,7 @@ export interface CatalogProduct {
   isBestSeller?: boolean;
   tag?: string;
   inStock?: boolean;
+  variants?: ProductVariant[];
 }
 
 export interface CatalogListParams {

@@ -9,11 +9,12 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
 
-  // Image optimization via `sharp` (installed as dependency).
-  // - Serves AVIF/WebP automatically based on Accept header.
-  // - Resizes responsively per `sizes` attribute on each <Image>.
-  // - 30-day cache on optimized output.
   images: {
+    // TẮT TỐI ƯU HÓA ẢNH CỦA NEXT.JS ĐỂ SỬA LỖI KHÔNG HIỂN THỊ ẢNH UPLOAD ĐỘNG TRÊN VPS
+    unoptimized: true,
+    
+    // Các cấu hình dưới đây sẽ tạm thời bị vô hiệu hóa bởi unoptimized: true. 
+    // Giữ lại để dùng sau này nếu đổi sang lưu ảnh trên CDN / AWS S3.
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 64, 96, 128, 256, 384],
@@ -36,3 +37,4 @@ const nextConfig = {
 }
 
 export default nextConfig
+// module.exports = nextConfig; 
