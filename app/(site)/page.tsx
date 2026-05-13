@@ -84,8 +84,8 @@ export default async function Home({ searchParams }: HomeProps) {
         banners={heroBanners}
         sections={sections}
       />
-      <Trust />
-      <Products />
+      <Trust sections={sections} />
+      <Products sections={sections} />
       <CTA sections={sections} />
     </div>
   )

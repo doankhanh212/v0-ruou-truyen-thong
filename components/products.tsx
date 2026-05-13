@@ -7,6 +7,7 @@ import { useFadeIn } from '@/hooks/use-fade-in'
 import { useCatalogProducts } from '@/hooks/use-catalog-products'
 import { Flame } from 'lucide-react'
 import { track } from '@/utils/track'
+import type { SectionsMap } from '@/lib/sections'
 
 const URGENCY: Record<string, string> = {
   'minh-mang-tuu': 'Chỉ còn 8 chai hôm nay',
@@ -14,9 +15,17 @@ const URGENCY: Record<string, string> = {
   'ruou-ba-kich': 'Bán chạy nhất tuần',
 }
 
-export function Products() {
+interface ProductsProps {
+  sections?: Partial<SectionsMap>
+}
+
+export function Products({ sections }: ProductsProps = {}) {
   const { ref, isVisible } = useFadeIn()
   const { products, loading, error } = useCatalogProducts({ featured: true, limit: 6 })
+
+  const sectionLabel = sections?.['home.products.label']?.text || 'Rượu Truyền Thống'
+  const sectionTitle = sections?.['home.products.title']?.text || 'Dòng Sản Phẩm Cao Cấp'
+  const sectionSubtitle = sections?.['home.products.subtitle']?.text || 'Thương hiệu Somo Gold — đạt tiêu chuẩn ISO 22000:2018 và OCOP 4 sao'
 
   const handleProductClick = (productId: string, dbId: number | undefined, productSlug: string, productName: string) => {
     track('click_product', { id: productId, dbId, slug: productSlug, name: productName, source: 'home' })
@@ -32,13 +41,13 @@ export function Products() {
           }`}
         >
           <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-secondary">
-            Rượu Truyền Thống
+            {sectionLabel}
           </p>
           <h2 className="mb-4 text-3xl font-bold text-primary md:text-4xl">
-            Dòng Sản Phẩm Cao Cấp
+            {sectionTitle}
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-foreground/60">
-            Thương hiệu Somo Gold — đạt tiêu chuẩn ISO 22000:2018 và OCOP 4 sao
+            {sectionSubtitle}
           </p>
         </div>
 

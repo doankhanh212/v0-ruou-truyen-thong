@@ -22,6 +22,21 @@ export const SECTION_KEYS = [
   "home.cta.body",
   "home.cta.primary_label",
   "home.cta.secondary_label",
+  // Home — Trust ("Tại sao chọn chúng tôi")
+  "home.trust.label",
+  "home.trust.title",
+  "home.trust.point1_title",
+  "home.trust.point1_desc",
+  "home.trust.point2_title",
+  "home.trust.point2_desc",
+  "home.trust.point3_title",
+  "home.trust.point3_desc",
+  "home.trust.point4_title",
+  "home.trust.point4_desc",
+  // Home — Products ("Dòng Sản Phẩm Cao Cấp")
+  "home.products.label",
+  "home.products.title",
+  "home.products.subtitle",
 ] as const;
 
 export type SectionKey = (typeof SECTION_KEYS)[number];

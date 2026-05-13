@@ -4,40 +4,37 @@ import Image from 'next/image'
 import { Users, Leaf, Clock, Award } from 'lucide-react'
 import { useFadeIn } from '@/hooks/use-fade-in'
 import { brandVisuals } from '@/lib/site-content'
+import type { SectionsMap } from '@/lib/sections'
 
-const TRUST_POINTS = [
-  {
-    icon: Leaf,
-    title: '100% Thảo dược tự nhiên',
-    description: 'Không chất bảo quản, không phụ gia công nghiệp. Thuần khiết như thiên nhiên ban tặng.',
-    color: 'text-green-600',
-    bg: 'bg-green-50',
-  },
-  {
-    icon: Award,
-    title: 'Chứng nhận chất lượng',
-    description: 'Sản phẩm được kiểm định và cấp phép theo tiêu chuẩn y tế Việt Nam.',
-    color: 'text-primary',
-    bg: 'bg-blue-50',
-  },
-  {
-    icon: Users,
-    title: '10.000+ khách tin dùng',
-    description: 'Được hàng chục nghìn gia đình tin tưởng và giới thiệu cho người thân.',
-    color: 'text-secondary',
-    bg: 'bg-indigo-50',
-  },
-  {
-    icon: Clock,
-    title: 'Tư vấn miễn phí 24/7',
-    description: 'Đội ngũ tư vấn luôn sẵn sàng qua Zalo, giải đáp mọi thắc mắc ngay lập tức.',
-    color: 'text-accent',
-    bg: 'bg-orange-50',
-  },
+const POINT_ICONS = [
+  { icon: Leaf, color: 'text-green-600', bg: 'bg-green-50' },
+  { icon: Award, color: 'text-primary', bg: 'bg-blue-50' },
+  { icon: Users, color: 'text-secondary', bg: 'bg-indigo-50' },
+  { icon: Clock, color: 'text-accent', bg: 'bg-orange-50' },
 ]
 
-export function Trust() {
+const DEFAULT_POINTS = [
+  { title: '100% Thảo dược tự nhiên', description: 'Không chất bảo quản, không phụ gia công nghiệp. Thuần khiết như thiên nhiên ban tặng.' },
+  { title: 'Chứng nhận chất lượng', description: 'Sản phẩm được kiểm định và cấp phép theo tiêu chuẩn y tế Việt Nam.' },
+  { title: '10.000+ khách tin dùng', description: 'Được hàng chục nghìn gia đình tin tưởng và giới thiệu cho người thân.' },
+  { title: 'Tư vấn miễn phí 24/7', description: 'Đội ngũ tư vấn luôn sẵn sàng qua Zalo, giải đáp mọi thắc mắc ngay lập tức.' },
+]
+
+interface TrustProps {
+  sections?: Partial<SectionsMap>
+}
+
+export function Trust({ sections }: TrustProps = {}) {
   const { ref, isVisible } = useFadeIn()
+
+  const label = sections?.['home.trust.label']?.text || 'Tại sao chọn chúng tôi'
+  const title = sections?.['home.trust.title']?.text || 'Được tin tưởng vì lý do chính đáng'
+
+  const points = [0, 1, 2, 3].map((i) => ({
+    title: sections?.[`home.trust.point${i + 1}_title` as keyof SectionsMap]?.text || DEFAULT_POINTS[i].title,
+    description: sections?.[`home.trust.point${i + 1}_desc` as keyof SectionsMap]?.text || DEFAULT_POINTS[i].description,
+    ...POINT_ICONS[i],
+  }))
 
   return (
     <section id="trust" className="py-20 bg-gradient-to-br from-slate-50 to-blue-50/50">
@@ -50,10 +47,10 @@ export function Trust() {
         >
           <div className="text-center mb-14">
             <p className="text-secondary font-semibold text-sm uppercase tracking-wide mb-3">
-              Tại sao chọn chúng tôi
+              {label}
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-primary">
-              Được tin tưởng vì lý do chính đáng
+              {title}
             </h2>
           </div>
 
@@ -97,7 +94,7 @@ export function Trust() {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {TRUST_POINTS.map((point, idx) => {
+            {points.map((point, idx) => {
               const Icon = point.icon
               return (
                 <div

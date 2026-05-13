@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Home, MessageSquare, Image as ImageIcon, Tag, Type, Sparkles, MousePointerClick, BarChart3 } from "lucide-react";
+import { Home, MessageSquare, Image as ImageIcon, Tag, Type, Sparkles, MousePointerClick, BarChart3, ShieldCheck, Package } from "lucide-react";
 
 type Value = { text: string; image: string | null };
 
@@ -85,6 +85,77 @@ const FIELD_META: Record<string, FieldMeta> = {
     hint: "Ví dụ: 'Xem báo giá'",
     icon: MousePointerClick,
   },
+  // Trust section
+  "home.trust.label": {
+    label: "Nhãn nhỏ phía trên tiêu đề",
+    hint: "Ví dụ: 'Tại sao chọn chúng tôi'",
+    icon: Tag,
+  },
+  "home.trust.title": {
+    label: "Tiêu đề chính",
+    hint: "Ví dụ: 'Được tin tưởng vì lý do chính đáng'",
+    icon: Type,
+  },
+  "home.trust.point1_title": {
+    label: "Điểm mạnh 1 — Tiêu đề",
+    hint: "Ví dụ: '100% Thảo dược tự nhiên'",
+    icon: Type,
+  },
+  "home.trust.point1_desc": {
+    label: "Điểm mạnh 1 — Mô tả",
+    hint: "Mô tả ngắn 1-2 dòng cho điểm mạnh đầu tiên",
+    long: true,
+    icon: Type,
+  },
+  "home.trust.point2_title": {
+    label: "Điểm mạnh 2 — Tiêu đề",
+    hint: "Ví dụ: 'Chứng nhận chất lượng'",
+    icon: Type,
+  },
+  "home.trust.point2_desc": {
+    label: "Điểm mạnh 2 — Mô tả",
+    hint: "Mô tả ngắn 1-2 dòng cho điểm mạnh thứ hai",
+    long: true,
+    icon: Type,
+  },
+  "home.trust.point3_title": {
+    label: "Điểm mạnh 3 — Tiêu đề",
+    hint: "Ví dụ: '10.000+ khách tin dùng'",
+    icon: Type,
+  },
+  "home.trust.point3_desc": {
+    label: "Điểm mạnh 3 — Mô tả",
+    hint: "Mô tả ngắn 1-2 dòng cho điểm mạnh thứ ba",
+    long: true,
+    icon: Type,
+  },
+  "home.trust.point4_title": {
+    label: "Điểm mạnh 4 — Tiêu đề",
+    hint: "Ví dụ: 'Tư vấn miễn phí 24/7'",
+    icon: Type,
+  },
+  "home.trust.point4_desc": {
+    label: "Điểm mạnh 4 — Mô tả",
+    hint: "Mô tả ngắn 1-2 dòng cho điểm mạnh thứ tư",
+    long: true,
+    icon: Type,
+  },
+  // Products section
+  "home.products.label": {
+    label: "Nhãn nhỏ phía trên tiêu đề",
+    hint: "Ví dụ: 'Rượu Truyền Thống'",
+    icon: Tag,
+  },
+  "home.products.title": {
+    label: "Tiêu đề chính",
+    hint: "Ví dụ: 'Dòng Sản Phẩm Cao Cấp'",
+    icon: Type,
+  },
+  "home.products.subtitle": {
+    label: "Mô tả dưới tiêu đề",
+    hint: "Ví dụ: 'Thương hiệu Somo Gold — đạt tiêu chuẩn ISO 22000:2018 và OCOP 4 sao'",
+    icon: Type,
+  },
 };
 
 type GroupMeta = {
@@ -103,6 +174,16 @@ const GROUPS: Record<string, GroupMeta> = {
     label: "Trang chủ — Khối kêu gọi cuối trang",
     description: "Khối kêu gọi mua hàng đặt ở phía cuối trang chủ, ngay trước phần liên hệ.",
     icon: MessageSquare,
+  },
+  "home.trust": {
+    label: "Trang chủ — Tại sao chọn chúng tôi",
+    description: "Tiêu đề và 4 điểm mạnh hiển thị trong phần 'Tại sao chọn chúng tôi' ở giữa trang chủ.",
+    icon: ShieldCheck,
+  },
+  "home.products": {
+    label: "Trang chủ — Dòng Sản Phẩm Cao Cấp",
+    description: "Tiêu đề và mô tả của khối danh sách sản phẩm nổi bật trên trang chủ.",
+    icon: Package,
   },
 };
 
