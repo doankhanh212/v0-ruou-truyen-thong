@@ -46,7 +46,6 @@ export const DEFAULT_SETTINGS: SettingsMap = {
   zalo_oaid: "",
   website: "",
   fanpage_url: "",
-  copyright: "",
   home_page_size: "16",
   google_map_coords: "",
   google_map_embed: "",
