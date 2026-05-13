@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
         volume: data.volume ?? null,
         alcohol: data.alcohol ?? null,
         origin: data.origin ?? null,
-        variants: data.variants && data.variants.length > 0 ? data.variants : null,
+        variants: data.variants && data.variants.length > 0 ? data.variants : [],
         images: { create: normalizedImages.records },
       },
     });
