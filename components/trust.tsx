@@ -68,7 +68,7 @@ export function Trust({ sections }: TrustProps = {}) {
             </h2>
           </div>
 
-          <div className="mb-10 grid gap-4 lg:grid-cols-[1.25fr_0.75fr]">
+          <div className="mb-10 grid items-start gap-4 lg:grid-cols-[1.25fr_0.75fr]">
             <div className="relative overflow-hidden rounded-3xl border border-white/60 bg-white shadow-sm">
               <div className="relative aspect-[16/9]">
                 <Image
