@@ -25,6 +25,16 @@ export const SECTION_KEYS = [
   // Home — Trust ("Tại sao chọn chúng tôi")
   "home.trust.label",
   "home.trust.title",
+  // Trust — Card 1 ("Catalog thật")
+  "home.trust.card1_eyebrow",
+  "home.trust.card1_title",
+  "home.trust.card1_desc",
+  "home.trust.card1_image",
+  // Trust — Card 2 ("Biếu tặng cao cấp")
+  "home.trust.card2_eyebrow",
+  "home.trust.card2_title",
+  "home.trust.card2_desc",
+  "home.trust.card2_image",
   "home.trust.point1_title",
   "home.trust.point1_desc",
   "home.trust.point2_title",

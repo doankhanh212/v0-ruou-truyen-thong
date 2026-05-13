@@ -30,6 +30,20 @@ export function Trust({ sections }: TrustProps = {}) {
   const label = sections?.['home.trust.label']?.text || 'Tại sao chọn chúng tôi'
   const title = sections?.['home.trust.title']?.text || 'Được tin tưởng vì lý do chính đáng'
 
+  const card1 = {
+    eyebrow: sections?.['home.trust.card1_eyebrow']?.text || 'Catalog thật',
+    title: sections?.['home.trust.card1_title']?.text || 'Dòng rượu và bộ quà đã lên web bằng ảnh gốc',
+    description: sections?.['home.trust.card1_desc']?.text || 'Từ rượu nếp, ba kích đến Minh Mạng, Hoàng Hoa, Tây Dương Sâm và các bộ quà biếu doanh nghiệp.',
+    image: sections?.['home.trust.card1_image']?.image || brandVisuals.collection,
+  }
+
+  const card2 = {
+    eyebrow: sections?.['home.trust.card2_eyebrow']?.text || 'Biếu tặng cao cấp',
+    title: sections?.['home.trust.card2_title']?.text || 'Phù hợp quà Tết, quà đối tác và khách VIP',
+    description: sections?.['home.trust.card2_desc']?.text || '',
+    image: sections?.['home.trust.card2_image']?.image || brandVisuals.gifts,
+  }
+
   const points = [0, 1, 2, 3].map((i) => ({
     title: sections?.[`home.trust.point${i + 1}_title` as keyof SectionsMap]?.text || DEFAULT_POINTS[i].title,
     description: sections?.[`home.trust.point${i + 1}_desc` as keyof SectionsMap]?.text || DEFAULT_POINTS[i].description,
@@ -58,19 +72,21 @@ export function Trust({ sections }: TrustProps = {}) {
             <div className="relative overflow-hidden rounded-3xl border border-white/60 bg-white shadow-sm">
               <div className="relative aspect-[16/9]">
                 <Image
-                  src={brandVisuals.collection}
-                  alt="Bộ sưu tập Rượu Truyền Thống"
+                  src={card1.image}
+                  alt={card1.title}
                   fill
                   sizes="(max-width: 1024px) 100vw, 60vw"
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/80">Catalog thật</p>
-                  <h3 className="mt-2 text-2xl font-bold">Dòng rượu và bộ quà đã lên web bằng ảnh gốc</h3>
-                  <p className="mt-2 max-w-xl text-sm text-white/85">
-                    Từ rượu nếp, ba kích đến Minh Mạng, Hoàng Hoa, Tây Dương Sâm và các bộ quà biếu doanh nghiệp.
-                  </p>
+                  {card1.eyebrow ? (
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/80">{card1.eyebrow}</p>
+                  ) : null}
+                  {card1.title ? <h3 className="mt-2 text-2xl font-bold">{card1.title}</h3> : null}
+                  {card1.description ? (
+                    <p className="mt-2 max-w-xl text-sm text-white/85">{card1.description}</p>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -78,16 +94,23 @@ export function Trust({ sections }: TrustProps = {}) {
             <div className="relative overflow-hidden rounded-3xl border border-amber-200/70 bg-white shadow-sm">
               <div className="relative aspect-[4/5]">
                 <Image
-                  src={brandVisuals.gifts}
-                  alt="Quà tặng cao cấp Somo Gold"
+                  src={card2.image}
+                  alt={card2.title}
                   fill
                   sizes="(max-width: 1024px) 100vw, 30vw"
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-200">Biếu tặng cao cấp</p>
-                  <p className="mt-2 text-lg font-bold leading-snug">Phù hợp quà Tết, quà đối tác và khách VIP</p>
+                  {card2.eyebrow ? (
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-200">{card2.eyebrow}</p>
+                  ) : null}
+                  {card2.title ? (
+                    <p className="mt-2 text-lg font-bold leading-snug">{card2.title}</p>
+                  ) : null}
+                  {card2.description ? (
+                    <p className="mt-2 max-w-xl text-sm text-white/85">{card2.description}</p>
+                  ) : null}
                 </div>
               </div>
             </div>

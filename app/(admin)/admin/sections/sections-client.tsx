@@ -1,7 +1,19 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Home, MessageSquare, Image as ImageIcon, Tag, Type, Sparkles, MousePointerClick, BarChart3, ShieldCheck, Package } from "lucide-react";
+import {
+  Home,
+  MessageSquare,
+  Image as ImageIcon,
+  Tag,
+  Type,
+  Sparkles,
+  MousePointerClick,
+  BarChart3,
+  ShieldCheck,
+  Package,
+  type LucideIcon,
+} from "lucide-react";
 
 type Value = { text: string; image: string | null };
 
@@ -10,19 +22,16 @@ interface Props {
   initialValues: Record<string, Value>;
 }
 
-/**
- * Friendly labels + groups for the business owner.
- * Each entry tells the admin EXACTLY where this content shows up.
- */
 type FieldMeta = {
   label: string;
   hint: string;
   long?: boolean;
   hasImage?: boolean;
-  icon: typeof Type;
+  icon: LucideIcon;
 };
 
 const FIELD_META: Record<string, FieldMeta> = {
+  // Hero
   "home.hero.badge": {
     label: "Nhãn dán nhỏ phía trên tiêu đề",
     hint: "Ví dụ: 'Đặc sản miền Tây' — hiển thị trên cùng banner trang chủ",
@@ -64,6 +73,7 @@ const FIELD_META: Record<string, FieldMeta> = {
     hint: "Ví dụ: 'Năm kinh nghiệm' — đi kèm con số ở trên",
     icon: BarChart3,
   },
+  // CTA cuối trang
   "home.cta.title": {
     label: "Tiêu đề khối kêu gọi (cuối trang)",
     hint: "Tiêu đề lớn của khối CTA cuối trang chủ",
@@ -85,7 +95,7 @@ const FIELD_META: Record<string, FieldMeta> = {
     hint: "Ví dụ: 'Xem báo giá'",
     icon: MousePointerClick,
   },
-  // Trust section
+  // Trust
   "home.trust.label": {
     label: "Nhãn nhỏ phía trên tiêu đề",
     hint: "Ví dụ: 'Tại sao chọn chúng tôi'",
@@ -96,6 +106,52 @@ const FIELD_META: Record<string, FieldMeta> = {
     hint: "Ví dụ: 'Được tin tưởng vì lý do chính đáng'",
     icon: Type,
   },
+  // Trust cards
+  "home.trust.card1_eyebrow": {
+    label: "Card 1 — Nhãn nhỏ phía trên",
+    hint: "Ví dụ: 'Catalog thật'",
+    icon: Tag,
+  },
+  "home.trust.card1_title": {
+    label: "Card 1 — Tiêu đề lớn",
+    hint: "Ví dụ: 'Dòng rượu và bộ quà đã lên web bằng ảnh gốc'",
+    icon: Type,
+  },
+  "home.trust.card1_desc": {
+    label: "Card 1 — Mô tả ngắn",
+    hint: "Đoạn mô tả 1-2 dòng dưới tiêu đề card 1",
+    long: true,
+    icon: Type,
+  },
+  "home.trust.card1_image": {
+    label: "Card 1 — Ảnh nền",
+    hint: "Tỉ lệ 16:9. Hiển thị ở card lớn bên trái.",
+    hasImage: true,
+    icon: ImageIcon,
+  },
+  "home.trust.card2_eyebrow": {
+    label: "Card 2 — Nhãn nhỏ phía trên",
+    hint: "Ví dụ: 'Biếu tặng cao cấp'",
+    icon: Tag,
+  },
+  "home.trust.card2_title": {
+    label: "Card 2 — Tiêu đề lớn",
+    hint: "Ví dụ: 'Phù hợp quà Tết, quà đối tác và khách VIP'",
+    icon: Type,
+  },
+  "home.trust.card2_desc": {
+    label: "Card 2 — Mô tả ngắn (tuỳ chọn)",
+    hint: "Có thể để trống nếu chỉ cần tiêu đề",
+    long: true,
+    icon: Type,
+  },
+  "home.trust.card2_image": {
+    label: "Card 2 — Ảnh nền",
+    hint: "Tỉ lệ 4:5 (dọc). Hiển thị ở card nhỏ bên phải.",
+    hasImage: true,
+    icon: ImageIcon,
+  },
+  // Trust điểm mạnh
   "home.trust.point1_title": {
     label: "Điểm mạnh 1 — Tiêu đề",
     hint: "Ví dụ: '100% Thảo dược tự nhiên'",
@@ -103,7 +159,7 @@ const FIELD_META: Record<string, FieldMeta> = {
   },
   "home.trust.point1_desc": {
     label: "Điểm mạnh 1 — Mô tả",
-    hint: "Mô tả ngắn 1-2 dòng cho điểm mạnh đầu tiên",
+    hint: "Mô tả ngắn 1-2 dòng",
     long: true,
     icon: Type,
   },
@@ -114,7 +170,7 @@ const FIELD_META: Record<string, FieldMeta> = {
   },
   "home.trust.point2_desc": {
     label: "Điểm mạnh 2 — Mô tả",
-    hint: "Mô tả ngắn 1-2 dòng cho điểm mạnh thứ hai",
+    hint: "Mô tả ngắn 1-2 dòng",
     long: true,
     icon: Type,
   },
@@ -125,7 +181,7 @@ const FIELD_META: Record<string, FieldMeta> = {
   },
   "home.trust.point3_desc": {
     label: "Điểm mạnh 3 — Mô tả",
-    hint: "Mô tả ngắn 1-2 dòng cho điểm mạnh thứ ba",
+    hint: "Mô tả ngắn 1-2 dòng",
     long: true,
     icon: Type,
   },
@@ -136,11 +192,11 @@ const FIELD_META: Record<string, FieldMeta> = {
   },
   "home.trust.point4_desc": {
     label: "Điểm mạnh 4 — Mô tả",
-    hint: "Mô tả ngắn 1-2 dòng cho điểm mạnh thứ tư",
+    hint: "Mô tả ngắn 1-2 dòng",
     long: true,
     icon: Type,
   },
-  // Products section
+  // Products
   "home.products.label": {
     label: "Nhãn nhỏ phía trên tiêu đề",
     hint: "Ví dụ: 'Rượu Truyền Thống'",
@@ -158,48 +214,49 @@ const FIELD_META: Record<string, FieldMeta> = {
   },
 };
 
-type GroupMeta = {
+type TabMeta = {
+  id: string;
   label: string;
+  shortLabel: string;
   description: string;
-  icon: typeof Home;
+  icon: LucideIcon;
+  groupPrefix: string;
 };
 
-const GROUPS: Record<string, GroupMeta> = {
-  "home.hero": {
-    label: "Trang chủ — Banner đầu trang",
-    description: "Phần lớn nhất khi khách vừa vào website. Cập nhật ở đây sẽ thay đổi tiêu đề + nút bấm trên cùng.",
+const TABS: TabMeta[] = [
+  {
+    id: "hero",
+    label: "Banner đầu trang",
+    shortLabel: "Banner",
+    description: "Phần lớn nhất khi khách vừa vào website — tiêu đề + nút bấm trên cùng.",
     icon: Home,
+    groupPrefix: "home.hero.",
   },
-  "home.cta": {
-    label: "Trang chủ — Khối kêu gọi cuối trang",
-    description: "Khối kêu gọi mua hàng đặt ở phía cuối trang chủ, ngay trước phần liên hệ.",
-    icon: MessageSquare,
-  },
-  "home.trust": {
-    label: "Trang chủ — Tại sao chọn chúng tôi",
-    description: "Tiêu đề và 4 điểm mạnh hiển thị trong phần 'Tại sao chọn chúng tôi' ở giữa trang chủ.",
+  {
+    id: "trust",
+    label: "Tại sao chọn chúng tôi",
+    shortLabel: "Tại sao",
+    description: "Tiêu đề, 2 cards giới thiệu (ảnh + chữ) và 4 điểm mạnh dưới cùng.",
     icon: ShieldCheck,
+    groupPrefix: "home.trust.",
   },
-  "home.products": {
-    label: "Trang chủ — Dòng Sản Phẩm Cao Cấp",
-    description: "Tiêu đề và mô tả của khối danh sách sản phẩm nổi bật trên trang chủ.",
+  {
+    id: "products",
+    label: "Dòng sản phẩm cao cấp",
+    shortLabel: "Sản phẩm",
+    description: "Tiêu đề và mô tả phía trên danh sách sản phẩm nổi bật.",
     icon: Package,
+    groupPrefix: "home.products.",
   },
-};
-
-function groupKeys(keys: string[]): Record<string, string[]> {
-  const groups: Record<string, string[]> = {};
-  for (const key of keys) {
-    const parts = key.split(".");
-    const group = parts.length >= 2 ? `${parts[0]}.${parts[1]}` : "other";
-    if (!groups[group]) groups[group] = [];
-    groups[group].push(key);
-  }
-  return groups;
-}
-
-// Only fields under a hero-style block need image control. CTA labels don't.
-const KEYS_WITH_IMAGE = new Set<string>([]);
+  {
+    id: "cta",
+    label: "Khối kêu gọi cuối trang",
+    shortLabel: "CTA",
+    description: "Khối kêu gọi mua hàng đặt phía cuối trang chủ, ngay trước phần liên hệ.",
+    icon: MessageSquare,
+    groupPrefix: "home.cta.",
+  },
+];
 
 export function SectionsClient({ keys, initialValues }: Props) {
   const [values, setValues] = useState<Record<string, Value>>(() => {
@@ -209,12 +266,11 @@ export function SectionsClient({ keys, initialValues }: Props) {
     }
     return map;
   });
+  const [activeTab, setActiveTab] = useState<string>(TABS[0].id);
   const [saving, setSaving] = useState(false);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
-
-  const groups = groupKeys(keys);
 
   function updateText(key: string, text: string) {
     setValues((prev) => ({ ...prev, [key]: { ...(prev[key] ?? { text: "", image: null }), text } }));
@@ -284,31 +340,34 @@ export function SectionsClient({ keys, initialValues }: Props) {
     setValues((prev) => ({ ...prev, [key]: { text: "", image: null } }));
   }
 
+  const activeTabMeta = TABS.find((t) => t.id === activeTab) ?? TABS[0];
+  const activeKeys = keys.filter((k) => k.startsWith(activeTabMeta.groupPrefix));
+
   return (
-    <form onSubmit={handleSave} className="space-y-6">
-      {/* Sticky header with save button */}
-      <div className="sticky top-0 z-10 -mx-4 -mt-4 mb-4 border-b bg-gray-50/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:-mt-6 sm:px-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <form onSubmit={handleSave} className="space-y-4">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-20 -mx-4 -mt-4 border-b border-slate-200 bg-white px-4 py-3 shadow-sm sm:-mx-6 sm:-mt-6 sm:px-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl">Nội dung trang chủ</h1>
-            <p className="mt-1 text-sm text-gray-600">
-              Sửa tiêu đề, nút bấm và mô tả trên trang chủ. Nhấn <strong>Lưu tất cả</strong> để áp dụng.
+            <h1 className="text-lg font-semibold text-slate-900 sm:text-xl">Nội dung trang chủ</h1>
+            <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">
+              Chọn khối bên dưới để chỉnh sửa. Nhấn <strong>Lưu tất cả</strong> để áp dụng cho cả 4 khối.
             </p>
           </div>
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-[#8B1A1A] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#6f1414] disabled:opacity-50"
+            className="rounded-lg bg-[#8B1A1A] px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#6f1414] disabled:opacity-50"
           >
             {saving ? "Đang lưu..." : "Lưu tất cả"}
           </button>
         </div>
         {message && (
           <div
-            className={`mt-3 rounded-lg px-3 py-2 text-sm ${
+            className={`mt-2 rounded-md px-3 py-1.5 text-sm ${
               message.type === "ok"
-                ? "bg-green-50 text-green-700 border border-green-200"
-                : "bg-red-50 text-red-700 border border-red-200"
+                ? "border border-green-200 bg-green-50 text-green-700"
+                : "border border-red-200 bg-red-50 text-red-700"
             }`}
           >
             {message.text}
@@ -316,146 +375,155 @@ export function SectionsClient({ keys, initialValues }: Props) {
         )}
       </div>
 
-      {Object.entries(groups).map(([groupKey, groupKeys]) => {
-        const meta = GROUPS[groupKey];
-        const GroupIcon = meta?.icon ?? Home;
+      {/* Tabs */}
+      <div className="flex flex-wrap gap-1.5 rounded-lg border border-slate-200 bg-slate-50 p-1.5">
+        {TABS.map((tab) => {
+          const TabIcon = tab.icon;
+          const isActive = tab.id === activeTab;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                isActive
+                  ? "bg-white text-[#8B1A1A] shadow-sm ring-1 ring-slate-200"
+                  : "text-slate-600 hover:bg-white/60"
+              }`}
+            >
+              <TabIcon size={16} className={isActive ? "text-[#8B1A1A]" : "text-slate-400"} />
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden">{tab.shortLabel}</span>
+            </button>
+          );
+        })}
+      </div>
 
-        return (
-          <section key={groupKey} className="overflow-hidden rounded-xl border bg-white shadow-sm">
-            {/* Group header */}
-            <header className="flex items-start gap-3 border-b bg-gradient-to-br from-amber-50 to-white px-4 py-4 sm:px-6">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-[#8B1A1A]/10 text-[#8B1A1A]">
-                <GroupIcon size={20} />
-              </div>
-              <div>
-                <h2 className="text-base font-bold text-gray-900 sm:text-lg">
-                  {meta?.label ?? groupKey}
-                </h2>
-                {meta?.description && (
-                  <p className="mt-1 text-sm text-gray-600">{meta.description}</p>
-                )}
-              </div>
-            </header>
+      {/* Active tab content */}
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <header className="flex items-start gap-3 border-b border-slate-200 bg-gradient-to-br from-amber-50/60 to-white px-4 py-3 sm:px-6">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[#8B1A1A]/10 text-[#8B1A1A]">
+            <activeTabMeta.icon size={18} />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-slate-900">{activeTabMeta.label}</h2>
+            <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">{activeTabMeta.description}</p>
+          </div>
+        </header>
 
-            <div className="divide-y">
-              {groupKeys.map((key) => {
-                const v = values[key] ?? { text: "", image: null };
-                const fieldMeta = FIELD_META[key];
-                const FieldIcon = fieldMeta?.icon ?? Type;
-                const isLong = fieldMeta?.long ?? false;
-                const showImage = KEYS_WITH_IMAGE.has(key);
-                const isUploading = uploadingKey === key;
+        <div className="divide-y divide-slate-100">
+          {activeKeys.map((key) => {
+            const v = values[key] ?? { text: "", image: null };
+            const fieldMeta = FIELD_META[key];
+            const FieldIcon = fieldMeta?.icon ?? Type;
+            const isLong = fieldMeta?.long ?? false;
+            const showImage = fieldMeta?.hasImage ?? false;
+            const isUploading = uploadingKey === key;
 
-                return (
-                  <div key={key} className="px-4 py-4 sm:px-6 sm:py-5">
-                    <div className="mb-2 flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-2.5">
-                        <FieldIcon size={16} className="mt-0.5 flex-shrink-0 text-gray-400" />
-                        <div>
-                          <label
-                            htmlFor={`sec-${key}`}
-                            className="block text-sm font-medium text-gray-900"
-                          >
-                            {fieldMeta?.label ?? key}
-                          </label>
-                          {fieldMeta?.hint && (
-                            <p className="mt-0.5 text-xs text-gray-500">{fieldMeta.hint}</p>
-                          )}
-                        </div>
-                      </div>
-                      {(v.text || v.image) && (
-                        <button
-                          type="button"
-                          onClick={() => clearField(key)}
-                          className="text-xs text-gray-400 hover:text-red-600 hover:underline"
-                        >
-                          Xóa
-                        </button>
+            return (
+              <div key={key} className="px-4 py-4 sm:px-6">
+                <div className="mb-2 flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-2">
+                    <FieldIcon size={15} className="mt-0.5 flex-shrink-0 text-slate-400" />
+                    <div>
+                      <label htmlFor={`sec-${key}`} className="block text-sm font-medium text-slate-900">
+                        {fieldMeta?.label ?? key}
+                      </label>
+                      {fieldMeta?.hint && (
+                        <p className="mt-0.5 text-xs text-slate-500">{fieldMeta.hint}</p>
                       )}
                     </div>
-
-                    {isLong ? (
-                      <textarea
-                        id={`sec-${key}`}
-                        value={v.text}
-                        onChange={(e) => updateText(key, e.target.value)}
-                        rows={3}
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#8B1A1A] focus:outline-none focus:ring-1 focus:ring-[#8B1A1A]"
-                        placeholder="Để trống nếu không muốn hiển thị"
-                      />
-                    ) : (
-                      <input
-                        id={`sec-${key}`}
-                        type="text"
-                        value={v.text}
-                        onChange={(e) => updateText(key, e.target.value)}
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#8B1A1A] focus:outline-none focus:ring-1 focus:ring-[#8B1A1A]"
-                        placeholder="Để trống nếu không muốn hiển thị"
-                      />
-                    )}
-
-                    {showImage && (
-                      <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-start">
-                        <div className="relative h-24 w-32 flex-shrink-0 overflow-hidden rounded-lg border bg-gray-50">
-                          {v.image ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={v.image} alt="" className="h-full w-full object-cover" />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
-                              <ImageIcon size={20} />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 space-y-2">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <input
-                              ref={(el) => {
-                                fileInputRefs.current[key] = el;
-                              }}
-                              type="file"
-                              accept="image/jpeg,image/png,image/webp"
-                              className="hidden"
-                              onChange={(e) => {
-                                const f = e.target.files?.[0];
-                                if (f) void handleUpload(key, f);
-                                e.currentTarget.value = "";
-                              }}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => fileInputRefs.current[key]?.click()}
-                              disabled={isUploading}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                            >
-                              {isUploading ? "Đang tải..." : v.image ? "Đổi ảnh" : "Tải ảnh lên"}
-                            </button>
-                            {v.image && (
-                              <button
-                                type="button"
-                                onClick={() => updateImage(key, null)}
-                                className="text-xs text-red-600 hover:underline"
-                              >
-                                Gỡ ảnh
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </div>
-                );
-              })}
-            </div>
-          </section>
-        );
-      })}
+                  {(v.text || v.image) && (
+                    <button
+                      type="button"
+                      onClick={() => clearField(key)}
+                      className="text-xs text-slate-400 hover:text-red-600 hover:underline"
+                    >
+                      Xóa
+                    </button>
+                  )}
+                </div>
 
-      {/* Footer save button (in case sticky doesn't help on mobile) */}
+                {showImage ? (
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                    <div className="relative h-28 w-40 flex-shrink-0 overflow-hidden rounded-lg border bg-slate-50">
+                      {v.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={v.image} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-slate-400">
+                          <ImageIcon size={22} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-1 flex-col gap-2">
+                      <input
+                        ref={(el) => {
+                          fileInputRefs.current[key] = el;
+                        }}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) void handleUpload(key, f);
+                          e.currentTarget.value = "";
+                        }}
+                      />
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => fileInputRefs.current[key]?.click()}
+                          disabled={isUploading}
+                          className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                        >
+                          {isUploading ? "Đang tải..." : v.image ? "Đổi ảnh" : "Tải ảnh lên"}
+                        </button>
+                        {v.image && (
+                          <button
+                            type="button"
+                            onClick={() => updateImage(key, null)}
+                            className="text-xs text-red-600 hover:underline"
+                          >
+                            Gỡ ảnh
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-400">JPG, PNG hoặc WebP — tối đa 3MB</p>
+                    </div>
+                  </div>
+                ) : isLong ? (
+                  <textarea
+                    id={`sec-${key}`}
+                    value={v.text}
+                    onChange={(e) => updateText(key, e.target.value)}
+                    rows={3}
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-[#8B1A1A] focus:outline-none focus:ring-1 focus:ring-[#8B1A1A]"
+                    placeholder="Để trống nếu không muốn hiển thị"
+                  />
+                ) : (
+                  <input
+                    id={`sec-${key}`}
+                    type="text"
+                    value={v.text}
+                    onChange={(e) => updateText(key, e.target.value)}
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-[#8B1A1A] focus:outline-none focus:ring-1 focus:ring-[#8B1A1A]"
+                    placeholder="Để trống nếu không muốn hiển thị"
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Footer save button */}
       <div className="flex justify-end pt-2">
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-[#8B1A1A] px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#6f1414] disabled:opacity-50"
+          className="rounded-lg bg-[#8B1A1A] px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#6f1414] disabled:opacity-50"
         >
           {saving ? "Đang lưu..." : "Lưu tất cả"}
         </button>
