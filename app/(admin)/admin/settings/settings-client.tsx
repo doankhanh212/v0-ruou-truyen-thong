@@ -24,7 +24,6 @@ const PRIMARY_FIELDS: Field[] = [
   { key: "zalo_oaid", label: "OAID Zalo", placeholder: "OAID Zalo" },
   { key: "website", label: "Website", placeholder: "https://yourdomain.com/" },
   { key: "fanpage_url", label: "Fanpage", placeholder: "https://www.facebook.com/your-page/" },
-  { key: "copyright", label: "Copyright", placeholder: "Bản quyền © 2026 ..." },
   { key: "home_page_size", label: "Phân trang chủ", placeholder: "16", helper: "Số sản phẩm hiển thị trên trang chủ" },
   { key: "google_map_coords", label: "Tọa độ Google Map", placeholder: "10.762667797410737,106.68600295483124" },
 ];
