@@ -2,10 +2,11 @@ import type { Metadata } from 'next'
 import sanitizeHtml from 'sanitize-html'
 import { Story } from '@/components/story'
 import { SocialProof } from '@/components/social-proof'
-import { getSeoBySlug } from '@/lib/seo-pages'
+import { getSeoByPath } from '@/lib/seo-pages'
 import { getStaticPage } from '@/lib/static-pages'
 import { absoluteUrl, SITE_NAME } from '@/lib/seo'
 import { PAGE_HTML_OPTIONS } from '@/lib/sanitize-page-html'
+import { getSettings, getSystemConfig } from '@/lib/settings'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,13 +15,16 @@ const FALLBACK_DESC =
   'Câu chuyện rượu truyền thống — kế thừa bí quyết chế tác rượu thuốc truyền thống từ đời xưa của người dân miền Nam Việt Nam.'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [seo, page] = await Promise.all([
-    getSeoBySlug('gioi-thieu'),
+  const [seo, page, settings] = await Promise.all([
+    getSeoByPath('/gioi-thieu'),
     getStaticPage('gioi-thieu'),
+    getSettings(),
   ])
+  const systemConfig = getSystemConfig(settings)
   const title = seo?.title || page?.metaTitle || FALLBACK_TITLE
   const description = seo?.description || page?.metaDescription || FALLBACK_DESC
-  const ogImage = seo?.ogImage ? absoluteUrl(seo.ogImage) : undefined
+  const rawOgImage = seo?.ogImage || systemConfig.defaultOgImage
+  const ogImage = rawOgImage ? absoluteUrl(rawOgImage) : undefined
   return {
     title,
     description,

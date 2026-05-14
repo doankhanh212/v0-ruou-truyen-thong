@@ -22,6 +22,24 @@ function formatViewCount(value: number): string {
   return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
 }
 
+const ALCOHOL_COMPLIANCE_KEYWORDS = ["suc khoe", "tri benh", "bo duong", "y te"];
+
+function normalizeVietnamese(input: string): string {
+  return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "d")
+    .toLowerCase();
+}
+
+function filterAlcoholComplianceTerms(items: string[]) {
+  return items.filter((item) => {
+    const normalized = normalizeVietnamese(item);
+    return !ALCOHOL_COMPLIANCE_KEYWORDS.some((keyword) => normalized.includes(keyword));
+  });
+}
+
 function useProductViews(slug: string) {
   const [total, setTotal] = useState<number | null>(null);
   const [viewing, setViewing] = useState<number>(0);
@@ -162,6 +180,7 @@ export function ProductDetailClient({
   const safeActiveIndex = Math.min(activeImageIndex, itemGallery.length - 1);
   const mainImage = itemGallery[safeActiveIndex] ?? product.image;
   const selectedPrice = selectedVariant?.price ?? product.priceMin;
+  const compliantBenefits = filterAlcoholComplianceTerms(product.benefits);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -285,17 +304,19 @@ export function ProductDetailClient({
             </div>
           </div>
 
-          <div>
-            <h2 className="text-sm font-bold uppercase tracking-wide text-gray-500">Điểm nổi bật</h2>
-            <div className="mt-3 space-y-2.5">
-              {product.benefits.map((benefit) => (
-                <div key={benefit} className="flex items-start gap-2 text-sm text-gray-700">
-                  <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-green-600" />
-                  <span>{benefit}</span>
-                </div>
-              ))}
+          {compliantBenefits.length > 0 ? (
+            <div>
+              <h2 className="text-sm font-bold uppercase tracking-wide text-gray-500">Điểm nổi bật</h2>
+              <div className="mt-3 space-y-2.5">
+                {compliantBenefits.map((benefit) => (
+                  <div key={benefit} className="flex items-start gap-2 text-sm text-gray-700">
+                    <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0 text-green-600" />
+                    <span>{benefit}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : null}
 
           {product.ingredients.length > 0 ? (
             <div>

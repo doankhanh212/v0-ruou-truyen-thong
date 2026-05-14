@@ -1,32 +1,30 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getSeoBySlug } from '@/lib/seo-pages'
+import { getSeoByPath } from '@/lib/seo-pages'
 import { getStaticPage } from '@/lib/static-pages'
 import { absoluteUrl, SITE_NAME } from '@/lib/seo'
 import { companyInfo } from '@/lib/site-content'
 import { Phone, Mail, MapPin, MessageCircle, Clock, ArrowRight, Building2 } from 'lucide-react'
 import sanitizeHtml from 'sanitize-html'
+import { PAGE_HTML_OPTIONS } from '@/lib/sanitize-page-html'
+import { getSettings, getSystemConfig } from '@/lib/settings'
 
 export const dynamic = 'force-dynamic'
 
 const FALLBACK_TITLE = 'Liên hệ — Rượu truyền thống'
 const FALLBACK_DESC = 'Liên hệ mua rượu truyền thống. Hotline, Zalo, email — tư vấn miễn phí, giao hàng toàn quốc.'
 
-const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
-  allowedTags: ['h1','h2','h3','h4','p','br','hr','blockquote','ul','ol','li','strong','em','b','i','u','s','a','img','code','pre','span','div','table','thead','tbody','tr','th','td'],
-  allowedAttributes: {
-    a: ['href','target','rel','class'], img: ['src','alt','width','height','class'],
-    p: ['style'], h1: ['style'], h2: ['style'], h3: ['style'], h4: ['style'],
-    span: ['style'], div: ['style','class'], td: ['style'], th: ['style'],
-  },
-  allowedStyles: { '*': { 'text-align': [/^left$/, /^right$/, /^center$/, /^justify$/] } },
-}
-
 export async function generateMetadata(): Promise<Metadata> {
-  const [seo, page] = await Promise.all([getSeoBySlug('lien-he'), getStaticPage('lien-he')])
+  const [seo, page, settings] = await Promise.all([
+    getSeoByPath('/lien-he'),
+    getStaticPage('lien-he'),
+    getSettings(),
+  ])
+  const systemConfig = getSystemConfig(settings)
   const title = seo?.title || page?.metaTitle || FALLBACK_TITLE
   const description = seo?.description || page?.metaDescription || FALLBACK_DESC
-  const ogImage = seo?.ogImage ? absoluteUrl(seo.ogImage) : undefined
+  const rawOgImage = seo?.ogImage || systemConfig.defaultOgImage
+  const ogImage = rawOgImage ? absoluteUrl(rawOgImage) : undefined
   return {
     title,
     description,
@@ -96,7 +94,7 @@ export default async function LienHePage() {
                 prose-img:rounded-xl prose-img:shadow-sm prose-img:mx-auto
                 prose-blockquote:border-l-[#8B1A1A] prose-blockquote:bg-amber-50
                 prose-li:text-gray-700"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content, SANITIZE_OPTIONS) }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content, PAGE_HTML_OPTIONS) }}
             />
           </article>
         </div>

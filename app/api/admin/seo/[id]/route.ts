@@ -21,11 +21,12 @@ const SeoPatch = z.object({
 });
 
 function normalizeSlug(raw: string): string {
-  return raw
+  const normalized = raw
     .trim()
     .toLowerCase()
     .replace(/^\/+|\/+$/g, "")
     .slice(0, 120);
+  return normalized || "home";
 }
 
 export async function PATCH(

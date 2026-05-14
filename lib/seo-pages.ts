@@ -21,6 +21,11 @@ function normalizeSlug(slug: string): string {
   return slug.trim().toLowerCase().replace(/^\/+|\/+$/g, "");
 }
 
+function pathToSlug(path: string): string {
+  const normalized = path.trim().toLowerCase().split("?")[0].split("#")[0].replace(/^\/+|\/+$/g, "");
+  return normalized || "home";
+}
+
 /**
  * Loads admin-defined SEO metadata for a page slug.
  * Slugs are stored without leading slash, e.g. "gioi-thieu", "lien-he".
@@ -65,6 +70,14 @@ export async function getSeoBySlug(slug: string): Promise<SeoPageRecord | null> 
   }
 
   return record;
+}
+
+/**
+ * Loads SEO metadata by public URL path.
+ * `/` maps to the admin SEO slug `home`; `/gioi-thieu` maps to `gioi-thieu`.
+ */
+export async function getSeoByPath(path: string): Promise<SeoPageRecord | null> {
+  return getSeoBySlug(pathToSlug(path));
 }
 
 export async function invalidateSeoCache(slug?: string) {

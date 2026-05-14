@@ -6,6 +6,8 @@ import { Products } from '@/components/products'
 import { CTA } from '@/components/cta'
 import { getActiveBanners } from '@/lib/banners'
 import { getSections } from '@/lib/sections'
+import { getSeoByPath } from '@/lib/seo-pages'
+import { getSettings, getSystemConfig } from '@/lib/settings'
 import { absoluteUrl, metaDescription, metaTitle, SITE_NAME } from '@/lib/seo'
 
 interface HomeProps {
@@ -15,17 +17,26 @@ interface HomeProps {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const sections = await getSections()
+  const [sections, seo, settings] = await Promise.all([
+    getSections(),
+    getSeoByPath('/'),
+    getSettings(),
+  ])
+  const systemConfig = getSystemConfig(settings)
   const title =
+    seo?.title ||
     metaTitle(sections['home.hero.title']?.text || sections['home.hero.title_accent']?.text) ||
     SITE_NAME
   const description =
+    seo?.description ||
     metaDescription(sections['home.hero.subtitle']?.text) ||
     `${SITE_NAME} — rượu truyền thống Việt Nam.`
+  const ogImage = seo?.ogImage || systemConfig.defaultOgImage
 
   return {
     title,
     description,
+    keywords: seo?.keywords || undefined,
     alternates: { canonical: '/' },
     openGraph: {
       type: 'website',
@@ -33,11 +44,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title: `${title} — ${SITE_NAME}`,
       description,
       siteName: SITE_NAME,
+      images: ogImage ? [{ url: absoluteUrl(ogImage), alt: title }] : undefined,
     },
     twitter: {
       card: 'summary_large_image',
       title: `${title} — ${SITE_NAME}`,
       description,
+      images: ogImage ? [absoluteUrl(ogImage)] : undefined,
     },
   }
 }

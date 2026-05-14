@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from 'next'
+import Script from 'next/script'
 import { Be_Vietnam_Pro } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { GoogleTagManager } from '@next/third-parties/google'
 import { getSiteUrl, SITE_NAME } from '@/lib/seo'
-import { getSettings } from '@/lib/settings'
+import { getSettings, getSystemConfig } from '@/lib/settings'
 import './globals.css'
 
 const beVietnamPro = Be_Vietnam_Pro({
@@ -57,13 +58,43 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const settings = await getSettings()
-  const gtmId = settings.gtm_id.trim()
+  const systemConfig = getSystemConfig(settings)
+  const gtmId = systemConfig.gtmId.trim()
   const validGtmId = /^GTM-[A-Z0-9]+$/.test(gtmId) ? gtmId : null
+  const pixelId = systemConfig.facebookPixelId.trim()
+  const validPixelId = /^\d{5,30}$/.test(pixelId) ? pixelId : null
 
   return (
     <html lang="vi" className={beVietnamPro.variable} data-scroll-behavior="smooth">
       {validGtmId && <GoogleTagManager gtmId={validGtmId} />}
       <body className="font-sans antialiased overflow-x-hidden">
+        {validPixelId && (
+          <>
+            <Script id="facebook-pixel" strategy="afterInteractive">
+              {`
+                !function(f,b,e,v,n,t,s)
+                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window, document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', '${validPixelId}');
+                fbq('track', 'PageView');
+              `}
+            </Script>
+            <noscript>
+              <img
+                height="1"
+                width="1"
+                style={{ display: 'none' }}
+                src={`https://www.facebook.com/tr?id=${validPixelId}&ev=PageView&noscript=1`}
+                alt=""
+              />
+            </noscript>
+          </>
+        )}
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

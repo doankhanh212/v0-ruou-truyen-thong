@@ -3,7 +3,8 @@ import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { FloatingButtons } from '@/components/floating-buttons'
 import { ChatbotWidget } from '@/components/chatbot-widget'
-import { getSettings } from '@/lib/settings'
+import { AgeVerificationPopup } from '@/components/age-verification-popup'
+import { getFooterConfig, getSettings, getSystemConfig } from '@/lib/settings'
 
 export default async function SiteLayout({
   children,
@@ -11,6 +12,8 @@ export default async function SiteLayout({
   children: React.ReactNode
 }>) {
   const settings = await getSettings()
+  const footerConfig = getFooterConfig(settings)
+  const systemConfig = getSystemConfig(settings)
 
   let navLinks: { href: string; label: string }[] | undefined
   try {
@@ -28,18 +31,10 @@ export default async function SiteLayout({
         zaloLabel={settings.header_zalo_label}
       />
       <main className="min-h-screen">{children}</main>
-      <Footer
-        fanpageUrl={settings.fanpage_url}
-        brandName={settings.footer_brand_name}
-        brandDesc={settings.footer_brand_desc}
-        copyright={settings.footer_copyright}
-        phone={settings.footer_phone}
-        email={settings.footer_email}
-        address={settings.footer_address}
-        showFanpage={settings.footer_show_fanpage !== '0'}
-      />
+      <Footer config={footerConfig} />
       <FloatingButtons />
       <ChatbotWidget />
+      <AgeVerificationPopup enabled={systemConfig.agePopupEnabled} />
     </>
   )
 }
