@@ -6,6 +6,7 @@ import { Flame, MessageCircle } from 'lucide-react'
 import { openZalo } from '@/utils/zalo'
 import { track } from '@/utils/track'
 import type { CatalogProduct } from '@/lib/catalog'
+import { filterAlcoholComplianceTerms } from '@/lib/alcohol-compliance'
 
 interface ProductCardProps {
   item: CatalogProduct
@@ -14,6 +15,8 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ item, onZaloClick }: ProductCardProps) {
+  const compliantBenefits = filterAlcoholComplianceTerms(item.benefits).slice(0, 3)
+
   const handleProductClick = () => {
     track('click_product', { id: item.id, dbId: item.dbId, slug: item.slug, name: item.name, source: 'listing' })
   }
@@ -57,7 +60,7 @@ export function ProductCard({ item, onZaloClick }: ProductCardProps) {
         <p className="text-xs text-gray-400 mt-1 mb-3 line-clamp-1">{item.target}</p>
 
         <ul className="space-y-1.5 mb-4 flex-1">
-          {item.benefits.slice(0, 3).map((benefit, i) => (
+          {compliantBenefits.map((benefit, i) => (
             <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
               <span className="w-4 h-4 bg-green-50 text-green-600 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">
                 ✓

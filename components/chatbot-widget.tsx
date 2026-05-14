@@ -19,7 +19,7 @@ const WELCOME = 'Xin chào! Mình là trợ lý AI của Rượu Truyền Thốn
 
 const QUICK_REPLIES = [
   'Mua làm quà biếu',
-  'Bồi bổ sức khoẻ',
+  'Dược liệu quý',
   'Uống hàng ngày',
   'Có những loại rượu nào?',
 ]

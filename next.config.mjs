@@ -23,6 +23,16 @@ const nextConfig = {
         destination: '/san-pham',
         permanent: true,
       },
+      {
+        source: '/trang-chu',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/trangchu',
+        destination: '/',
+        permanent: true,
+      },
     ]
   },
 }

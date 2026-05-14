@@ -8,6 +8,7 @@ import { useCatalogProducts } from '@/hooks/use-catalog-products'
 import { Flame } from 'lucide-react'
 import { track } from '@/utils/track'
 import type { SectionsMap } from '@/lib/sections'
+import { filterAlcoholComplianceTerms } from '@/lib/alcohol-compliance'
 
 const URGENCY: Record<string, string> = {
   'minh-mang-tuu': 'Chỉ còn 8 chai hôm nay',
@@ -129,7 +130,7 @@ export function Products({ sections }: ProductsProps = {}) {
                     </div>
 
                     <div className="mb-6 mt-3 space-y-1.5">
-                      {product.benefits.map((benefit, benefitIndex) => (
+                      {filterAlcoholComplianceTerms(product.benefits).map((benefit, benefitIndex) => (
                         <div key={`${product.id}-${benefitIndex}`} className="flex items-center gap-2 text-sm">
                           <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-[10px] font-bold text-green-600">
                             +

@@ -4,6 +4,7 @@ import type { Product as DbProduct, Category as DbCategory, ProductImage } from 
 import { db } from "@/lib/db";
 import type { CatalogListParams, CatalogListResponse, CatalogPricingOption, CatalogProduct, ProductVariant } from "@/lib/catalog";
 import { buildCatalogPriceLabel } from "@/lib/catalog";
+import { filterAlcoholComplianceTerms, isAlcoholComplianceForbidden } from "@/lib/alcohol-compliance";
 
 type ProductWithRelations = DbProduct & {
   images: ProductImage[];
@@ -56,9 +57,11 @@ function wrapCatalogError(error: unknown, message: string) {
 }
 
 function deriveBenefits(categorySlug: string, tags: string[]) {
-  const fromTags = tags.map(formatTag).filter(Boolean).slice(0, 3);
+  const fromTags = filterAlcoholComplianceTerms(tags.map(formatTag).filter(Boolean)).slice(0, 3);
   if (fromTags.length > 0) return fromTags;
-  return DEFAULT_BENEFITS_BY_CATEGORY[categorySlug] ?? ["Sản phẩm đang có sẵn", "Liên hệ để được tư vấn", "Phù hợp nhiều nhu cầu"];
+  return filterAlcoholComplianceTerms(
+    DEFAULT_BENEFITS_BY_CATEGORY[categorySlug] ?? ["Sản phẩm đang có sẵn", "Liên hệ để được tư vấn", "Phù hợp nhiều nhu cầu"]
+  );
 }
 
 function deriveTarget(product: ProductWithRelations, categorySlug: string) {
@@ -130,6 +133,7 @@ function adaptDbProduct(product: ProductWithRelations): CatalogProduct {
   const gallery = toGallery(product);
   const kind = categorySlug === "qua-tang" ? "gift-set" : "product";
   const benefits = deriveBenefits(categorySlug, product.tags);
+  const tag = product.tags.find((item) => !isAlcoholComplianceForbidden(item));
   const variants = toVariants(product);
   const variantPrices = variants.map((variant) => variant.price);
   const priceMin = variantPrices.length > 0 ? Math.min(...variantPrices) : product.price;
@@ -156,7 +160,7 @@ function adaptDbProduct(product: ProductWithRelations): CatalogProduct {
     target: deriveTarget(product, categorySlug),
     pricing: toPricing(product, categorySlug, variants),
     isBestSeller: product.featured,
-    tag: product.tags[0] ? formatTag(product.tags[0]) : undefined,
+    tag: tag ? formatTag(tag) : undefined,
     inStock: product.inStock,
     variants: variants.length > 0 ? variants : undefined,
   };

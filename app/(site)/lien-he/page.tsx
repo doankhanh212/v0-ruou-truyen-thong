@@ -74,29 +74,79 @@ const CONTACT_ITEMS = [
   },
 ]
 
+function isGoogleMapEmbed(src: string) {
+  try {
+    const url = new URL(src)
+    const host = url.hostname.toLowerCase()
+    return (
+      host.includes('google.') ||
+      host === 'maps.app.goo.gl' ||
+      host === 'goo.gl'
+    ) && (url.pathname.includes('/maps') || url.href.includes('/maps/') || url.href.includes('maps?'))
+  } catch {
+    const value = src.toLowerCase()
+    return value.includes('google.') && value.includes('maps')
+  }
+}
+
+function splitContactHtml(html: string) {
+  let mapHtml = ''
+  const contentHtml = html
+    .replace(/<iframe\b[^>]*\bsrc=["']([^"']+)["'][^>]*>\s*<\/iframe>/gi, (match, src: string) => {
+      if (!mapHtml && isGoogleMapEmbed(src)) {
+        mapHtml = match
+        return ''
+      }
+      return match
+    })
+    .replace(/<p>\s*(?:&nbsp;|\s|<br\s*\/?>)*\s*<\/p>/gi, '')
+    .trim()
+
+  return { mapHtml, contentHtml }
+}
+
 export default async function LienHePage() {
   const page = await getStaticPage('lien-he')
 
   if (page?.content) {
+    const safeContent = sanitizeHtml(page.content, PAGE_HTML_OPTIONS)
+    const { mapHtml, contentHtml } = splitContactHtml(safeContent)
+
     return (
       <div className="min-h-screen bg-[#faf8f5]">
-        <div className="mx-auto max-w-4xl px-4 pt-12 pb-2 text-center">
+        <div className="mx-auto max-w-6xl px-4 pt-12 pb-2 text-center">
           <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">{page.title}</h1>
         </div>
-        <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-          <article className="rounded-2xl bg-white px-6 py-8 shadow-sm sm:px-8 md:px-10">
-            <div
-              className="prose prose-lg max-w-none
-                prose-headings:font-bold prose-headings:text-gray-900
-                prose-p:leading-relaxed prose-p:text-gray-700
-                prose-a:text-[#8B1A1A] prose-a:no-underline hover:prose-a:underline
-                prose-strong:text-gray-900
-                prose-img:rounded-xl prose-img:shadow-sm prose-img:mx-auto
-                prose-blockquote:border-l-[#8B1A1A] prose-blockquote:bg-amber-50
-                prose-li:text-gray-700"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content, PAGE_HTML_OPTIONS) }}
-            />
-          </article>
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className={`grid gap-6 ${mapHtml ? 'lg:grid-cols-[minmax(260px,0.72fr)_minmax(0,1.28fr)]' : ''}`}>
+            {mapHtml ? (
+              <aside className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 lg:sticky lg:top-24 lg:self-start">
+                <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-500">Bản đồ</h2>
+                <div
+                  className="overflow-hidden rounded-xl bg-slate-100 [&_iframe]:block [&_iframe]:h-[300px] [&_iframe]:w-full [&_iframe]:border-0 md:[&_iframe]:h-[360px] lg:[&_iframe]:h-[420px]"
+                  dangerouslySetInnerHTML={{ __html: mapHtml }}
+                />
+                <p className="mt-3 text-xs leading-5 text-gray-500">
+                  Bấm vào bản đồ để xem đường đi chi tiết trên Google Maps.
+                </p>
+              </aside>
+            ) : null}
+
+            <article className="rounded-2xl bg-white px-6 py-8 shadow-sm ring-1 ring-black/5 sm:px-8 md:px-10">
+              <div
+                className="prose prose-lg max-w-none
+                  prose-headings:font-bold prose-headings:text-gray-900
+                  prose-p:leading-relaxed prose-p:text-gray-700
+                  prose-a:text-[#8B1A1A] prose-a:no-underline hover:prose-a:underline
+                  prose-strong:text-gray-900
+                  prose-img:rounded-xl prose-img:shadow-sm prose-img:mx-auto
+                  prose-blockquote:border-l-[#8B1A1A] prose-blockquote:bg-amber-50
+                  prose-li:text-gray-700
+                  [&_iframe]:block [&_iframe]:min-h-[320px] [&_iframe]:w-full [&_iframe]:rounded-xl [&_iframe]:border-0"
+                dangerouslySetInnerHTML={{ __html: contentHtml || safeContent }}
+              />
+            </article>
+          </div>
         </div>
       </div>
     )

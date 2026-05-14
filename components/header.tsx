@@ -24,9 +24,21 @@ interface HeaderProps {
   zaloLabel?: string
 }
 
+function normalizeNavHref(href: string) {
+  const value = href.trim()
+  if (!value) return '/'
+  const lower = value.toLowerCase().replace(/^\/+|\/+$/g, '')
+  if (lower === 'trang-chu' || lower === 'trangchu' || lower === 'home') return '/'
+  if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('#')) return value
+  return value.startsWith('/') ? value : `/${value}`
+}
+
 export function Header({ zaloUrl, siteName, navLinks, zaloLabel }: HeaderProps = {}) {
   const zaloHref = zaloUrl?.trim() || `https://zalo.me/${ZALO_PHONE}`
-  const NAV_LINKS = navLinks && navLinks.length > 0 ? navLinks : DEFAULT_NAV
+  const NAV_LINKS = (navLinks && navLinks.length > 0 ? navLinks : DEFAULT_NAV).map((link) => ({
+    ...link,
+    href: normalizeNavHref(link.href),
+  }))
   const displayName = siteName?.trim() || 'Rượu Truyền Thống'
   const btnLabel = zaloLabel?.trim() || 'Chat Zalo'
   const [isOpen, setIsOpen] = useState(false)

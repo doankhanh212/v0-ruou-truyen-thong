@@ -7,6 +7,7 @@ import { getSecondaryProductImageUrls, normalizeProductImages } from "@/lib/prod
 import { normalizeProductVariants } from "@/lib/product-variants";
 import { adminRateGuard } from "@/lib/admin-rate-limit";
 import { PAGE_HTML_OPTIONS } from "@/lib/sanitize-page-html";
+import { isAlcoholComplianceForbidden } from "@/lib/alcohol-compliance";
 
 const altSchema = z
   .string()
@@ -72,6 +73,8 @@ export async function PATCH(
         data[field] = body[field] !== null ? Number(body[field]) : null;
       } else if (field === "description") {
         data[field] = body[field] ? sanitizeHtml(String(body[field]), PAGE_HTML_OPTIONS) : null;
+      } else if (field === "tags" && Array.isArray(body[field])) {
+        data[field] = body[field].filter((tag) => typeof tag === "string" && !isAlcoholComplianceForbidden(tag));
       } else {
         data[field] = body[field];
       }

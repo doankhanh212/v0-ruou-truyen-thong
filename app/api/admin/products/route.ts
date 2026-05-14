@@ -8,6 +8,7 @@ import { normalizeProductVariants, type ProductVariantInput } from "@/lib/produc
 import { slugify } from "@/lib/slug";
 import { adminRateGuard } from "@/lib/admin-rate-limit";
 import { PAGE_HTML_OPTIONS } from "@/lib/sanitize-page-html";
+import { isAlcoholComplianceForbidden } from "@/lib/alcohol-compliance";
 
 async function requireAuth() {
   if (!(await isAuthenticated())) {
@@ -155,7 +156,7 @@ export async function POST(request: NextRequest) {
         description: data.description ? sanitizeHtml(data.description, PAGE_HTML_OPTIONS) : null,
         imageUrl: normalizedImages.imageUrl,
         imageAlt: data.imageAlt,
-        tags: data.tags ?? [],
+        tags: (data.tags ?? []).filter((tag) => !isAlcoholComplianceForbidden(tag)),
         inStock: data.inStock ?? true,
         featured: data.featured ?? false,
         isDeleted: false,

@@ -112,8 +112,17 @@ function parseFooter(settings: SettingsMap): FooterConfig {
 
 function cleanLinks<T extends { label: string; href: string }>(links: T[]) {
   return links
-    .map((link) => ({ label: link.label.trim(), href: link.href.trim() }))
+    .map((link) => ({ label: link.label.trim(), href: normalizeHref(link.href) }))
     .filter((link) => link.label && link.href);
+}
+
+function normalizeHref(href: string) {
+  const value = href.trim();
+  if (!value) return "";
+  const lower = value.toLowerCase().replace(/^\/+|\/+$/g, "");
+  if (lower === "trang-chu" || lower === "trangchu" || lower === "home") return "/";
+  if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("#")) return value;
+  return value.startsWith("/") ? value : `/${value}`;
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
