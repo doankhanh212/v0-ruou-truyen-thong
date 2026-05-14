@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import sanitizeHtml from "sanitize-html";
 import { isAuthenticated } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getSecondaryProductImageUrls, normalizeProductImages } from "@/lib/product-images";
 import { normalizeProductVariants } from "@/lib/product-variants";
 import { adminRateGuard } from "@/lib/admin-rate-limit";
+import { PAGE_HTML_OPTIONS } from "@/lib/sanitize-page-html";
 
 const altSchema = z
   .string()
@@ -68,6 +70,8 @@ export async function PATCH(
         data[field] = body[field] !== null ? Number(body[field]) : null;
       } else if (field === "alcohol") {
         data[field] = body[field] !== null ? Number(body[field]) : null;
+      } else if (field === "description") {
+        data[field] = body[field] ? sanitizeHtml(String(body[field]), PAGE_HTML_OPTIONS) : null;
       } else {
         data[field] = body[field];
       }

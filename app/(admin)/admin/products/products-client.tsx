@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Table, THead, TR, TH, TD } from "@/components/admin/table";
-import { Button, Field, Input, Select, Textarea } from "@/components/admin/form";
+import { Button, Field, Input, Select } from "@/components/admin/form";
+import { TiptapEditor } from "@/components/admin/tiptap-editor";
 
 type Variant = { size: string; price: string };
 
@@ -21,7 +22,8 @@ function VariantEditor({
     onChange(variants.filter((_, i) => i !== idx));
   }
   function update(idx: number, field: "size" | "price", value: string) {
-    onChange(variants.map((v, i) => (i === idx ? { ...v, [field]: value } : v)));
+    const nextValue = field === "price" ? value.replace(/\D/g, "") : value;
+    onChange(variants.map((v, i) => (i === idx ? { ...v, [field]: nextValue } : v)));
   }
 
   return (
@@ -35,8 +37,9 @@ function VariantEditor({
             className="flex-1"
           />
           <Input
-            type="number"
-            min={0}
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             value={v.price}
             onChange={(e) => update(idx, "price", e.target.value)}
             placeholder="Giá (VND)"
@@ -113,6 +116,16 @@ const EMPTY_FORM = {
   sortOrder: "0",
 };
 
+function descriptionToEditorHtml(value: string | null | undefined) {
+  const raw = value?.trim() ?? "";
+  if (!raw) return "";
+  if (/<[a-z][\s\S]*>/i.test(raw)) return raw;
+  return raw
+    .split(/\n{2,}/)
+    .map((paragraph) => `<p>${paragraph.replace(/\n/g, "<br>")}</p>`)
+    .join("");
+}
+
 export function ProductsClient() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -171,7 +184,7 @@ export function ProductsClient() {
       categoryId: p.categoryId ? String(p.categoryId) : "",
       imageUrl: p.imageUrl || "",
       imageAlt: p.imageAlt || "",
-      description: p.description || "",
+      description: descriptionToEditorHtml(p.description),
       featured: p.featured,
       inStock: p.inStock,
       alcohol: p.alcohol ? String(p.alcohol) : "",
@@ -395,22 +408,19 @@ export function ProductsClient() {
           </div>
 
           <div className="rounded border border-slate-200 bg-slate-50 p-3 sm:p-4">
-            <p className="mb-1 text-sm font-medium text-slate-700">Biến thể dung tích &amp; giá</p>
-            <p className="mb-3 text-xs text-slate-500">
-              Thêm nhiều dung tích với giá riêng. Khách chọn dung tích → giá tự động cập nhật.
-              Để trống nếu sản phẩm chỉ có 1 loại (dùng Giá bán ở trên). Khi trống, hệ thống lưu JSON [].
-            </p>
+            <p className="mb-3 text-sm font-medium text-slate-700">Biến thể dung tích &amp; giá</p>
             <VariantEditor variants={variants} onChange={setVariants} />
           </div>
 
-          <Field label="Mô tả ngắn">
-            <Textarea
-              rows={3}
+          <div>
+            <p className="mb-2 text-sm text-gray-700">Mô tả sản phẩm</p>
+            <TiptapEditor
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(description) => setForm({ ...form, description })}
               placeholder="Mô tả dùng cho trang chi tiết và SEO"
+              className="min-h-[260px]"
             />
-          </Field>
+          </div>
 
           <div className="space-y-3 rounded border border-slate-200 bg-slate-50 p-3 sm:p-4">
             <div>

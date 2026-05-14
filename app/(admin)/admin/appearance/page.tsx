@@ -5,7 +5,7 @@ import { AdminShell } from "@/components/admin/shell";
 import { AppearanceClient } from "./appearance-client";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Giao diện – Header & Footer" };
+export const metadata = { title: "Giao diện - Header & Footer" };
 
 export default async function AppearancePage() {
   if (!(await isAuthenticated())) redirect("/admin/login");

@@ -1,20 +1,22 @@
 import { AdminShell } from "@/components/admin/shell";
 import { db } from "@/lib/db";
 import { DashboardChart } from "./dashboard-chart";
+import { DashboardStats, type DashboardCard } from "./dashboard-stats";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
-  const [productCount, ruleCount, categoryCount, postCount, trackingCount, zaloClicks] = await Promise.all([
-    db.product.count().catch(() => 0),
-    db.chatbotRule.count().catch(() => 0),
-    db.category.count().catch(() => 0),
-    db.post.count().catch(() => 0),
-    db.trackingLog.count().catch(() => 0),
-    db.trackingLog.count({ where: { event: "click_zalo" } }).catch(() => 0),
-  ]);
+  const [productCount, ruleCount, categoryCount, postCount, trackingCount, zaloClicks] =
+    await Promise.all([
+      db.product.count().catch(() => 0),
+      db.chatbotRule.count().catch(() => 0),
+      db.category.count().catch(() => 0),
+      db.post.count().catch(() => 0),
+      db.trackingLog.count().catch(() => 0),
+      db.trackingLog.count({ where: { event: "click_zalo" } }).catch(() => 0),
+    ]);
 
-  const cards = [
+  const cards: DashboardCard[] = [
     { label: "Sản phẩm", value: productCount },
     { label: "Danh mục", value: categoryCount },
     { label: "Bài viết", value: postCount },
@@ -25,15 +27,8 @@ export default async function AdminDashboardPage() {
 
   return (
     <AdminShell>
-      <h1 className="text-2xl font-semibold mb-6">Dashboard</h1>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-        {cards.map((c) => (
-          <div key={c.label} className="bg-white border rounded p-5">
-            <div className="text-xs text-gray-500 uppercase">{c.label}</div>
-            <div className="text-2xl font-semibold mt-2">{c.value}</div>
-          </div>
-        ))}
-      </div>
+      <h1 className="mb-6 text-2xl font-semibold">Dashboard</h1>
+      <DashboardStats initialCards={cards} />
       <DashboardChart />
     </AdminShell>
   );

@@ -81,15 +81,22 @@ export function track(event: EventName, payload?: TrackPayload): void {
     console.log(`[track] ${event}`, payload ?? {})
   }
 
+  const body = JSON.stringify({
+    event,
+    sessionId,
+    productId,
+    metadata: payload ?? {},
+  })
+
+  if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+    const sent = navigator.sendBeacon('/api/track', new Blob([body], { type: 'application/json' }))
+    if (sent) return
+  }
+
   void fetch('/api/track', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      event,
-      sessionId,
-      productId,
-      metadata: payload ?? {},
-    }),
+    body,
     keepalive: true,
   }).catch(() => {
     // Tracking must never block the user flow.

@@ -40,6 +40,25 @@ function filterAlcoholComplianceTerms(items: string[]) {
   });
 }
 
+function escapeHtml(input: string) {
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function productDescriptionHtml(description: string) {
+  const raw = description.trim();
+  if (!raw) return "";
+  if (/<[a-z][\s\S]*>/i.test(raw)) return raw;
+  return raw
+    .split(/\n{2,}/)
+    .map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, "<br>")}</p>`)
+    .join("");
+}
+
 function useProductViews(slug: string) {
   const [total, setTotal] = useState<number | null>(null);
   const [viewing, setViewing] = useState<number>(0);
@@ -181,6 +200,7 @@ export function ProductDetailClient({
   const mainImage = itemGallery[safeActiveIndex] ?? product.image;
   const selectedPrice = selectedVariant?.price ?? product.priceMin;
   const compliantBenefits = filterAlcoholComplianceTerms(product.benefits);
+  const descriptionHtml = productDescriptionHtml(product.description);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -290,7 +310,12 @@ export function ProductDetailClient({
               ) : null}
             </div>
 
-            <p className="text-base leading-7 text-gray-600">{product.description}</p>
+            {descriptionHtml ? (
+              <div
+                className="prose prose-sm max-w-none text-gray-600 prose-p:my-2 prose-p:leading-7 prose-strong:text-gray-900 prose-a:text-blue-700"
+                dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+              />
+            ) : null}
 
             <div className="grid gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-gray-600 sm:grid-cols-2">
               <div>

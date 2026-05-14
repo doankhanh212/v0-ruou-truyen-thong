@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import sanitizeHtml from "sanitize-html";
 import { isAuthenticated } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { normalizeProductImages } from "@/lib/product-images";
 import { normalizeProductVariants, type ProductVariantInput } from "@/lib/product-variants";
 import { slugify } from "@/lib/slug";
 import { adminRateGuard } from "@/lib/admin-rate-limit";
+import { PAGE_HTML_OPTIONS } from "@/lib/sanitize-page-html";
 
 async function requireAuth() {
   if (!(await isAuthenticated())) {
@@ -150,7 +152,7 @@ export async function POST(request: NextRequest) {
         priceOld: data.priceOld ?? null,
         category: category.slug,
         categoryId: category.id,
-        description: data.description ?? null,
+        description: data.description ? sanitizeHtml(data.description, PAGE_HTML_OPTIONS) : null,
         imageUrl: normalizedImages.imageUrl,
         imageAlt: data.imageAlt,
         tags: data.tags ?? [],

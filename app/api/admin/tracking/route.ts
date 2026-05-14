@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
   if (event) where.event = event;
   if (dateFrom || dateTo) {
     const createdAt: Record<string, Date> = {};
-    if (dateFrom) createdAt.gte = new Date(dateFrom);
-    if (dateTo) createdAt.lte = new Date(dateTo);
+    if (dateFrom) createdAt.gte = new Date(`${dateFrom}T00:00:00.000+07:00`);
+    if (dateTo) createdAt.lte = new Date(`${dateTo}T23:59:59.999+07:00`);
     where.createdAt = createdAt;
   }
 
