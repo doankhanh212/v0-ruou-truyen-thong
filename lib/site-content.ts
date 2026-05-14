@@ -15,13 +15,13 @@ export const brandVisuals: BrandVisuals = {
 };
 
 export const companyInfo = {
-  name: "Cong Ty Co Phan Somo Gold",
+  name: "Shop Rượu Truyền Thống",
   brand: "Rượu Truyền Thống",
-  phone: ["0909 799 311", "0902 931 119"],
-  email: "somogold@somogroup.vn",
-  address: "29 Nguyen Khac Nhu, P. Cau Ong Lanh, TP. Ho Chi Minh",
+  phone: ["0902 931 119"],
+  email: "",
+  address: "",
   factory: {
-    name: "Cong Ty Co Phan Somo Farm Cuu Long",
+    name: "",
     address: "Thua dat so 147, to ban do so 49, Ap Chanh Thuan, xa Cai Nhum, tinh Vinh Long",
   },
   distributor: {
