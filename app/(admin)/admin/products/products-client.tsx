@@ -29,12 +29,18 @@ function VariantEditor({
   return (
     <div className="space-y-2">
       {variants.map((v, idx) => (
-        <div key={idx} className="flex items-center gap-2">
+        <div
+          key={idx}
+          className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(220px,1fr)_minmax(160px,220px)_auto] sm:items-center"
+        >
           <Input
+            type="text"
+            inputMode="text"
+            autoComplete="off"
             value={v.size}
             onChange={(e) => update(idx, "size", e.target.value)}
-            placeholder="Tên dung tích (vd: 500ml)"
-            className="flex-1"
+            placeholder="Tên biến thể (vd: 500ml, Chai 1 lít)"
+            className="min-w-0"
           />
           <Input
             type="text"
@@ -43,12 +49,12 @@ function VariantEditor({
             value={v.price}
             onChange={(e) => update(idx, "price", e.target.value)}
             placeholder="Giá (VND)"
-            className="w-36"
+            className="min-w-0"
           />
           <button
             type="button"
             onClick={() => remove(idx)}
-            className="flex-shrink-0 rounded p-1.5 text-red-500 hover:bg-red-50"
+            className="justify-self-start rounded p-1.5 text-red-500 hover:bg-red-50 sm:justify-self-center"
             aria-label="Xóa dung tích"
           >
             <Trash2 size={15} />
