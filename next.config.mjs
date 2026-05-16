@@ -7,8 +7,6 @@ const nextConfig = {
   },
 
   images: {
-    // Serve uploaded files exactly as-is. This is important for VPS standalone
-    // deployments where uploads live under standalone/public/uploads.
     unoptimized: true,
   },
 
