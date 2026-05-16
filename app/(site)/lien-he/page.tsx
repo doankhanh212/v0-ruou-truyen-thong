@@ -14,6 +14,10 @@ export const dynamic = 'force-dynamic'
 const FALLBACK_TITLE = 'Liên hệ — Rượu truyền thống'
 const FALLBACK_DESC = 'Liên hệ mua rượu truyền thống. Hotline, Zalo, email — tư vấn miễn phí, giao hàng toàn quốc.'
 
+const primaryPhone = companyInfo.phone[0] || ''
+const zaloPhone = companyInfo.phone[1] || primaryPhone
+const cleanPhone = (phone: string) => phone.replace(/\s/g, '')
+
 export async function generateMetadata(): Promise<Metadata> {
   const [seo, page, settings] = await Promise.all([
     getSeoByPath('/lien-he'),
@@ -42,9 +46,9 @@ const CONTACT_ITEMS = [
   {
     icon: Phone,
     label: 'Hotline',
-    value: companyInfo.phone[0],
-    sub: companyInfo.phone[1],
-    href: `tel:${companyInfo.phone[0].replace(/\s/g, '')}`,
+    value: primaryPhone,
+    sub: zaloPhone !== primaryPhone ? zaloPhone : undefined,
+    href: `tel:${cleanPhone(primaryPhone)}`,
     cta: 'Gọi ngay',
     color: 'bg-green-50 text-green-700',
     iconColor: 'text-green-600',
@@ -54,8 +58,8 @@ const CONTACT_ITEMS = [
     icon: MessageCircle,
     label: 'Zalo',
     value: 'Nhắn tin Zalo',
-    sub: companyInfo.phone[1],
-    href: `https://zalo.me/${companyInfo.phone[1].replace(/\s/g, '')}`,
+    sub: zaloPhone,
+    href: `https://zalo.me/${cleanPhone(zaloPhone)}`,
     cta: 'Mở Zalo',
     color: 'bg-blue-50 text-blue-700',
     iconColor: 'text-blue-600',
@@ -314,7 +318,7 @@ export default async function LienHePage() {
             Xem sản phẩm <ArrowRight size={15} />
           </Link>
           <a
-            href={`tel:${companyInfo.phone[0].replace(/\s/g, '')}`}
+            href={`tel:${cleanPhone(primaryPhone)}`}
             className="inline-flex items-center gap-2 rounded-xl border border-[#8B1A1A] px-6 py-3 text-sm font-semibold text-[#8B1A1A] hover:bg-[#8B1A1A] hover:text-white transition-colors"
           >
             <Phone size={15} /> Gọi tư vấn
