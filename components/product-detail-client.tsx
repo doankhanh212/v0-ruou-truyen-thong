@@ -201,6 +201,7 @@ export function ProductDetailClient({
   const selectedPrice = selectedVariant?.price ?? product.priceMin;
   const compliantBenefits = filterAlcoholComplianceTerms(product.benefits);
   const descriptionHtml = productDescriptionHtml(product.description);
+  const unavailable = product.isOutOfStock || !inStock;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -221,18 +222,18 @@ export function ProductDetailClient({
               <h1 className="mt-1 text-3xl font-bold text-gray-900 md:text-4xl">{product.name}</h1>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs">
-              {!inStock && (
+              {unavailable && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 font-semibold text-red-600 ring-1 ring-red-200">
                   Tạm hết hàng
                 </span>
               )}
-              {inStock && totalViews !== null && (
+              {!unavailable && totalViews !== null && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 font-semibold text-slate-700">
                   <Eye size={13} />
                   {formatViewCount(totalViews)} lượt xem
                 </span>
               )}
-              {inStock && viewingNow > 0 && (
+              {!unavailable && viewingNow > 0 && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 font-semibold text-emerald-700">
                   <span className="relative flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -398,7 +399,7 @@ export function ProductDetailClient({
             </p>
           )}
 
-          {inStock ? (
+          {!unavailable ? (
             <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
@@ -424,11 +425,10 @@ export function ProductDetailClient({
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <button
                   type="button"
-                  onClick={() => openZalo(undefined, `Xin chào, tôi muốn hỏi về ${product.name} khi có hàng trở lại`)}
-                  className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#0068FF] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#0057d6] sm:w-auto"
+                  disabled
+                  className="inline-flex min-h-10 w-full cursor-not-allowed items-center justify-center rounded-xl bg-slate-200 px-4 py-2.5 text-sm font-bold text-slate-500 sm:w-auto"
                 >
-                  <MessageCircle size={16} />
-                  Hỏi qua Zalo
+                  Tạm hết hàng
                 </button>
                 <Link
                   href="/san-pham"

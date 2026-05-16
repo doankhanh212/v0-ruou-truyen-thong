@@ -52,7 +52,7 @@ export async function PATCH(
   const data: Record<string, unknown> = {};
   const allowedFields = [
     "name", "slug", "price", "priceOld", "description",
-    "imageUrl", "tags", "inStock", "featured", "isDeleted", "sortOrder", "volume",
+    "imageUrl", "tags", "inStock", "isOutOfStock", "featured", "isDeleted", "sortOrder", "volume",
     "alcohol", "origin",
   ];
 

@@ -32,6 +32,7 @@ export interface CatalogProduct {
   isBestSeller?: boolean;
   tag?: string;
   inStock?: boolean;
+  isOutOfStock?: boolean;
   variants?: ProductVariant[];
 }
 

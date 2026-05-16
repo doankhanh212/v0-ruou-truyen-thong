@@ -12,6 +12,7 @@ const KNOWN_EVENTS = new Set([
   "ai_recommend",
   "click_product",
   "click_zalo",
+  "click_messenger",
   "click_call",
   "page_change",
   "chatbot_open",
@@ -62,6 +63,8 @@ function dedupAxis(event: string, productId: number | null, metadata: unknown): 
       return `path=${get("path")}`;
     case "click_zalo":
       return `src=${get("source")}|phone=${get("phone")}`;
+    case "click_messenger":
+      return `src=${get("source")}|url=${get("url")}`;
     case "click_call":
       return `src=${get("source")}|phone=${get("phone")}`;
     case "click_product":

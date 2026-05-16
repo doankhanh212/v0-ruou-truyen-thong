@@ -18,12 +18,6 @@ const ALL_CATEGORY = { id: 'all', label: 'Tất cả' }
 
 type CategoryOption = { id: string; label: string }
 
-const PRICE_RANGES = [
-  { id: 'all', label: 'Tất cả mức giá', min: 0, max: Infinity },
-  { id: 'under1m', label: 'Dưới 1.000.000đ', min: 0, max: 1000000 },
-  { id: 'over1m', label: 'Trên 1.000.000đ', min: 1000000, max: Infinity },
-]
-
 interface RecommendPreset {
   id: string
   label: string
@@ -102,7 +96,6 @@ function SanPhamPageInner() {
   const [categories, setCategories] = useState<CategoryOption[]>([ALL_CATEGORY])
   const [search, setSearch] = useState(initialSearch)
   const [category, setCategory] = useState<string>('all')
-  const [priceRange, setPriceRange] = useState('all')
   const [recommend, setRecommend] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [showMobileFilter, setShowMobileFilter] = useState(false)
@@ -146,25 +139,20 @@ function SanPhamPageInner() {
 
       if (category !== 'all' && item.category !== category) return false
 
-      const range = PRICE_RANGES.find((entry) => entry.id === priceRange)
-      if (!range) return false
-      if (item.priceMin < range.min || item.priceMin > range.max) return false
-
       return true
     })
-  }, [allItems, search, recommend, category, priceRange])
+  }, [allItems, search, recommend, category])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE))
   const pageItems = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
   const hasActiveFilter =
     search.trim() !== '' ||
     category !== 'all' ||
-    priceRange !== 'all' ||
     recommend !== null
 
   useEffect(() => {
     setPage(1)
-  }, [search, category, priceRange, recommend])
+  }, [search, category, recommend])
 
   const handleSearch = (value: string) => {
     setSearch(value)
@@ -178,18 +166,11 @@ function SanPhamPageInner() {
     track('filter_category', { category: id })
   }
 
-  const handlePrice = (id: string) => {
-    setPriceRange(id)
-    setShowMobileFilter(false)
-    track('filter_price', { range: id })
-  }
-
   const handleRecommend = (id: string) => {
     const next = recommend === id ? null : id
     setRecommend(next)
     if (next) {
       setCategory('all')
-      setPriceRange('all')
       track('ai_recommend', { preset: next })
     }
   }
@@ -197,7 +178,6 @@ function SanPhamPageInner() {
   const clearAll = useCallback(() => {
     setSearch('')
     setCategory('all')
-    setPriceRange('all')
     setRecommend(null)
   }, [])
 
@@ -247,27 +227,6 @@ function SanPhamPageInner() {
                 onClick={() => handleCategory(entry.id)}
                 className={`min-h-11 w-full rounded-lg px-3 py-2 text-left text-sm transition-all ${
                   category === entry.id && !recommend
-                    ? 'bg-blue-600 font-semibold text-white'
-                    : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
-                }`}
-              >
-                {entry.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-        <h3 className="mb-4 text-sm font-bold text-gray-900">Mức giá</h3>
-        <ul className="space-y-1">
-          {PRICE_RANGES.map((entry) => (
-            <li key={entry.id}>
-              <button
-                type="button"
-                onClick={() => handlePrice(entry.id)}
-                className={`min-h-11 w-full rounded-lg px-3 py-2 text-left text-sm transition-all ${
-                  priceRange === entry.id && !recommend
                     ? 'bg-blue-600 font-semibold text-white'
                     : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
                 }`}
@@ -373,12 +332,6 @@ function SanPhamPageInner() {
               <span className="flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-700">
                 {categories.find((entry) => entry.id === category)?.label}
                 <button type="button" onClick={() => setCategory('all')}><X size={11} /></button>
-              </span>
-            ) : null}
-            {priceRange !== 'all' && !recommend ? (
-              <span className="flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-700">
-                {PRICE_RANGES.find((entry) => entry.id === priceRange)?.label}
-                <button type="button" onClick={() => setPriceRange('all')}><X size={11} /></button>
               </span>
             ) : null}
             {search.trim() ? (

@@ -6,6 +6,7 @@ type EventName =
   | 'ai_recommend'
   | 'click_product'
   | 'click_zalo'
+  | 'click_messenger'
   | 'click_call'
   | 'page_change'
   | 'chatbot_open'

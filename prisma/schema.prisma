@@ -21,6 +21,7 @@ model Product {
   viewCount   Int             @default(0)
   tags        String[]
   inStock     Boolean         @default(true)
+  isOutOfStock Boolean        @default(false)
   featured    Boolean         @default(false)
   isDeleted   Boolean         @default(false)
   sortOrder   Int             @default(0)

@@ -59,6 +59,8 @@ export type SystemConfig = {
   orderNotifyEmail: string;
   freeShippingThreshold: number;
   agePopupEnabled: boolean;
+  floatingZaloUrl: string;
+  floatingMessengerUrl: string;
 };
 
 export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
@@ -86,6 +88,8 @@ export const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
   orderNotifyEmail: "",
   freeShippingThreshold: 0,
   agePopupEnabled: true,
+  floatingZaloUrl: "",
+  floatingMessengerUrl: "",
 };
 
 export const DEFAULT_SETTINGS: SettingsMap = {
@@ -250,5 +254,7 @@ export function getSystemConfig(settings: SettingsMap): SystemConfig {
       typeof parsed.agePopupEnabled === "boolean"
         ? parsed.agePopupEnabled
         : DEFAULT_SYSTEM_CONFIG.agePopupEnabled,
+    floatingZaloUrl: stringValue(parsed.floatingZaloUrl, settings.zalo_url).trim(),
+    floatingMessengerUrl: stringValue(parsed.floatingMessengerUrl).trim(),
   };
 }

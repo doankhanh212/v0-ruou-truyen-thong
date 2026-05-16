@@ -137,7 +137,7 @@ function adaptDbProduct(product: ProductWithRelations): CatalogProduct {
   const variants = toVariants(product);
   const variantPrices = variants.map((variant) => variant.price);
   const priceMin = variantPrices.length > 0 ? Math.min(...variantPrices) : product.price;
-  const priceMax = variantPrices.length > 0 ? Math.max(...variantPrices) : product.priceOld ?? null;
+  const priceMax = variantPrices.length > 0 ? Math.max(...variantPrices) : null;
   const price = buildCatalogPriceLabel(priceMin, priceMax);
 
   return {
@@ -162,6 +162,7 @@ function adaptDbProduct(product: ProductWithRelations): CatalogProduct {
     isBestSeller: product.featured,
     tag: tag ? formatTag(tag) : undefined,
     inStock: product.inStock,
+    isOutOfStock: product.isOutOfStock,
     variants: variants.length > 0 ? variants : undefined,
   };
 }

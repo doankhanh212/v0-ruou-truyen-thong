@@ -13,6 +13,8 @@ type SystemConfig = {
   orderNotifyEmail: string;
   freeShippingThreshold: number;
   agePopupEnabled: boolean;
+  floatingZaloUrl: string;
+  floatingMessengerUrl: string;
 };
 
 const DEFAULT_SYSTEM: SystemConfig = {
@@ -22,6 +24,8 @@ const DEFAULT_SYSTEM: SystemConfig = {
   orderNotifyEmail: "",
   freeShippingThreshold: 0,
   agePopupEnabled: true,
+  floatingZaloUrl: "",
+  floatingMessengerUrl: "",
 };
 
 const inputClass =
@@ -53,6 +57,10 @@ function parseSystem(settings: SettingsMap): SystemConfig {
       typeof parsed.agePopupEnabled === "boolean"
         ? parsed.agePopupEnabled
         : DEFAULT_SYSTEM.agePopupEnabled,
+    floatingZaloUrl:
+      typeof parsed.floatingZaloUrl === "string" ? parsed.floatingZaloUrl : settings.zalo_url,
+    floatingMessengerUrl:
+      typeof parsed.floatingMessengerUrl === "string" ? parsed.floatingMessengerUrl : "",
   };
 }
 
@@ -189,6 +197,8 @@ export function SettingsClient({ initial }: { initial: SettingsMap }) {
       defaultOgImage: system.defaultOgImage.trim(),
       orderNotifyEmail: system.orderNotifyEmail.trim(),
       freeShippingThreshold: Math.max(0, Math.round(Number(system.freeShippingThreshold) || 0)),
+      floatingZaloUrl: system.floatingZaloUrl.trim(),
+      floatingMessengerUrl: system.floatingMessengerUrl.trim(),
     };
 
     setSaving(true);
@@ -270,6 +280,18 @@ export function SettingsClient({ initial }: { initial: SettingsMap }) {
             value={system.freeShippingThreshold}
             onChange={(value) => setSystem((current) => ({ ...current, freeShippingThreshold: Number(value) }))}
             placeholder="1000000"
+          />
+          <TextInput
+            label="Link Zalo nổi"
+            value={system.floatingZaloUrl}
+            onChange={(value) => setSystem((current) => ({ ...current, floatingZaloUrl: value }))}
+            placeholder="https://zalo.me/84902931119"
+          />
+          <TextInput
+            label="Link Messenger nổi"
+            value={system.floatingMessengerUrl}
+            onChange={(value) => setSystem((current) => ({ ...current, floatingMessengerUrl: value }))}
+            placeholder="https://m.me/ten-fanpage"
           />
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
             <div className="flex items-center justify-between gap-4">

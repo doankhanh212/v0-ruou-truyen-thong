@@ -10,78 +10,91 @@ import { filterAlcoholComplianceTerms } from '@/lib/alcohol-compliance'
 
 interface ProductCardProps {
   item: CatalogProduct
-  /** Called when user clicks the Zalo button — for parent-level tracking */
+  /** Called when user clicks the Zalo button for parent-level tracking */
   onZaloClick?: (item: CatalogProduct) => void
 }
 
 export function ProductCard({ item, onZaloClick }: ProductCardProps) {
   const compliantBenefits = filterAlcoholComplianceTerms(item.benefits).slice(0, 3)
+  const unavailable = item.isOutOfStock || item.inStock === false
 
   const handleProductClick = () => {
     track('click_product', { id: item.id, dbId: item.dbId, slug: item.slug, name: item.name, source: 'listing' })
   }
 
   const handleZalo = () => {
+    if (unavailable) return
     onZaloClick?.(item)
-    openZalo(undefined, `Xin chào, tôi muốn tư vấn ${item.name}`)
+    openZalo(undefined, `Xin chao, toi muon tu van ${item.name}`)
   }
 
   return (
-    <div className="group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col">
-      {/* Image */}
+    <div className="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       <Link href={`/san-pham/${item.slug}`} className="block" onClick={handleProductClick}>
-      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-blue-50 to-white">
-        <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
-          {item.isBestSeller && (
-            <span className="flex items-center gap-1 bg-amber-500 text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-sm">
-              <Flame size={11} />
-              Bán chạy
-            </span>
-          )}
-        </div>
+        <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-blue-50 to-white">
+          <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
+            {unavailable ? (
+              <span className="rounded-full bg-slate-700 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
+                Tạm hết hàng
+              </span>
+            ) : null}
+            {item.isBestSeller ? (
+              <span className="flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
+                <Flame size={11} />
+                Bán chạy
+              </span>
+            ) : null}
+          </div>
 
-        <Image
-          src={item.image}
-          alt={item.name}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
-      </div>
+          <Image
+            src={item.image}
+            alt={item.imageAlt || item.name}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className={`object-cover transition-transform duration-500 group-hover:scale-105 ${unavailable ? 'grayscale-[35%]' : ''}`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+        </div>
       </Link>
 
-      {/* Body */}
-      <div className="p-5 flex flex-col flex-1">
-        <Link href={`/san-pham/${item.slug}`} className="block" onClick={handleProductClick}>
-        <h3 className="font-bold text-blue-900 text-base leading-snug group-hover:text-blue-600 transition-colors">
-          {item.name}
-        </h3>
-        <p className="text-xs text-gray-400 mt-1 mb-3 line-clamp-1">{item.target}</p>
+      <div className="flex flex-1 flex-col p-5">
+        <Link href={`/san-pham/${item.slug}`} className="flex flex-1 flex-col" onClick={handleProductClick}>
+          <h3 className="line-clamp-2 min-h-[3rem] text-base font-bold leading-snug text-blue-900 transition-colors group-hover:text-blue-600">
+            {item.name}
+          </h3>
+          <p className="mb-3 mt-1 line-clamp-1 text-xs text-gray-400">{item.target}</p>
 
-        <ul className="space-y-1.5 mb-4 flex-1">
-          {compliantBenefits.map((benefit, i) => (
-            <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
-              <span className="w-4 h-4 bg-green-50 text-green-600 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">
-                ✓
-              </span>
-              {benefit}
-            </li>
-          ))}
-        </ul>
+          <ul className="mb-4 flex-1 space-y-1.5">
+            {compliantBenefits.map((benefit, i) => (
+              <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
+                <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-green-50 text-[10px] font-bold text-green-600">
+                  ✓
+                </span>
+                {benefit}
+              </li>
+            ))}
+          </ul>
         </Link>
 
-        <div className="pt-4 border-t border-gray-100 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <span className="font-bold text-blue-700 text-base whitespace-nowrap">
-            {item.price}đ
-          </span>
+        <div className="mt-auto flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <span className="block whitespace-nowrap text-base font-bold text-blue-700">
+              {item.price}đ
+            </span>
+            <span className="mt-0.5 block text-xs italic text-gray-500">(Giá đã bao gồm VAT)</span>
+          </div>
           <button
             type="button"
             onClick={handleZalo}
-            className="flex min-h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-blue-200 transition-all hover:bg-blue-700 active:scale-95 sm:w-auto"
+            disabled={unavailable}
+            className={`flex min-h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-bold transition-all sm:w-auto ${
+              unavailable
+                ? 'cursor-not-allowed bg-slate-200 text-slate-500'
+                : 'bg-blue-600 text-white shadow-sm shadow-blue-200 hover:bg-blue-700 active:scale-95'
+            }`}
           >
             <MessageCircle size={14} />
-            Tư vấn Zalo
+            {unavailable ? 'Tạm hết hàng' : 'Tư vấn Zalo'}
           </button>
         </div>
       </div>

@@ -77,7 +77,7 @@ export function Products({ sections }: ProductsProps = {}) {
             {products.map((product, index) => (
               <div
                 key={product.id}
-                className={`group overflow-hidden rounded-2xl border border-border/60 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl ${
+                className={`group flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl ${
                   isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
                 }`}
                 style={{ transitionDelay: isVisible ? `${index * 90}ms` : '0ms' }}
@@ -89,6 +89,11 @@ export function Products({ sections }: ProductsProps = {}) {
                 >
                   <div className="relative aspect-square w-full overflow-hidden bg-gradient-to-br from-primary/8 to-secondary/8">
                     <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
+                      {product.isOutOfStock || product.inStock === false ? (
+                        <span className="rounded-full bg-slate-700 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
+                          Tạm hết hàng
+                        </span>
+                      ) : null}
                       {product.isBestSeller ? (
                         <span className="flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
                           <Flame size={11} />
@@ -108,20 +113,22 @@ export function Products({ sections }: ProductsProps = {}) {
                       alt={product.name}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover opacity-85 transition-transform duration-500 group-hover:scale-105"
+                      className={`object-cover opacity-85 transition-transform duration-500 group-hover:scale-105 ${
+                        product.isOutOfStock || product.inStock === false ? 'grayscale-[35%]' : ''
+                      }`}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                   </div>
                 </Link>
 
-                <div className="p-6">
+                <div className="flex flex-1 flex-col p-6">
                   <Link
                     href={`/san-pham/${product.slug}`}
-                    className="block"
+                    className="flex flex-1 flex-col"
                     onClick={() => handleProductClick(product.id, product.dbId, product.slug, product.name)}
                   >
                     <div className="mb-1">
-                      <h3 className="text-lg font-bold leading-snug text-primary transition-colors group-hover:text-secondary">
+                      <h3 className="line-clamp-2 min-h-[3.5rem] text-lg font-bold leading-snug text-primary transition-colors group-hover:text-secondary">
                         {product.name}
                       </h3>
                       <p className="mt-0.5 text-xs text-foreground/50">
@@ -129,7 +136,7 @@ export function Products({ sections }: ProductsProps = {}) {
                       </p>
                     </div>
 
-                    <div className="mb-6 mt-3 space-y-1.5">
+                    <div className="mb-6 mt-3 flex-1 space-y-1.5">
                       {filterAlcoholComplianceTerms(product.benefits).map((benefit, benefitIndex) => (
                         <div key={`${product.id}-${benefitIndex}`} className="flex items-center gap-2 text-sm">
                           <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-[10px] font-bold text-green-600">
@@ -141,15 +148,26 @@ export function Products({ sections }: ProductsProps = {}) {
                     </div>
                   </Link>
 
-                  <div className="flex flex-col gap-3 border-t border-border/50 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="mt-auto flex flex-col gap-3 border-t border-border/50 pt-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                       <span className="block text-lg font-bold text-primary">{product.price}đ</span>
+                      <span className="mt-0.5 block text-xs italic text-gray-500">(Giá đã bao gồm VAT)</span>
                     </div>
-                    <CTAButton
-                      label="Tư vấn ngay"
-                      productName={product.name}
-                      className="btn-lift w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-primary/20 hover:bg-secondary sm:w-auto"
-                    />
+                    {product.isOutOfStock || product.inStock === false ? (
+                      <button
+                        type="button"
+                        disabled
+                        className="w-full cursor-not-allowed rounded-xl bg-slate-200 px-4 py-2.5 text-sm font-bold text-slate-500 sm:w-auto"
+                      >
+                        Tạm hết hàng
+                      </button>
+                    ) : (
+                      <CTAButton
+                        label="Tư vấn ngay"
+                        productName={product.name}
+                        className="btn-lift w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-primary/20 hover:bg-secondary sm:w-auto"
+                      />
+                    )}
                   </div>
                 </div>
               </div>

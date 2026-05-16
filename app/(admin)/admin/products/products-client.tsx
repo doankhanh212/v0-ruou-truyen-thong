@@ -90,6 +90,7 @@ type Product = {
   imageAlt: string | null;
   description: string | null;
   inStock: boolean;
+  isOutOfStock: boolean;
   featured: boolean;
   sortOrder: number;
   alcohol?: string | null;
@@ -117,6 +118,7 @@ const EMPTY_FORM = {
   description: "",
   featured: false,
   inStock: true,
+  isOutOfStock: false,
   alcohol: "",
   origin: "",
   sortOrder: "0",
@@ -193,6 +195,7 @@ export function ProductsClient() {
       description: descriptionToEditorHtml(p.description),
       featured: p.featured,
       inStock: p.inStock,
+      isOutOfStock: p.isOutOfStock,
       alcohol: p.alcohol ? String(p.alcohol) : "",
       origin: p.origin ?? "",
       sortOrder: String(p.sortOrder ?? 0),
@@ -303,6 +306,7 @@ export function ProductsClient() {
       description: form.description || null,
       featured: form.featured,
       inStock: form.inStock,
+      isOutOfStock: form.isOutOfStock,
       imageUrls,
       volume: variantPayload[0]?.size ?? null,
       alcohol: form.alcohol || null,
@@ -601,6 +605,16 @@ export function ProductsClient() {
                 {form.inStock ? "Còn hàng" : "Hết hàng"}
               </span>
             </label>
+            <label className="flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5">
+              <input
+                type="checkbox"
+                checked={form.isOutOfStock}
+                onChange={(e) => setForm({ ...form, isOutOfStock: e.target.checked })}
+              />
+              <span className={form.isOutOfStock ? "font-semibold text-slate-700" : "text-slate-500"}>
+                Tạm hết hàng
+              </span>
+            </label>
           </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
@@ -628,6 +642,7 @@ export function ProductsClient() {
               <TH>Danh mục</TH>
               <TH>Giá</TH>
               <TH>Còn hàng</TH>
+              <TH>Tạm hết</TH>
               <TH>Nổi bật</TH>
               <TH className="text-right">Hành động</TH>
             </TR>
@@ -639,6 +654,7 @@ export function ProductsClient() {
                 <TD>{p.categoryRel?.name || categories.find((c) => c.id === p.categoryId)?.name || "—"}</TD>
                 <TD>{p.price.toLocaleString("vi-VN")}đ</TD>
                 <TD>{p.inStock ? "✓" : "—"}</TD>
+                <TD>{p.isOutOfStock ? "✓" : "—"}</TD>
                 <TD>{p.featured ? "✓" : "—"}</TD>
                 <TD className="text-right space-x-2">
                   <button onClick={() => openEdit(p)} className="text-sm text-[#8B1A1A] hover:underline">

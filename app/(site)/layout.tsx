@@ -1,7 +1,7 @@
 import { PageViewTracker } from '@/components/page-view-tracker'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
-import { FloatingButtons } from '@/components/floating-buttons'
+import { FloatingContact } from '@/components/floating-contact'
 import { ChatbotWidget } from '@/components/chatbot-widget'
 import { AgeVerificationPopup } from '@/components/age-verification-popup'
 import { getFooterConfig, getSettings, getSystemConfig } from '@/lib/settings'
@@ -32,7 +32,10 @@ export default async function SiteLayout({
       />
       <main className="min-h-screen">{children}</main>
       <Footer config={footerConfig} />
-      <FloatingButtons />
+      <FloatingContact
+        zaloUrl={systemConfig.floatingZaloUrl || settings.zalo_url}
+        messengerUrl={systemConfig.floatingMessengerUrl}
+      />
       <ChatbotWidget />
       <AgeVerificationPopup enabled={systemConfig.agePopupEnabled} />
     </>

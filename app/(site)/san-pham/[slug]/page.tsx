@@ -55,6 +55,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         name: true,
         slug: true,
         price: true,
+        isOutOfStock: true,
         tags: true,
         description: true,
         categoryRel: { select: { slug: true, name: true, isActive: true, isDeleted: true } },
@@ -100,7 +101,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       priceCurrency: 'VND',
       priceValidUntil,
       itemCondition: 'https://schema.org/NewCondition',
-      availability: catalog.inStock
+      availability: catalog.inStock && !catalog.isOutOfStock
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
       seller: { '@type': 'Organization', name: SITE_NAME },
@@ -144,7 +145,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         slug={slug}
         categoryHref={categoryHref}
         categoryLabel={categoryLabel}
-        inStock={catalog.inStock ?? true}
+        inStock={(catalog.inStock ?? true) && !catalog.isOutOfStock}
       />
     </>
   )

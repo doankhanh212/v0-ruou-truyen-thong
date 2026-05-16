@@ -318,7 +318,7 @@ export function ChatbotWidget() {
 
   return (
     <>
-      {/* Launcher (góc trái dưới — tránh đụng FloatingButtons bên phải) */}
+      {/* Launcher (góc trái dưới — tránh đụng nút liên hệ nổi bên phải) */}
       <button
         type="button"
         aria-label={open ? 'Đóng tư vấn AI' : 'Mở tư vấn AI'}
@@ -334,7 +334,7 @@ export function ChatbotWidget() {
         )}
       </button>
 
-      {/* Chat panel — full screen below sm để không bị che bởi FloatingButtons, từ sm trở lên hiện cạnh */}
+      {/* Chat panel — full screen below sm để không bị che bởi nút liên hệ nổi, từ sm trở lên hiện cạnh */}
       <div
         className={`fixed inset-x-3 bottom-36 z-40 origin-bottom-left rounded-2xl border border-gray-200 bg-white shadow-2xl transition-all duration-200 sm:inset-x-auto sm:bottom-44 sm:left-5 sm:w-[22rem] ${
           open ? 'pointer-events-auto translate-y-0 scale-100 opacity-100' : 'pointer-events-none translate-y-4 scale-95 opacity-0'
