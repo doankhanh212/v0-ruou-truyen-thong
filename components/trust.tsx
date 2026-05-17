@@ -51,7 +51,7 @@ export function Trust({ sections }: TrustProps = {}) {
   }))
 
   return (
-    <section id="trust" className="py-20 bg-gradient-to-br from-slate-50 to-blue-50/50">
+    <section id="trust" className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-slate-50 to-blue-50/50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           ref={ref}
@@ -59,11 +59,11 @@ export function Trust({ sections }: TrustProps = {}) {
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <div className="text-center mb-14">
+          <div className="text-center mb-10 sm:mb-14">
             <p className="text-secondary font-semibold text-sm uppercase tracking-wide mb-3">
               {label}
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-primary">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">
               {title}
             </h2>
           </div>

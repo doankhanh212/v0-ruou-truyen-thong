@@ -15,8 +15,10 @@ import {
   Info,
   Phone,
   PanelTop,
+  FileText,
   type LucideIcon,
 } from "lucide-react";
+import { POLICY_PAGES } from "@/lib/policy-pages";
 
 /**
  * Single source of truth for the admin sidebar.
@@ -67,6 +69,11 @@ export const ADMIN_MENU: MenuGroup[] = [
       { href: "/admin/posts", label: "Tin tức / Blog", icon: Newspaper },
       { href: "/admin/pages/gioi-thieu", label: "Giới thiệu", icon: Info },
       { href: "/admin/pages/lien-he", label: "Liên hệ", icon: Phone },
+      ...POLICY_PAGES.map((page) => ({
+        href: page.adminHref,
+        label: page.title,
+        icon: FileText,
+      })),
     ],
   },
   {

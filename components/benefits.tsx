@@ -26,7 +26,7 @@ const highlights = [
   {
     icon: '🏭',
     title: 'Nhà Máy Tại Vĩnh Long',
-    description: 'Sản xuất tại nhà máy Somo Farm Cửu Long, vùng phù sa miền Tây sông nước.'
+    description: 'Sản xuất tại nhà máy ở Vĩnh Long, vùng phù sa miền Tây sông nước.'
   },
   {
     icon: '💬',

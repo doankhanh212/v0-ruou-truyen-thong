@@ -47,6 +47,48 @@ export const SECTION_KEYS = [
   "home.products.label",
   "home.products.title",
   "home.products.subtitle",
+  // Giới thiệu — Hero
+  "gioi-thieu.hero.badge",
+  "gioi-thieu.hero.subtitle",
+  "gioi-thieu.hero.color",
+  // Liên hệ — Hero
+  "lien-he.hero.badge",
+  "lien-he.hero.subtitle",
+  "lien-he.hero.color",
+  "lien-he.map.embed",
+  "lien-he.contact.phone.label",
+  "lien-he.contact.phone.value",
+  "lien-he.contact.phone.sub",
+  "lien-he.contact.phone.href",
+  "lien-he.contact.phone.cta",
+  "lien-he.contact.zalo.label",
+  "lien-he.contact.zalo.value",
+  "lien-he.contact.zalo.sub",
+  "lien-he.contact.zalo.href",
+  "lien-he.contact.zalo.cta",
+  "lien-he.contact.email.label",
+  "lien-he.contact.email.value",
+  "lien-he.contact.email.sub",
+  "lien-he.contact.email.href",
+  "lien-he.contact.email.cta",
+  // Tin tức — Hero
+  // Chính sách — Hero
+  "chinh-sach-doi-tra-hang.hero.badge",
+  "chinh-sach-doi-tra-hang.hero.subtitle",
+  "chinh-sach-doi-tra-hang.hero.color",
+  "phuong-thuc-thanh-toan.hero.badge",
+  "phuong-thuc-thanh-toan.hero.subtitle",
+  "phuong-thuc-thanh-toan.hero.color",
+  "chinh-sach-bao-mat.hero.badge",
+  "chinh-sach-bao-mat.hero.subtitle",
+  "chinh-sach-bao-mat.hero.color",
+  "chinh-sach-giao-nhan-hang.hero.badge",
+  "chinh-sach-giao-nhan-hang.hero.subtitle",
+  "chinh-sach-giao-nhan-hang.hero.color",
+  "tin-tuc.hero.badge",
+  "tin-tuc.hero.title",
+  "tin-tuc.hero.subtitle",
+  "tin-tuc.hero.color",
 ] as const;
 
 export type SectionKey = (typeof SECTION_KEYS)[number];
@@ -178,8 +220,64 @@ const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
   },
 };
 
-export function sanitizeSectionHtml(html: string): string {
+const MAP_IFRAME_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: ["iframe"],
+  allowedAttributes: {
+    iframe: [
+      "src",
+      "title",
+      "width",
+      "height",
+      "style",
+      "class",
+      "allowfullscreen",
+      "loading",
+      "referrerpolicy",
+    ],
+  },
+  allowedSchemes: ["https"],
+  allowedSchemesByTag: { iframe: ["https"] },
+  transformTags: {
+    iframe: (tagName, attribs) => {
+      const src = attribs.src || "";
+      let allowed = false;
+      try {
+        const url = new URL(src);
+        const host = url.hostname.toLowerCase();
+        allowed = host.includes("google.") && url.pathname.includes("/maps");
+      } catch {
+        allowed = false;
+      }
+
+      return {
+        tagName,
+        attribs: allowed
+          ? {
+              src,
+              title: attribs.title || "Bản đồ Google Maps",
+              width: attribs.width || "600",
+              height: attribs.height || "450",
+              style: "border:0;",
+              allowfullscreen: "true",
+              loading: attribs.loading || "lazy",
+              referrerpolicy: attribs.referrerpolicy || "no-referrer-when-downgrade",
+              ...(attribs.class ? { class: attribs.class } : {}),
+            }
+          : {},
+      };
+    },
+  },
+};
+
+export function sanitizeMapEmbedHtml(html: string): string {
   if (!html) return "";
+  const clean = sanitizeHtml(html, MAP_IFRAME_OPTIONS).trim();
+  return clean.includes("<iframe") ? clean : "";
+}
+
+export function sanitizeSectionHtml(html: string, key?: string): string {
+  if (!html) return "";
+  if (key === "lien-he.map.embed") return sanitizeMapEmbedHtml(html);
   return sanitizeHtml(html, SANITIZE_OPTIONS);
 }
 

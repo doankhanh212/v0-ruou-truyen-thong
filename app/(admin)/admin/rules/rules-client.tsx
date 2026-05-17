@@ -181,8 +181,8 @@ export function RulesClient() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Chatbot Rules</h1>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-xl font-semibold sm:text-2xl">Chatbot Rules</h1>
         <Button onClick={openCreate}>+ Thêm rule</Button>
       </div>
 

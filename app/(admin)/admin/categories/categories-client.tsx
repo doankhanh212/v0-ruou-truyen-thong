@@ -167,64 +167,106 @@ export function CategoriesClient() {
           <p className="mt-1 text-xs text-gray-500">Bấm "+ Thêm danh mục" để tạo mới.</p>
         </div>
       ) : (
-        <Table>
-          <THead>
-            <TR>
-              <TH>Tên</TH>
-              <TH>Slug</TH>
-              <TH>Số sản phẩm</TH>
-              <TH>Thứ tự</TH>
-              <TH>Trạng thái</TH>
-              <TH className="text-right">Hành động</TH>
-            </TR>
-          </THead>
-          <tbody>
+        <>
+          {/* Mobile card list */}
+          <div className="space-y-2 sm:hidden">
             {categories.map((c) => {
               const productCount = c._count?.products ?? 0;
               return (
-                <TR key={c.id}>
-                  <TD>{c.name}</TD>
-                  <TD className="font-mono text-xs">{c.slug}</TD>
-                  <TD>
-                    <span
-                      className={`inline-flex min-w-[2rem] justify-center rounded-full px-2 py-0.5 text-xs font-semibold ${
-                        productCount > 0
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-gray-100 text-gray-500"
-                      }`}
-                    >
-                      {productCount}
+                <div key={c.id} className="rounded-lg border bg-white p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm text-gray-900">{c.name}</p>
+                      <p className="font-mono text-xs text-gray-400">{c.slug}</p>
+                    </div>
+                    <div className="flex shrink-0 gap-3">
+                      <button onClick={() => openEdit(c)} className="text-xs font-medium text-[#8B1A1A] hover:underline">Sửa</button>
+                      <button
+                        onClick={() => remove(c)}
+                        disabled={productCount > 0}
+                        title={productCount > 0 ? "Có sản phẩm đang dùng danh mục này" : "Xóa danh mục"}
+                        className="text-xs font-medium text-red-600 hover:underline disabled:cursor-not-allowed disabled:text-gray-400 disabled:no-underline"
+                      >Xóa</button>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${productCount > 0 ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-500"}`}>
+                      {productCount} sản phẩm
                     </span>
-                  </TD>
-                  <TD>{c.sortOrder}</TD>
-                  <TD>
                     <button
                       onClick={() => toggleActive(c)}
-                      className={`text-xs px-2 py-1 rounded ${
-                        c.isActive ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"
-                      }`}
+                      className={`rounded px-2 py-0.5 text-xs font-semibold ${c.isActive ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"}`}
                     >
-                      {c.isActive ? "Bật" : "Tắt"}
+                      {c.isActive ? "Đang bật" : "Đang tắt"}
                     </button>
-                  </TD>
-                  <TD className="text-right space-x-2">
-                    <button onClick={() => openEdit(c)} className="text-sm text-[#8B1A1A] hover:underline">
-                      Sửa
-                    </button>
-                    <button
-                      onClick={() => remove(c)}
-                      disabled={productCount > 0}
-                      title={productCount > 0 ? "Có sản phẩm đang dùng danh mục này" : "Xóa danh mục"}
-                      className="text-sm text-red-600 hover:underline disabled:cursor-not-allowed disabled:text-gray-400 disabled:no-underline"
-                    >
-                      Xóa
-                    </button>
-                  </TD>
-                </TR>
+                    <span className="text-xs text-gray-400">Thứ tự: {c.sortOrder}</span>
+                  </div>
+                </div>
               );
             })}
-          </tbody>
-        </Table>
+          </div>
+          {/* Desktop table */}
+          <div className="hidden sm:block">
+            <Table>
+              <THead>
+                <TR>
+                  <TH>Tên</TH>
+                  <TH>Slug</TH>
+                  <TH>Số sản phẩm</TH>
+                  <TH>Thứ tự</TH>
+                  <TH>Trạng thái</TH>
+                  <TH className="text-right">Hành động</TH>
+                </TR>
+              </THead>
+              <tbody>
+                {categories.map((c) => {
+                  const productCount = c._count?.products ?? 0;
+                  return (
+                    <TR key={c.id}>
+                      <TD>{c.name}</TD>
+                      <TD className="font-mono text-xs">{c.slug}</TD>
+                      <TD>
+                        <span
+                          className={`inline-flex min-w-[2rem] justify-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+                            productCount > 0
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-gray-100 text-gray-500"
+                          }`}
+                        >
+                          {productCount}
+                        </span>
+                      </TD>
+                      <TD>{c.sortOrder}</TD>
+                      <TD>
+                        <button
+                          onClick={() => toggleActive(c)}
+                          className={`text-xs px-2 py-1 rounded ${
+                            c.isActive ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"
+                          }`}
+                        >
+                          {c.isActive ? "Bật" : "Tắt"}
+                        </button>
+                      </TD>
+                      <TD className="text-right space-x-2">
+                        <button onClick={() => openEdit(c)} className="text-sm text-[#8B1A1A] hover:underline">
+                          Sửa
+                        </button>
+                        <button
+                          onClick={() => remove(c)}
+                          disabled={productCount > 0}
+                          title={productCount > 0 ? "Có sản phẩm đang dùng danh mục này" : "Xóa danh mục"}
+                          className="text-sm text-red-600 hover:underline disabled:cursor-not-allowed disabled:text-gray-400 disabled:no-underline"
+                        >
+                          Xóa
+                        </button>
+                      </TD>
+                    </TR>
+                  );
+                })}
+              </tbody>
+            </Table>
+          </div>
+        </>
       )}
     </div>
   );

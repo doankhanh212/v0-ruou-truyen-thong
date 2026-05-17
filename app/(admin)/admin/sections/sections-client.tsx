@@ -234,7 +234,7 @@ const FIELD_META: Record<string, FieldMeta> = {
   },
   "home.products.subtitle": {
     label: "Mô tả dưới tiêu đề",
-    hint: "Ví dụ: 'Thương hiệu Somo Gold — đạt tiêu chuẩn ISO 22000:2018 và OCOP 4 sao'",
+    hint: "Ví dụ: 'Rượu truyền thống đạt tiêu chuẩn ISO 22000:2018 và OCOP 4 sao'",
     icon: Type,
   },
 };

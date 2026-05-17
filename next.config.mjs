@@ -17,6 +17,16 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/news',
+        destination: '/tin-tuc',
+        permanent: true,
+      },
+      {
+        source: '/news/:slug',
+        destination: '/tin-tuc/:slug',
+        permanent: true,
+      },
+      {
         source: '/bang-gia',
         destination: '/san-pham',
         permanent: true,

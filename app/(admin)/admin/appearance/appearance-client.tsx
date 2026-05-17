@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { GripVertical, LayoutTemplate, Plus, RotateCcw, Save, Trash2 } from "lucide-react";
+import { GripVertical, LayoutTemplate, Palette, Plus, RotateCcw, Save, Trash2 } from "lucide-react";
 import { TiptapEditor } from "@/components/admin/tiptap-editor";
 import type { FooterConfig, FooterLink, SettingsMap } from "@/lib/settings";
+import { getHeaderColorStyle } from "@/lib/header-colors";
+import { getFooterColorStyle } from "@/lib/footer-colors";
+import { HeaderColorPicker } from "@/components/admin/header-color-picker";
+import { FooterColorPicker } from "@/components/admin/footer-color-picker";
 
 interface NavLink {
   label: string;
@@ -20,7 +24,7 @@ const inputClass =
 const DEFAULT_NAV: NavLink[] = [
   { label: "Trang chủ", href: "/" },
   { label: "Sản phẩm", href: "/san-pham" },
-  { label: "Tin tức", href: "/news" },
+  { label: "Tin tức", href: "/tin-tuc" },
   { label: "Giới thiệu", href: "/gioi-thieu" },
   { label: "Liên hệ", href: "/lien-he" },
 ];
@@ -29,15 +33,18 @@ const DEFAULT_FOOTER: FooterConfig = {
   shopInfoHtml:
     "<p><strong>Rượu Truyền Thống</strong></p><p>Rượu truyền thống cao cấp, chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống.</p>",
   newsLinks: [
-    { label: "Tin tức", href: "/news" },
+    { label: "Tin tức", href: "/tin-tuc" },
     { label: "Sản phẩm", href: "/san-pham" },
   ],
   policyLinks: [
-    { label: "Chính sách bảo mật", href: "/lien-he" },
-    { label: "Điều khoản dịch vụ", href: "/lien-he" },
+    { label: "Chính sách đổi trả hàng", href: "/chinh-sach/doi-tra-hang" },
+    { label: "Phương thức thanh toán", href: "/chinh-sach/phuong-thuc-thanh-toan" },
+    { label: "Chính sách bảo mật", href: "/chinh-sach/bao-mat" },
+    { label: "Chính sách giao nhận hàng", href: "/chinh-sach/giao-nhan-hang" },
   ],
-  fanpageIframe: "",
+  fanpageIframe: "https://www.facebook.com/cuulongmytuu",
   copyright: "Rượu Truyền Thống. Tất cả các quyền được bảo lưu.",
+  colorPreset: "blue",
 };
 
 function parseObject(raw: string | undefined): Record<string, unknown> {
@@ -85,6 +92,13 @@ function parseLinks(value: unknown, fallback: FooterLink[]) {
   return links.length > 0 ? links : fallback;
 }
 
+function parsePolicyLinks(value: unknown) {
+  const links = parseLinks(value, DEFAULT_FOOTER.policyLinks);
+  return links.some((link) => link.href.startsWith("/chinh-sach/"))
+    ? links
+    : DEFAULT_FOOTER.policyLinks;
+}
+
 function parseFooter(settings: SettingsMap): FooterConfig {
   const parsed = parseObject(settings.footer_config);
   const legacyInfo = [
@@ -101,12 +115,19 @@ function parseFooter(settings: SettingsMap): FooterConfig {
         ? parsed.shopInfoHtml
         : legacyInfo || DEFAULT_FOOTER.shopInfoHtml,
     newsLinks: parseLinks(parsed.newsLinks, DEFAULT_FOOTER.newsLinks),
-    policyLinks: parseLinks(parsed.policyLinks, DEFAULT_FOOTER.policyLinks),
-    fanpageIframe: typeof parsed.fanpageIframe === "string" ? parsed.fanpageIframe : "",
+    policyLinks: parsePolicyLinks(parsed.policyLinks),
+    fanpageIframe:
+      typeof parsed.fanpageIframe === "string" && parsed.fanpageIframe.trim()
+        ? parsed.fanpageIframe
+        : settings.fanpage_url || DEFAULT_FOOTER.fanpageIframe,
     copyright:
       typeof parsed.copyright === "string"
         ? parsed.copyright
         : settings.footer_copyright || DEFAULT_FOOTER.copyright,
+    colorPreset:
+      typeof parsed.colorPreset === "string" && parsed.colorPreset
+        ? parsed.colorPreset
+        : DEFAULT_FOOTER.colorPreset,
   };
 }
 
@@ -204,12 +225,14 @@ function LinkArrayEditor({
 export function AppearanceClient({ settings }: AppearanceClientProps) {
   const [siteName, setSiteName] = useState(settings.header_site_name || "Rượu Truyền Thống");
   const [zaloLabel, setZaloLabel] = useState(settings.header_zalo_label || "Chat Zalo");
+  const [headerColor, setHeaderColor] = useState(settings.header_color_preset || "white");
   const [navLinks, setNavLinks] = useState<NavLink[]>(() => parseNavLinks(settings.header_nav_links));
   const [footer, setFooter] = useState<FooterConfig>(() => parseFooter(settings));
   const [savedFooter, setSavedFooter] = useState<FooterConfig>(() => parseFooter(settings));
   const [savedNav, setSavedNav] = useState<NavLink[]>(() => parseNavLinks(settings.header_nav_links));
   const [savedSiteName, setSavedSiteName] = useState(settings.header_site_name || "Rượu Truyền Thống");
   const [savedZaloLabel, setSavedZaloLabel] = useState(settings.header_zalo_label || "Chat Zalo");
+  const [savedHeaderColor, setSavedHeaderColor] = useState(settings.header_color_preset || "white");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
@@ -233,6 +256,7 @@ export function AppearanceClient({ settings }: AppearanceClientProps) {
   function reset() {
     setSiteName(savedSiteName);
     setZaloLabel(savedZaloLabel);
+    setHeaderColor(savedHeaderColor);
     setNavLinks(savedNav);
     setFooter(savedFooter);
     setMsg(null);
@@ -253,6 +277,7 @@ export function AppearanceClient({ settings }: AppearanceClientProps) {
         header_site_name: siteName.trim(),
         header_nav_links: JSON.stringify(cleanNav),
         header_zalo_label: zaloLabel.trim(),
+        header_color_preset: headerColor,
         footer_config: JSON.stringify(cleanFooter),
         footer_copyright: cleanFooter.copyright,
         footer_show_fanpage: cleanFooter.fanpageIframe.trim() ? "1" : settings.footer_show_fanpage,
@@ -269,6 +294,7 @@ export function AppearanceClient({ settings }: AppearanceClientProps) {
       }
       setSavedSiteName(siteName.trim());
       setSavedZaloLabel(zaloLabel.trim());
+      setSavedHeaderColor(headerColor);
       setSavedNav(cleanNav);
       setNavLinks(cleanNav);
       setSavedFooter(cleanFooter);
@@ -341,11 +367,62 @@ export function AppearanceClient({ settings }: AppearanceClientProps) {
               <Plus size={14} /> Thêm mục menu
             </button>
           </div>
+
+          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center gap-2">
+              <Palette size={15} className="text-slate-500" />
+              <h3 className="text-sm font-bold text-slate-900">Màu nền header</h3>
+            </div>
+            <p className="mb-3 text-xs text-slate-500">
+              Chọn màu nền thanh menu hoặc bật <strong>Tùy chỉnh</strong> để dùng màu/gradient riêng.
+            </p>
+
+            <HeaderColorPicker value={headerColor} onChange={setHeaderColor} />
+
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-semibold text-slate-700">Xem trước header</p>
+              {(() => {
+                const { className, style, textTone } = getHeaderColorStyle(headerColor, "white");
+                const darkText = textTone === "dark";
+                return (
+                  <div className={`${className} rounded-lg border px-4 py-3`} style={style}>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
+                            darkText ? "bg-[#8B1A1A] text-white" : "bg-white/15 text-white ring-1 ring-white/25"
+                          }`}
+                        >
+                          M
+                        </span>
+                        <span className={`text-sm font-bold ${darkText ? "text-[#8B1A1A]" : "text-white"}`}>
+                          {siteName || "Rượu Truyền Thống"}
+                        </span>
+                      </div>
+                      <div className="hidden items-center gap-3 text-xs font-semibold sm:flex">
+                        {navLinks.slice(0, 3).map((link) => (
+                          <span key={`${link.label}-${link.href}`} className={darkText ? "text-slate-700" : "text-white/85"}>
+                            {link.label || "Menu"}
+                          </span>
+                        ))}
+                        <span className="rounded-md bg-[#0068FF] px-3 py-1.5 text-white">{zaloLabel || "Chat Zalo"}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </section>
         </div>
       </section>
 
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <SectionTitle>Footer</SectionTitle>
+        <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">
+          <strong>Ghi chú:</strong> Menu Chính sách ở footer đang trỏ tới 4 trang tĩnh:
+          Chính sách đổi trả hàng, Phương thức thanh toán, Chính sách bảo mật và Chính sách giao nhận hàng.
+          Muốn sửa nội dung từng trang, vào nhóm <strong>Quản lý trang tĩnh</strong> ở sidebar admin rồi chọn đúng trang chính sách.
+        </div>
         <div className="grid gap-5 xl:grid-cols-[1.2fr_0.9fr_0.9fr]">
           <div>
             <Label helper="Dùng editor để tự định dạng chữ, màu sắc và đoạn văn">Thông tin Shop</Label>
@@ -372,11 +449,14 @@ export function AppearanceClient({ settings }: AppearanceClientProps) {
 
           <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <h3 className="mb-4 text-sm font-bold text-slate-900">Fanpage</h3>
+            <p className="mb-3 text-xs leading-5 text-slate-500">
+              Dán link fanpage Facebook hoặc mã iframe Page Plugin. Ngoài website sẽ tự hiển thị khung timeline như fanpage.
+            </p>
             <textarea
               value={footer.fanpageIframe}
               onChange={(event) => setFooter((current) => ({ ...current, fanpageIframe: event.target.value }))}
-              rows={10}
-              placeholder='<iframe src="https://www.facebook.com/plugins/page.php?..."></iframe>'
+              rows={6}
+              placeholder="https://www.facebook.com/cuulongmytuu"
               className="w-full resize-y rounded-md border border-slate-300 bg-white px-3 py-2.5 font-mono text-xs text-slate-700 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
             />
             <div className="mt-4">
@@ -386,6 +466,38 @@ export function AppearanceClient({ settings }: AppearanceClientProps) {
                 value={footer.copyright}
                 onChange={(event) => setFooter((current) => ({ ...current, copyright: event.target.value }))}
               />
+            </div>
+          </section>
+
+          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center gap-2">
+              <Palette size={15} className="text-slate-500" />
+              <h3 className="text-sm font-bold text-slate-900">Màu nền footer</h3>
+            </div>
+            <p className="mb-3 text-xs text-slate-500">
+              Chọn 1 màu/gradient có sẵn hoặc bật <strong>Tùy chỉnh</strong> để chỉnh hex theo ý.
+            </p>
+
+            <FooterColorPicker
+              value={footer.colorPreset}
+              onChange={(v) => setFooter((c) => ({ ...c, colorPreset: v }))}
+            />
+
+            {/* Live preview */}
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-semibold text-slate-700">Xem trước footer</p>
+              {(() => {
+                const { className, style } = getFooterColorStyle(footer.colorPreset, "blue");
+                return (
+                  <div className={`${className} rounded-lg px-4 py-5 text-white`} style={style}>
+                    <p className="text-xs font-semibold text-amber-200">Thông tin Shop</p>
+                    <p className="mt-1 text-sm text-white/90">Rượu Truyền Thống</p>
+                    <p className="mt-2 border-t border-white/20 pt-2 text-[11px] text-white/70">
+                      {footer.copyright}
+                    </p>
+                  </div>
+                );
+              })()}
             </div>
           </section>
         </div>

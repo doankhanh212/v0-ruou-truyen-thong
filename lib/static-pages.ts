@@ -17,7 +17,7 @@ export type StaticPageRecord = {
 export async function getStaticPage(slug: string): Promise<StaticPageRecord | null> {
   try {
     const page = await db.page.findFirst({
-      where: { slug, isActive: true, isPublished: true },
+      where: { slug, isActive: true },
     });
     if (!page) return null;
     return {

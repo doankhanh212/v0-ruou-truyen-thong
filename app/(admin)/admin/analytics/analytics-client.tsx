@@ -106,18 +106,18 @@ export function AnalyticsClient() {
   return (
     <div className="p-6 space-y-8">
       {/* Header + date picker */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
           Báo cáo hiệu quả kinh doanh
         </h1>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <input
             type="date"
             value={dateRange.from}
             onChange={(e) =>
               setDateRange((prev) => ({ ...prev, from: e.target.value }))
             }
-            className="border rounded px-3 py-2 text-sm"
+            className="min-w-0 flex-1 rounded border px-2 py-2 text-sm sm:flex-none sm:px-3"
           />
           <span className="text-gray-400">–</span>
           <input
@@ -126,7 +126,7 @@ export function AnalyticsClient() {
             onChange={(e) =>
               setDateRange((prev) => ({ ...prev, to: e.target.value }))
             }
-            className="border rounded px-3 py-2 text-sm"
+            className="min-w-0 flex-1 rounded border px-2 py-2 text-sm sm:flex-none sm:px-3"
           />
         </div>
       </div>

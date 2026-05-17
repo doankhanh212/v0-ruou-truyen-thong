@@ -1,11 +1,12 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CheckCircle2, ChevronLeft, Eye, MessageCircle, Package2, Users } from "lucide-react";
 import { useCatalogProduct } from "@/hooks/use-catalog-products";
-import { formatCatalogPrice, type ProductVariant } from "@/lib/catalog";
+import { formatCatalogPrice, type CatalogProduct, type ProductVariant } from "@/lib/catalog";
+import { ProductCard } from "@/components/product-card";
 import { openZalo } from "@/utils/zalo";
 import { getSessionId } from "@/utils/track";
 
@@ -14,6 +15,7 @@ interface ProductDetailClientProps {
   categoryHref?: string;
   categoryLabel?: string;
   inStock?: boolean;
+  relatedProducts?: CatalogProduct[];
 }
 
 function formatViewCount(value: number): string {
@@ -28,8 +30,8 @@ function normalizeVietnamese(input: string): string {
   return input
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "d")
+    .replace(/Ä‘/g, "d")
+    .replace(/Ä/g, "d")
     .toLowerCase();
 }
 
@@ -78,7 +80,7 @@ function useProductViews(slug: string) {
           keepalive: true,
         });
       } catch {
-        // Best effort — tracking failures must never break the page.
+        // Best effort â€” tracking failures must never break the page.
       }
     }
 
@@ -134,13 +136,14 @@ export function ProductDetailClient({
   categoryHref,
   categoryLabel,
   inStock = true,
+  relatedProducts = [],
 }: ProductDetailClientProps) {
   const { product, loading, error } = useCatalogProduct(slug);
   const { total: totalViews, viewing: viewingNow } = useProductViews(slug);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
 
-  // Init selected variant khi product vừa load
+  // Init selected variant khi product vá»«a load
   useEffect(() => {
     if (product?.variants?.length) {
       setSelectedVariant(product.variants[0]);
@@ -153,7 +156,7 @@ export function ProductDetailClient({
     return (
       <div className="min-h-screen bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl rounded-3xl border border-gray-200 bg-white p-10 text-center shadow-sm">
-          <p className="text-sm text-gray-500">Đang tải chi tiết sản phẩm...</p>
+          <p className="text-sm text-gray-500">Äang táº£i chi tiáº¿t sáº£n pháº©m...</p>
         </div>
       </div>
     );
@@ -163,13 +166,13 @@ export function ProductDetailClient({
     return (
       <div className="min-h-screen bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl rounded-3xl border border-red-200 bg-white p-10 text-center shadow-sm">
-          <h1 className="text-2xl font-bold text-gray-900">Không thể tải chi tiết sản phẩm</h1>
+          <h1 className="text-2xl font-bold text-gray-900">KhĂ´ng thá»ƒ táº£i chi tiáº¿t sáº£n pháº©m</h1>
           <p className="mt-3 text-sm text-red-700">{error}</p>
           <Link
             href="/san-pham"
             className="mt-6 inline-flex min-h-11 items-center justify-center rounded-2xl border border-gray-200 px-5 py-3 text-sm font-bold text-gray-700 transition-colors hover:border-blue-300 hover:text-blue-700"
           >
-            Quay lại danh sách sản phẩm
+            Quay láº¡i danh sĂ¡ch sáº£n pháº©m
           </Link>
         </div>
       </div>
@@ -180,15 +183,15 @@ export function ProductDetailClient({
     return (
       <div className="min-h-screen bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl rounded-3xl border border-gray-200 bg-white p-10 text-center shadow-sm">
-          <h1 className="text-2xl font-bold text-gray-900">Không tìm thấy sản phẩm</h1>
+          <h1 className="text-2xl font-bold text-gray-900">KhĂ´ng tĂ¬m tháº¥y sáº£n pháº©m</h1>
           <p className="mt-3 text-sm text-gray-500">
-            Sản phẩm này chưa có trong cơ sở dữ liệu hoặc tạm thời không khả dụng.
+            Sáº£n pháº©m nĂ y chÆ°a cĂ³ trong cÆ¡ sá»Ÿ dá»¯ liá»‡u hoáº·c táº¡m thá»i khĂ´ng kháº£ dá»¥ng.
           </p>
           <Link
             href="/san-pham"
             className="mt-6 inline-flex min-h-11 items-center justify-center rounded-2xl border border-gray-200 px-5 py-3 text-sm font-bold text-gray-700 transition-colors hover:border-blue-300 hover:text-blue-700"
           >
-            Quay lại danh sách sản phẩm
+            Quay láº¡i danh sĂ¡ch sáº£n pháº©m
           </Link>
         </div>
       </div>
@@ -212,25 +215,25 @@ export function ProductDetailClient({
             className="inline-flex min-h-11 w-fit items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:border-blue-300 hover:text-blue-700"
           >
             <ChevronLeft size={16} />
-            Quay lại sản phẩm
+            Quay láº¡i sáº£n pháº©m
           </Link>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-                Rượu Truyền Thống
+                RÆ°á»£u Truyá»n Thá»‘ng
               </p>
-              <h1 className="mt-1 text-3xl font-bold text-gray-900 md:text-4xl">{product.name}</h1>
+              <h1 className="mt-1 text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">{product.name}</h1>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs">
               {unavailable && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 font-semibold text-red-600 ring-1 ring-red-200">
-                  Tạm hết hàng
+                  Táº¡m háº¿t hĂ ng
                 </span>
               )}
               {!unavailable && totalViews !== null && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 font-semibold text-slate-700">
                   <Eye size={13} />
-                  {formatViewCount(totalViews)} lượt xem
+                  {formatViewCount(totalViews)} lÆ°á»£t xem
                 </span>
               )}
               {!unavailable && viewingNow > 0 && (
@@ -240,7 +243,7 @@ export function ProductDetailClient({
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
                   </span>
                   <Users size={13} />
-                  {viewingNow} người đang xem
+                  {viewingNow} ngÆ°á»i Ä‘ang xem
                 </span>
               )}
             </div>
@@ -273,7 +276,7 @@ export function ProductDetailClient({
                     key={`${image}-${index}`}
                     type="button"
                     onClick={() => setActiveImageIndex(index)}
-                    aria-label={`Xem ảnh ${index + 1}`}
+                    aria-label={`Xem áº£nh ${index + 1}`}
                     aria-current={isActive}
                     className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border-2 transition-all sm:h-24 sm:w-24 ${
                       isActive
@@ -283,7 +286,7 @@ export function ProductDetailClient({
                   >
                     <Image
                       src={image}
-                      alt={`${product.name} ảnh ${index + 1}`}
+                      alt={`${product.name} áº£nh ${index + 1}`}
                       fill
                       sizes="96px"
                       className="object-cover"
@@ -313,18 +316,18 @@ export function ProductDetailClient({
 
             {descriptionHtml ? (
               <div
-                className="prose prose-sm max-w-none text-gray-600 prose-p:my-2 prose-p:leading-7 prose-strong:text-gray-900 prose-a:text-blue-700"
+                className="article-content text-[15px]"
                 dangerouslySetInnerHTML={{ __html: descriptionHtml }}
               />
             ) : null}
 
             <div className="grid gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-gray-600 sm:grid-cols-2">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Thông tin</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">ThĂ´ng tin</p>
                 <p className="mt-1 font-medium text-gray-900">{product.alcohol}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Phù hợp</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">PhĂ¹ há»£p</p>
                 <p className="mt-1 font-medium text-gray-900">{product.target}</p>
               </div>
             </div>
@@ -332,7 +335,7 @@ export function ProductDetailClient({
 
           {compliantBenefits.length > 0 ? (
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-wide text-gray-500">Điểm nổi bật</h2>
+              <h2 className="text-sm font-bold uppercase tracking-wide text-gray-500">Äiá»ƒm ná»•i báº­t</h2>
               <div className="mt-3 space-y-2.5">
                 {compliantBenefits.map((benefit) => (
                   <div key={benefit} className="flex items-start gap-2 text-sm text-gray-700">
@@ -346,7 +349,7 @@ export function ProductDetailClient({
 
           {product.ingredients.length > 0 ? (
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-wide text-gray-500">Thành phần</h2>
+              <h2 className="text-sm font-bold uppercase tracking-wide text-gray-500">ThĂ nh pháº§n</h2>
               <div className="mt-3 flex flex-wrap gap-2">
                 {product.ingredients.map((ingredient) => (
                   <span
@@ -362,7 +365,7 @@ export function ProductDetailClient({
 
           {product.variants && product.variants.length > 0 && (
             <div>
-              <p className="mb-2.5 text-sm font-bold uppercase tracking-wide text-gray-500">Dung tích</p>
+              <p className="mb-2.5 text-sm font-bold uppercase tracking-wide text-gray-500">Dung tĂ­ch</p>
               <div className="flex flex-wrap gap-2">
                 {product.variants.map((v, index) => {
                   const isSelected =
@@ -381,21 +384,21 @@ export function ProductDetailClient({
                     >
                       <span className="block">{v.size}</span>
                       <span className={`mt-0.5 block text-xs ${isSelected ? "text-blue-50" : "text-gray-500"}`}>
-                        {formatCatalogPrice(v.price)}đ
+                        {formatCatalogPrice(v.price)}Ä‘
                       </span>
                     </button>
                   );
                 })}
               </div>
               <p className="mt-3 text-2xl font-bold text-blue-700">
-                {formatCatalogPrice(selectedPrice)}đ
+                {formatCatalogPrice(selectedPrice)}Ä‘
               </p>
             </div>
           )}
 
           {!product.variants?.length && (
             <p className="text-2xl font-bold text-blue-700">
-              {formatCatalogPrice(product.priceMin)}đ
+              {formatCatalogPrice(product.priceMin)}Ä‘
             </p>
           )}
 
@@ -403,24 +406,24 @@ export function ProductDetailClient({
             <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
-                onClick={() => openZalo(undefined, `Xin chào, tôi muốn tư vấn ${product.name}${selectedVariant ? ` (${selectedVariant.size})` : ""}`)}
+                onClick={() => openZalo(undefined, `Xin chĂ o, tĂ´i muá»‘n tÆ° váº¥n ${product.name}${selectedVariant ? ` (${selectedVariant.size})` : ""}`)}
                 className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#0068FF] px-5 py-3 text-base font-bold text-white transition-colors hover:bg-[#0057d6] sm:w-auto"
               >
                 <MessageCircle size={18} />
-                Tư vấn qua Zalo
+                TÆ° váº¥n qua Zalo
               </button>
               <Link
                 href="/lien-he"
                 className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-gray-200 px-5 py-3 text-base font-bold text-gray-700 transition-colors hover:border-blue-300 hover:text-blue-700 sm:w-auto"
               >
-                Gửi yêu cầu liên hệ
+                Gá»­i yĂªu cáº§u liĂªn há»‡
               </Link>
             </div>
           ) : (
             <div className="rounded-2xl border border-red-100 bg-red-50 px-5 py-4 text-sm text-red-700">
-              <p className="font-semibold">Sản phẩm tạm thời hết hàng</p>
+              <p className="font-semibold">Sáº£n pháº©m táº¡m thá»i háº¿t hĂ ng</p>
               <p className="mt-1 text-red-600/80">
-                Liên hệ để được thông báo khi có hàng trở lại hoặc xem các sản phẩm tương tự.
+                LiĂªn há»‡ Ä‘á»ƒ Ä‘Æ°á»£c thĂ´ng bĂ¡o khi cĂ³ hĂ ng trá»Ÿ láº¡i hoáº·c xem cĂ¡c sáº£n pháº©m tÆ°Æ¡ng tá»±.
               </p>
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <button
@@ -428,13 +431,13 @@ export function ProductDetailClient({
                   disabled
                   className="inline-flex min-h-10 w-full cursor-not-allowed items-center justify-center rounded-xl bg-slate-200 px-4 py-2.5 text-sm font-bold text-slate-500 sm:w-auto"
                 >
-                  Tạm hết hàng
+                  Táº¡m háº¿t hĂ ng
                 </button>
                 <Link
                   href="/san-pham"
                   className="inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-700 transition-colors hover:border-blue-300 hover:text-blue-700 sm:w-auto"
                 >
-                  Xem sản phẩm khác
+                  Xem sáº£n pháº©m khĂ¡c
                 </Link>
               </div>
             </div>
@@ -442,41 +445,24 @@ export function ProductDetailClient({
         </div>
       </section>
 
+      {relatedProducts.length > 0 ? (
       <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
           <div className="flex items-center gap-3 border-b border-gray-200 px-6 py-4">
             <Package2 size={18} className="text-blue-600" />
-            <h2 className="text-lg font-bold text-gray-900">Bảng giá tham khảo</h2>
+            <h2 className="text-lg font-bold text-gray-900">Sản phẩm liên quan</h2>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead className="bg-slate-50 text-left text-gray-500">
-                <tr>
-                  <th className="px-6 py-3 font-semibold">Quy cách</th>
-                  <th className="px-6 py-3 font-semibold">Dung tích</th>
-                  <th className="px-6 py-3 font-semibold">Giá chưa VAT</th>
-                  <th className="px-6 py-3 font-semibold">Giá có VAT</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white text-gray-700">
-                {product.pricing.map((option) => (
-                  <tr key={`${option.packaging}-${option.volume}`}>
-                    <td className="px-6 py-4">{option.packaging}</td>
-                    <td className="px-6 py-4">{option.volume}</td>
-                    <td className="px-6 py-4 font-semibold text-gray-900">
-                      {formatCatalogPrice(option.priceBeforeVAT)}đ
-                    </td>
-                    <td className="px-6 py-4 font-semibold text-blue-700">
-                      {formatCatalogPrice(option.priceWithVAT)}đ
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid gap-5 p-5 sm:grid-cols-2 lg:grid-cols-4 sm:p-6">
+            {relatedProducts.map((item) => (
+              <ProductCard key={item.slug} item={item} />
+            ))}
           </div>
+
+
         </div>
       </section>
+      ) : null}
     </div>
   );
 }

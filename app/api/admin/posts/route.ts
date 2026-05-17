@@ -5,6 +5,7 @@ import { isAuthenticated } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { slugify } from "@/lib/slug";
 import { adminRateGuard } from "@/lib/admin-rate-limit";
+import { PAGE_HTML_OPTIONS } from "@/lib/sanitize-page-html";
 
 async function requireAuth() {
   if (!(await isAuthenticated())) {
@@ -12,44 +13,6 @@ async function requireAuth() {
   }
   return null;
 }
-
-const POST_HTML_OPTIONS: sanitizeHtml.IOptions = {
-  allowedTags: [
-    "h1", "h2", "h3", "h4",
-    "p", "br", "hr", "blockquote",
-    "ul", "ol", "li",
-    "strong", "em", "b", "i", "u", "s",
-    "a", "img",
-    "code", "pre",
-    "span",
-  ],
-  allowedAttributes: {
-    a: ["href", "target", "rel", "class"],
-    img: ["src", "alt", "width", "height", "class"],
-    p: ["style"],
-    h1: ["style"], h2: ["style"], h3: ["style"], h4: ["style"],
-    span: ["style"],
-  },
-  // Tiptap stores alignment as inline style; whitelist only this property/values.
-  allowedStyles: {
-    "*": {
-      "text-align": [/^left$/, /^right$/, /^center$/, /^justify$/],
-    },
-  },
-  allowedSchemes: ["http", "https", "mailto", "tel"],
-  allowedSchemesByTag: { img: ["http", "https"] },
-  transformTags: {
-    a: (tagName, attribs) => ({
-      tagName,
-      attribs: {
-        href: attribs.href || "",
-        rel: "noopener noreferrer",
-        target: "_blank",
-        class: attribs.class || "",
-      },
-    }),
-  },
-};
 
 const PostInput = z.object({
   title: z.string().trim().min(1).max(300),
@@ -110,7 +73,7 @@ export async function POST(request: NextRequest) {
       data: {
         title: data.title,
         slug: cleanSlug,
-        content: sanitizeHtml(data.content, POST_HTML_OPTIONS),
+        content: sanitizeHtml(data.content, PAGE_HTML_OPTIONS),
         image: data.image || null,
         isPublished: data.isPublished ?? true,
         isDeleted: false,

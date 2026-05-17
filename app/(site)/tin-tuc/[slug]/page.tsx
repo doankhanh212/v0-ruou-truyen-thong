@@ -8,28 +8,7 @@ import { absoluteUrl, metaDescription, metaTitle, SITE_NAME } from "@/lib/seo";
 import { isAuthenticated } from "@/lib/auth";
 import { Calendar, ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import { NewsShareActions } from "@/components/news-share-actions";
-
-const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
-  allowedTags: [
-    "h1", "h2", "h3", "h4",
-    "p", "br", "hr", "blockquote",
-    "ul", "ol", "li",
-    "strong", "em", "b", "i", "u", "s",
-    "a", "img",
-    "code", "pre",
-    "span",
-  ],
-  allowedAttributes: {
-    a: ["href", "target", "rel", "class"],
-    img: ["src", "alt", "width", "height", "class"],
-    p: ["style"],
-    h1: ["style"], h2: ["style"], h3: ["style"], h4: ["style"],
-    span: ["style"],
-  },
-  allowedStyles: {
-    "*": { "text-align": [/^left$/, /^right$/, /^center$/, /^justify$/] },
-  },
-};
+import { PAGE_HTML_OPTIONS } from "@/lib/sanitize-page-html";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -50,7 +29,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   const title = metaTitle(post.metaTitle || post.title);
   const description = metaDescription(post.metaDescription || post.content);
-  const canonical = `/news/${slug}`;
+  const canonical = `/tin-tuc/${slug}`;
   const imageUrl = post.image ? absoluteUrl(post.image) : undefined;
 
   return {
@@ -77,7 +56,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   };
 }
 
-export default async function NewsDetailPage({ params, searchParams }: Props) {
+export default async function TinTucDetailPage({ params, searchParams }: Props) {
   const [{ slug }, sp] = await Promise.all([params, searchParams]);
   const previewRequested = sp?.preview === "true";
   const authed = previewRequested ? await isAuthenticated() : false;
@@ -96,7 +75,7 @@ export default async function NewsDetailPage({ params, searchParams }: Props) {
   if (!post) notFound();
 
   const isDraft = !post.isPublished;
-  const canonical = `/news/${slug}`;
+  const canonical = `/tin-tuc/${slug}`;
   const canonicalUrl = absoluteUrl(canonical);
   const description = metaDescription(post.metaDescription || post.content);
 
@@ -147,7 +126,7 @@ export default async function NewsDetailPage({ params, searchParams }: Props) {
               <nav className="mb-3 flex flex-wrap items-center gap-1.5 text-xs text-white/70">
                 <Link href="/" className="hover:text-white transition-colors">Trang chủ</Link>
                 <ChevronRight size={12} />
-                <Link href="/news" className="hover:text-white transition-colors">Tin tức</Link>
+                <Link href="/tin-tuc" className="hover:text-white transition-colors">Tin tức</Link>
                 <ChevronRight size={12} />
                 <span className="text-white/90 line-clamp-1">{post.title}</span>
               </nav>
@@ -169,7 +148,7 @@ export default async function NewsDetailPage({ params, searchParams }: Props) {
           <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-sm text-gray-500">
             <Link href="/" className="hover:text-[#8B1A1A] transition-colors">Trang chủ</Link>
             <ChevronRight size={14} />
-            <Link href="/news" className="hover:text-[#8B1A1A] transition-colors">Tin tức</Link>
+            <Link href="/tin-tuc" className="hover:text-[#8B1A1A] transition-colors">Tin tức</Link>
             <ChevronRight size={14} />
             <span className="text-gray-700 line-clamp-1">{post.title}</span>
           </nav>
@@ -191,17 +170,8 @@ export default async function NewsDetailPage({ params, searchParams }: Props) {
         {/* Article body */}
         <article className="rounded-2xl bg-white px-6 py-8 shadow-sm sm:px-8 md:px-10">
           <div
-            className="prose prose-lg max-w-none
-              prose-headings:font-bold prose-headings:text-gray-900
-              prose-h2:text-2xl prose-h3:text-xl
-              prose-p:leading-relaxed prose-p:text-gray-700
-              prose-a:text-[#8B1A1A] prose-a:no-underline hover:prose-a:underline
-              prose-strong:text-gray-900
-              prose-img:rounded-xl prose-img:shadow-sm prose-img:mx-auto
-              prose-blockquote:border-l-[#8B1A1A] prose-blockquote:bg-amber-50 prose-blockquote:py-1 prose-blockquote:rounded-r-lg
-              prose-li:text-gray-700
-              prose-hr:border-amber-200"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content, SANITIZE_OPTIONS) }}
+            className="article-content max-w-none"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content, PAGE_HTML_OPTIONS) }}
           />
         </article>
 
@@ -244,7 +214,7 @@ export default async function NewsDetailPage({ params, searchParams }: Props) {
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#2b6cb0]">Đọc thêm</p>
                   <h2 className="mt-1 text-2xl font-bold text-gray-900">Bài viết liên quan</h2>
                 </div>
-                <Link href="/news" className="hidden items-center gap-1 text-sm font-bold text-[#004a99] hover:underline sm:inline-flex">
+                <Link href="/tin-tuc" className="hidden items-center gap-1 text-sm font-bold text-[#004a99] hover:underline sm:inline-flex">
                   Xem tất cả <ArrowRight size={14} />
                 </Link>
               </div>
@@ -252,7 +222,7 @@ export default async function NewsDetailPage({ params, searchParams }: Props) {
                 {relatedPosts.map((p) => (
                   <Link
                     key={p.slug}
-                    href={`/news/${p.slug}`}
+                    href={`/tin-tuc/${p.slug}`}
                     className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                   >
                     <div className="relative aspect-video overflow-hidden bg-slate-100">
@@ -290,7 +260,7 @@ export default async function NewsDetailPage({ params, searchParams }: Props) {
 
         <div className="mt-8 flex items-center justify-between">
           <Link
-            href="/news"
+            href="/tin-tuc"
             className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:border-[#8B1A1A] hover:text-[#8B1A1A]"
           >
             <ArrowLeft size={15} /> Tất cả bài viết

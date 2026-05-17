@@ -84,7 +84,7 @@ async function buildFreshContext(): Promise<string> {
     return `• ${p.name}${cat}${featured} — ${formatPrice(p.price)} (/san-pham/${p.slug})`;
   });
 
-  const postLines = posts.map((p) => `• "${p.title}" (/news/${p.slug})`);
+  const postLines = posts.map((p) => `• "${p.title}" (/tin-tuc/${p.slug})`);
 
   const sections: string[] = [];
 

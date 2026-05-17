@@ -6,11 +6,12 @@ import { Menu, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { ZALO_PHONE } from '@/utils/zalo'
 import { track } from '@/utils/track'
+import { getHeaderColorStyle } from '@/lib/header-colors'
 
 const DEFAULT_NAV = [
   { href: '/', label: 'Trang chủ' },
   { href: '/san-pham', label: 'Sản phẩm' },
-  { href: '/news', label: 'Tin tức' },
+  { href: '/tin-tuc', label: 'Tin tức' },
   { href: '/gioi-thieu', label: 'Giới thiệu' },
   { href: '/lien-he', label: 'Liên hệ' },
 ]
@@ -22,6 +23,7 @@ interface HeaderProps {
   siteName?: string
   navLinks?: NavLink[]
   zaloLabel?: string
+  colorPreset?: string
 }
 
 function normalizeNavHref(href: string) {
@@ -33,7 +35,7 @@ function normalizeNavHref(href: string) {
   return value.startsWith('/') ? value : `/${value}`
 }
 
-export function Header({ zaloUrl, siteName, navLinks, zaloLabel }: HeaderProps = {}) {
+export function Header({ zaloUrl, siteName, navLinks, zaloLabel, colorPreset }: HeaderProps = {}) {
   const zaloHref = zaloUrl?.trim() || `https://zalo.me/${ZALO_PHONE}`
   const NAV_LINKS = (navLinks && navLinks.length > 0 ? navLinks : DEFAULT_NAV).map((link) => ({
     ...link,
@@ -41,6 +43,15 @@ export function Header({ zaloUrl, siteName, navLinks, zaloLabel }: HeaderProps =
   }))
   const displayName = siteName?.trim() || 'Rượu Truyền Thống'
   const btnLabel = zaloLabel?.trim() || 'Chat Zalo'
+  const headerColor = getHeaderColorStyle(colorPreset, 'white')
+  const isDarkText = headerColor.textTone === 'dark'
+  const headerBorderClass = isDarkText ? 'border-border' : 'border-white/15'
+  const brandTextClass = isDarkText ? 'text-primary' : 'text-white'
+  const logoClass = isDarkText ? 'bg-primary text-white' : 'bg-white/15 text-white ring-1 ring-white/25'
+  const menuButtonClass = isDarkText ? 'text-foreground' : 'text-white'
+  const activeLinkClass = isDarkText ? 'text-primary font-semibold' : 'text-white font-semibold'
+  const inactiveLinkClass = isDarkText ? 'text-foreground hover:text-primary' : 'text-white/85 hover:text-white'
+  const mobileMenuClass = isDarkText ? 'bg-white border-border' : 'border-white/15'
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
 
@@ -56,13 +67,16 @@ export function Header({ zaloUrl, siteName, navLinks, zaloLabel }: HeaderProps =
   }, [isOpen])
 
   return (
-    <header className="sticky top-0 z-50 bg-background border-b border-border">
+    <header
+      className={`sticky top-0 z-50 border-b ${headerBorderClass} ${headerColor.className}`}
+      style={headerColor.style}
+    >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${logoClass}`}>
             𝔐
           </div>
-          <span className="text-lg font-semibold text-primary hidden sm:inline">{displayName}</span>
+          <span className={`text-lg font-semibold hidden sm:inline ${brandTextClass}`}>{displayName}</span>
         </Link>
 
         {/* Desktop Menu */}
@@ -73,8 +87,8 @@ export function Header({ zaloUrl, siteName, navLinks, zaloLabel }: HeaderProps =
               href={link.href}
               className={`transition-colors ${
                 pathname === link.href
-                  ? 'text-primary font-semibold'
-                  : 'text-foreground hover:text-primary'
+                  ? activeLinkClass
+                  : inactiveLinkClass
               }`}
             >
               {link.label}
@@ -99,13 +113,13 @@ export function Header({ zaloUrl, siteName, navLinks, zaloLabel }: HeaderProps =
           aria-label="Toggle menu"
           aria-expanded={isOpen}
         >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
+          {isOpen ? <X size={24} className={menuButtonClass} /> : <Menu size={24} className={menuButtonClass} />}
         </button>
       </nav>
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-white border-t border-border">
+        <div className={`md:hidden border-t ${mobileMenuClass}`}>
           <div className="px-4 py-4 space-y-2">
             {NAV_LINKS.map((link) => (
               <Link
@@ -113,8 +127,8 @@ export function Header({ zaloUrl, siteName, navLinks, zaloLabel }: HeaderProps =
                 href={link.href}
                 className={`flex min-h-11 w-full items-center rounded-lg py-2 transition-colors ${
                   pathname === link.href
-                    ? 'text-primary font-semibold'
-                    : 'text-foreground hover:text-primary'
+                    ? activeLinkClass
+                    : inactiveLinkClass
                 }`}
               >
                 {link.label}

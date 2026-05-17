@@ -23,6 +23,7 @@ export const SETTING_KEYS = [
   "header_site_name",
   "header_nav_links",
   "header_zalo_label",
+  "header_color_preset",
   // Footer
   "footer_brand_name",
   "footer_brand_desc",
@@ -50,6 +51,7 @@ export type FooterConfig = {
   policyLinks: FooterLink[];
   fanpageIframe: string;
   copyright: string;
+  colorPreset: string;
 };
 
 export type SystemConfig = {
@@ -67,18 +69,20 @@ export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
   shopInfoHtml:
     "<p><strong>Rượu Truyền Thống</strong></p><p>Rượu truyền thống cao cấp, chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống.</p>",
   newsLinks: [
-    { label: "Tin tức", href: "/news" },
+    { label: "Tin tức", href: "/tin-tuc" },
     { label: "Sản phẩm", href: "/san-pham" },
     { label: "Giới thiệu", href: "/gioi-thieu" },
     { label: "Liên hệ", href: "/lien-he" },
   ],
   policyLinks: [
-    { label: "Chính sách bảo mật", href: "/lien-he" },
-    { label: "Điều khoản dịch vụ", href: "/lien-he" },
-    { label: "Chính sách hoàn trả", href: "/lien-he" },
+    { label: "Chính sách đổi trả hàng", href: "/chinh-sach/doi-tra-hang" },
+    { label: "Phương thức thanh toán", href: "/chinh-sach/phuong-thuc-thanh-toan" },
+    { label: "Chính sách bảo mật", href: "/chinh-sach/bao-mat" },
+    { label: "Chính sách giao nhận hàng", href: "/chinh-sach/giao-nhan-hang" },
   ],
-  fanpageIframe: "",
+  fanpageIframe: "https://www.facebook.com/cuulongmytuu",
   copyright: "Rượu Truyền Thống. Tất cả các quyền được bảo lưu.",
+  colorPreset: "blue",
 };
 
 export const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
@@ -100,7 +104,7 @@ export const DEFAULT_SETTINGS: SettingsMap = {
   zalo_url: "",
   zalo_oaid: "",
   website: "",
-  fanpage_url: "",
+  fanpage_url: "https://www.facebook.com/cuulongmytuu",
   home_page_size: "16",
   google_map_coords: "",
   google_map_embed: "",
@@ -111,17 +115,18 @@ export const DEFAULT_SETTINGS: SettingsMap = {
   header_nav_links: JSON.stringify([
     { label: "Trang chủ", href: "/" },
     { label: "Sản phẩm", href: "/san-pham" },
-    { label: "Tin tức", href: "/news" },
+    { label: "Tin tức", href: "/tin-tuc" },
     { label: "Giới thiệu", href: "/gioi-thieu" },
     { label: "Liên hệ", href: "/lien-he" },
   ]),
   header_zalo_label: "Chat Zalo",
+  header_color_preset: "white",
   // Footer defaults
   footer_brand_name: "Rượu Truyền Thống",
   footer_brand_desc: "Rượu truyền thống cao cấp — chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống. Đạt ISO 22000:2018 & OCOP 4 sao.",
   footer_copyright: "Rượu Truyền Thống. Tất cả các quyền được bảo lưu.",
   footer_phone: "0909 799 311 – 0902 931 119",
-  footer_email: "somogold@somogroup.vn",
+  footer_email: "",
   footer_address: "29 Nguyễn Khắc Nhu, P. Cầu Ông Lãnh, TP. HCM",
   footer_show_fanpage: "1",
   footer_config: "",
@@ -211,6 +216,13 @@ function normalizeLinks(value: unknown, fallback: FooterLink[]): FooterLink[] {
   return links.length > 0 ? links : fallback;
 }
 
+function normalizePolicyLinks(value: unknown): FooterLink[] {
+  const links = normalizeLinks(value, DEFAULT_FOOTER_CONFIG.policyLinks);
+  return links.some((link) => link.href.startsWith("/chinh-sach/"))
+    ? links
+    : DEFAULT_FOOTER_CONFIG.policyLinks;
+}
+
 export function getFooterConfig(settings: SettingsMap): FooterConfig {
   const parsed = parseObject(settings.footer_config);
   const legacyShopInfo = [
@@ -227,12 +239,16 @@ export function getFooterConfig(settings: SettingsMap): FooterConfig {
       legacyShopInfo || DEFAULT_FOOTER_CONFIG.shopInfoHtml
     ),
     newsLinks: normalizeLinks(parsed.newsLinks, DEFAULT_FOOTER_CONFIG.newsLinks),
-    policyLinks: normalizeLinks(parsed.policyLinks, DEFAULT_FOOTER_CONFIG.policyLinks),
-    fanpageIframe: stringValue(parsed.fanpageIframe),
+    policyLinks: normalizePolicyLinks(parsed.policyLinks),
+    fanpageIframe:
+      typeof parsed.fanpageIframe === "string" && parsed.fanpageIframe.trim()
+        ? parsed.fanpageIframe
+        : settings.fanpage_url,
     copyright: stringValue(
       parsed.copyright,
       settings.footer_copyright || DEFAULT_FOOTER_CONFIG.copyright
     ),
+    colorPreset: stringValue(parsed.colorPreset, DEFAULT_FOOTER_CONFIG.colorPreset),
   };
 }
 

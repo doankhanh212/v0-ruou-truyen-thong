@@ -2,27 +2,106 @@ import Link from "next/link";
 import sanitizeHtml from "sanitize-html";
 import type { FooterConfig } from "@/lib/settings";
 import { DEFAULT_FOOTER_CONFIG } from "@/lib/settings";
-import { PAGE_HTML_OPTIONS } from "@/lib/sanitize-page-html";
+import { getFooterColorStyle } from "@/lib/footer-colors";
 
 interface FooterProps {
   config?: FooterConfig;
 }
 
-function safeHtml(html: string) {
-  return sanitizeHtml(html, PAGE_HTML_OPTIONS);
+const SHOP_INFO_HTML_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: [
+    "p",
+    "br",
+    "strong",
+    "em",
+    "b",
+    "i",
+    "u",
+    "a",
+    "ul",
+    "ol",
+    "li",
+    "span",
+    "div",
+  ],
+  allowedAttributes: {
+    a: ["href", "target", "rel", "class"],
+    span: ["class"],
+    div: ["class"],
+    p: ["class"],
+  },
+  allowedSchemes: ["http", "https", "mailto", "tel"],
+  transformTags: {
+    a: (tagName, attribs) => ({
+      tagName,
+      attribs: {
+        href: attribs.href || "",
+        rel: "noopener noreferrer",
+        target: attribs.target || "_blank",
+        ...(attribs.class ? { class: attribs.class } : {}),
+      },
+    }),
+  },
+};
+
+function safeShopInfo(html: string) {
+  return sanitizeHtml(html, SHOP_INFO_HTML_OPTIONS);
+}
+
+function extractIframeSrc(value: string) {
+  const match = value.match(/<iframe\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i);
+  return match?.[1] || value;
+}
+
+function normalizeFacebookPageUrl(raw: string) {
+  const input = extractIframeSrc(raw.trim());
+  if (!input) return "";
+
+  try {
+    const url = new URL(input);
+    const host = url.hostname.toLowerCase();
+    if (!host.includes("facebook.com")) return "";
+
+    if (url.pathname.includes("/plugins/page.php")) {
+      const href = url.searchParams.get("href");
+      return href ? decodeURIComponent(href) : "";
+    }
+
+    return `https://www.facebook.com${url.pathname}`.replace(/\/$/, "");
+  } catch {
+    return "";
+  }
+}
+
+function buildFacebookPageIframe(value: string) {
+  const pageUrl = normalizeFacebookPageUrl(value);
+  if (!pageUrl) return "";
+
+  const params = new URLSearchParams({
+    href: pageUrl,
+    tabs: "timeline",
+    width: "340",
+    height: "500",
+    small_header: "false",
+    adapt_container_width: "true",
+    hide_cover: "false",
+    show_facepile: "true",
+  });
+
+  return `<iframe title="Facebook Fanpage" src="https://www.facebook.com/plugins/page.php?${params.toString()}" width="340" height="500" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" loading="lazy"></iframe>`;
 }
 
 function FooterLinks({ title, links }: { title: string; links: FooterConfig["newsLinks"] }) {
   return (
-    <div>
+    <div className="min-w-0">
       <h4 className="mb-4 text-sm font-bold uppercase tracking-wide text-amber-200">{title}</h4>
-      <ul className="space-y-2">
+      <ul className="space-y-3">
         {links.map((link) => {
           const isExternal = /^https?:\/\//i.test(link.href);
           const className =
-            "inline-flex min-h-10 items-center text-sm text-white/80 transition-colors hover:text-amber-200";
+            "inline-flex min-h-8 max-w-full items-start break-words text-sm leading-6 text-white/80 transition-colors hover:text-amber-200";
           return (
-            <li key={`${link.label}-${link.href}`}>
+            <li key={`${link.label}-${link.href}`} className="min-w-0">
               {isExternal ? (
                 <a href={link.href} target="_blank" rel="noopener noreferrer" className={className}>
                   {link.label}
@@ -41,20 +120,23 @@ function FooterLinks({ title, links }: { title: string; links: FooterConfig["new
 }
 
 export function Footer({ config = DEFAULT_FOOTER_CONFIG }: FooterProps) {
-  const currentYear = new Date().getFullYear();
-  const shopInfo = safeHtml(config.shopInfoHtml);
-  const fanpageIframe = safeHtml(config.fanpageIframe);
+  const shopInfo = safeShopInfo(config.shopInfoHtml);
+  const fanpageIframe = buildFacebookPageIframe(config.fanpageIframe);
   const copyright =
     config.copyright?.trim() || DEFAULT_FOOTER_CONFIG.copyright;
+  const { className: colorClass, style: colorStyle } = getFooterColorStyle(
+    config.colorPreset,
+    "blue",
+  );
 
   return (
-    <footer className="bg-[#2b6cb0] text-white">
+    <footer className={`${colorClass} text-white`} style={colorStyle}>
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4">
-          <div>
+        <div className="grid grid-cols-1 gap-x-12 gap-y-10 md:grid-cols-2 xl:grid-cols-[minmax(0,1.25fr)_minmax(160px,0.75fr)_minmax(180px,0.85fr)_340px]">
+          <div className="min-w-0">
             <h3 className="mb-4 text-lg font-bold text-amber-200">Thông tin Shop</h3>
             <div
-              className="prose prose-sm max-w-none text-white prose-p:text-white/85 prose-strong:text-amber-200 prose-a:text-amber-200 prose-li:text-white/85"
+              className="prose prose-sm max-w-none break-words text-white prose-p:my-2 prose-p:leading-7 prose-p:text-white/85 prose-strong:text-amber-200 prose-a:break-words prose-a:text-amber-200 prose-li:text-white/85"
               dangerouslySetInnerHTML={{ __html: shopInfo }}
             />
           </div>
@@ -62,24 +144,24 @@ export function Footer({ config = DEFAULT_FOOTER_CONFIG }: FooterProps) {
           <FooterLinks title="Tin tức" links={config.newsLinks} />
           <FooterLinks title="Chính sách" links={config.policyLinks} />
 
-          <div>
+          <div className="min-w-0 xl:w-[340px]">
             <h4 className="mb-4 text-sm font-bold uppercase tracking-wide text-amber-200">
               Fanpage
             </h4>
             {fanpageIframe ? (
               <div
-                className="overflow-hidden rounded-md bg-white/10 [&_iframe]:max-w-full"
+                className="overflow-hidden rounded-md bg-white/10 [&_iframe]:block [&_iframe]:h-[500px] [&_iframe]:w-full [&_iframe]:max-w-full"
                 dangerouslySetInnerHTML={{ __html: fanpageIframe }}
               />
             ) : (
-              <p className="text-sm text-white/75">Fanpage sẽ hiển thị khi có mã nhúng.</p>
+              <p className="text-sm leading-6 text-white/75">Fanpage sẽ hiển thị khi có link hoặc mã nhúng.</p>
             )}
           </div>
         </div>
 
         <div className="mt-10 border-t border-white/20 pt-6">
-          <p className="text-center text-sm text-white/75 md:text-left">
-            © {currentYear} {copyright}
+          <p className="break-words text-center text-sm leading-6 text-white/75 md:text-left">
+            {copyright}
           </p>
         </div>
       </div>

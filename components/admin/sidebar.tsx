@@ -135,7 +135,7 @@ export function AdminSidebar() {
             className="absolute inset-0 bg-black/40"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="absolute inset-y-0 left-0 flex w-72 flex-col bg-white shadow-xl">
+          <aside className="absolute inset-y-0 left-0 flex w-[min(288px,calc(100vw-48px))] flex-col bg-white shadow-xl">
             <div className="flex items-center justify-between border-b px-4 py-3">
               <SidebarBrand />
               <button

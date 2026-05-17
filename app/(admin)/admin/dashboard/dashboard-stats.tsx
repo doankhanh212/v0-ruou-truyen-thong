@@ -50,11 +50,11 @@ export function DashboardStats({ initialCards }: { initialCards: DashboardCard[]
       <div className="mb-2 flex justify-end text-[11px] text-gray-400">
         {updatedAt ? `Cập nhật: ${updatedAt.toLocaleTimeString("vi-VN")}` : "Đang đồng bộ..."}
       </div>
-      <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {cards.map((card) => (
-          <div key={card.label} className="rounded border bg-white p-5">
-            <div className="text-xs uppercase text-gray-500">{card.label}</div>
-            <div className="mt-2 text-2xl font-semibold">{card.value}</div>
+          <div key={card.label} className="rounded border bg-white p-3 sm:p-5">
+            <div className="text-[11px] uppercase leading-tight text-gray-500 sm:text-xs">{card.label}</div>
+            <div className="mt-1.5 text-xl font-semibold sm:mt-2 sm:text-2xl">{card.value}</div>
           </div>
         ))}
       </div>

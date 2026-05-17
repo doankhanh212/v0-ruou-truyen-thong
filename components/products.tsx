@@ -26,7 +26,7 @@ export function Products({ sections }: ProductsProps = {}) {
 
   const sectionLabel = sections?.['home.products.label']?.text || 'Rượu Truyền Thống'
   const sectionTitle = sections?.['home.products.title']?.text || 'Dòng Sản Phẩm Cao Cấp'
-  const sectionSubtitle = sections?.['home.products.subtitle']?.text || 'Thương hiệu Somo Gold — đạt tiêu chuẩn ISO 22000:2018 và OCOP 4 sao'
+  const sectionSubtitle = sections?.['home.products.subtitle']?.text || 'Rượu truyền thống đạt tiêu chuẩn ISO 22000:2018 và OCOP 4 sao'
 
   const handleProductClick = (productId: string, dbId: number | undefined, productSlug: string, productName: string) => {
     track('click_product', { id: productId, dbId, slug: productSlug, name: productName, source: 'home' })

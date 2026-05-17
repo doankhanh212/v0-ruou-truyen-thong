@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     const obj = rawValue as Record<string, unknown>;
     const text = typeof obj.text === "string" ? obj.text.slice(0, 10_000) : "";
-    const cleanText = sanitizeSectionHtml(text);
+    const cleanText = sanitizeSectionHtml(text, key);
     const image = normalizeSectionImage(obj.image);
 
     const value: SectionValue = { text: cleanText, image };

@@ -635,39 +635,77 @@ export function ProductsClient() {
           <p className="mt-1 text-xs text-gray-500">Bấm "+ Thêm sản phẩm" để tạo mới.</p>
         </div>
       ) : (
-        <Table>
-          <THead>
-            <TR>
-              <TH>Tên</TH>
-              <TH>Danh mục</TH>
-              <TH>Giá</TH>
-              <TH>Còn hàng</TH>
-              <TH>Tạm hết</TH>
-              <TH>Nổi bật</TH>
-              <TH className="text-right">Hành động</TH>
-            </TR>
-          </THead>
-          <tbody>
-            {products.map((p) => (
-              <TR key={p.id}>
-                <TD>{p.name}</TD>
-                <TD>{p.categoryRel?.name || categories.find((c) => c.id === p.categoryId)?.name || "—"}</TD>
-                <TD>{p.price.toLocaleString("vi-VN")}đ</TD>
-                <TD>{p.inStock ? "✓" : "—"}</TD>
-                <TD>{p.isOutOfStock ? "✓" : "—"}</TD>
-                <TD>{p.featured ? "✓" : "—"}</TD>
-                <TD className="text-right space-x-2">
-                  <button onClick={() => openEdit(p)} className="text-sm text-[#8B1A1A] hover:underline">
-                    Sửa
-                  </button>
-                  <button onClick={() => remove(p.id)} className="text-sm text-red-600 hover:underline">
-                    Xóa
-                  </button>
-                </TD>
-              </TR>
-            ))}
-          </tbody>
-        </Table>
+        <>
+          {/* Mobile card list */}
+          <div className="space-y-2 sm:hidden">
+            {products.map((p) => {
+              const catName = p.categoryRel?.name || categories.find((c) => c.id === p.categoryId)?.name || "—";
+              return (
+                <div key={p.id} className="rounded-lg border bg-white p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium text-sm text-gray-900">{p.name}</p>
+                      <p className="text-xs text-gray-500">{catName}</p>
+                    </div>
+                    <div className="flex shrink-0 gap-3">
+                      <button onClick={() => openEdit(p)} className="text-xs font-medium text-[#8B1A1A] hover:underline">
+                        Sửa
+                      </button>
+                      <button onClick={() => remove(p.id)} className="text-xs font-medium text-red-600 hover:underline">
+                        Xóa
+                      </button>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">
+                      {p.price.toLocaleString("vi-VN")}đ
+                    </span>
+                    {p.inStock && <span className="rounded bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">Còn hàng</span>}
+                    {p.isOutOfStock && <span className="rounded bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700">Tạm hết</span>}
+                    {!p.inStock && !p.isOutOfStock && <span className="rounded bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">Hết hàng</span>}
+                    {p.featured && <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">Nổi bật</span>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {/* Desktop table */}
+          <div className="hidden sm:block">
+            <Table>
+              <THead>
+                <TR>
+                  <TH>Tên</TH>
+                  <TH>Danh mục</TH>
+                  <TH>Giá</TH>
+                  <TH>Còn hàng</TH>
+                  <TH>Tạm hết</TH>
+                  <TH>Nổi bật</TH>
+                  <TH className="text-right">Hành động</TH>
+                </TR>
+              </THead>
+              <tbody>
+                {products.map((p) => (
+                  <TR key={p.id}>
+                    <TD>{p.name}</TD>
+                    <TD>{p.categoryRel?.name || categories.find((c) => c.id === p.categoryId)?.name || "—"}</TD>
+                    <TD>{p.price.toLocaleString("vi-VN")}đ</TD>
+                    <TD>{p.inStock ? "✓" : "—"}</TD>
+                    <TD>{p.isOutOfStock ? "✓" : "—"}</TD>
+                    <TD>{p.featured ? "✓" : "—"}</TD>
+                    <TD className="text-right space-x-2">
+                      <button onClick={() => openEdit(p)} className="text-sm text-[#8B1A1A] hover:underline">
+                        Sửa
+                      </button>
+                      <button onClick={() => remove(p.id)} className="text-sm text-red-600 hover:underline">
+                        Xóa
+                      </button>
+                    </TD>
+                  </TR>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        </>
       )}
     </div>
   );

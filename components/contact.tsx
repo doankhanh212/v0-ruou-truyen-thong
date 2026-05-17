@@ -22,7 +22,7 @@ export function Contact() {
             <div className="overflow-hidden rounded-2xl bg-white/70">
               <img
                 src={brandVisuals.contact}
-                alt="Thông tin liên hệ mua hàng Somo Gold"
+                alt="Thông tin liên hệ mua hàng"
                 loading="lazy"
                 decoding="async"
                 className="block h-auto w-full"
@@ -35,7 +35,7 @@ export function Contact() {
               <div className="overflow-hidden rounded-2xl bg-white/70">
                 <img
                   src={brandVisuals.contactAlt}
-                  alt="Bộ quà tặng Lộc Xuân Somo Gold"
+                  alt="Bộ quà tặng Lộc Xuân"
                   loading="lazy"
                   decoding="async"
                   className="block h-auto w-full"
@@ -48,7 +48,7 @@ export function Contact() {
                 Hồ sơ doanh nghiệp
               </p>
               <h3 className="mt-3 text-2xl font-bold text-primary">
-                Somo Gold, APT và Somo Farm Cửu Long
+                Hồ sơ doanh nghiệp và nhà máy sản xuất
               </h3>
               <p className="mt-3 text-sm leading-7 text-foreground/70">
                 Phần liên hệ được trình bày theo đúng poster doanh nghiệp của công ty, đồng thời giữ nguyên tỷ lệ ảnh gốc để không làm vỡ bố cục thương hiệu.

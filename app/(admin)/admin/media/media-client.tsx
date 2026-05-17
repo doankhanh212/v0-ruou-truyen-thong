@@ -86,7 +86,7 @@ export function MediaClient() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Thư viện media</h1>
+      <h1 className="text-xl font-semibold sm:text-2xl">Thư viện media</h1>
 
       <form onSubmit={handleUpload} className="rounded border bg-white p-4 space-y-3">
         <h2 className="font-medium">Tải lên ảnh mới</h2>

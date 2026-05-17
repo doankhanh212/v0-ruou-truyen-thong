@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { ProductDetailClient } from '@/components/product-detail-client'
-import { getCatalogProductBySlug } from '@/lib/catalog-service'
+import { getCatalogProductBySlug, listCatalogProducts } from '@/lib/catalog-service'
 import { db } from '@/lib/db'
 import { absoluteUrl, metaDescription, metaTitle, SITE_NAME } from '@/lib/seo'
 
@@ -72,6 +72,22 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
   const categoryHref = categoryRel ? `/san-pham?category=${categoryRel.slug}` : '/san-pham'
   const categoryLabel = categoryRel?.name ?? catalog.category
+  const relatedByCategory = await listCatalogProducts({
+    category: catalog.category,
+    limit: 5,
+  }).catch(() => ({ products: [] }))
+
+  let relatedProducts = relatedByCategory.products.filter((item) => item.slug !== catalog.slug)
+  if (relatedProducts.length < 3) {
+    const fallback = await listCatalogProducts({ limit: 6 }).catch(() => ({ products: [] }))
+    const seen = new Set(relatedProducts.map((item) => item.slug))
+    relatedProducts = [
+      ...relatedProducts,
+      ...fallback.products.filter((item) => item.slug !== catalog.slug && !seen.has(item.slug)),
+    ].slice(0, 4)
+  } else {
+    relatedProducts = relatedProducts.slice(0, 4)
+  }
 
   const description = metaDescription(catalog.description) || catalog.name
   const canonical = `/san-pham/${catalog.slug}`
@@ -146,6 +162,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         categoryHref={categoryHref}
         categoryLabel={categoryLabel}
         inStock={(catalog.inStock ?? true) && !catalog.isOutOfStock}
+        relatedProducts={relatedProducts}
       />
     </>
   )

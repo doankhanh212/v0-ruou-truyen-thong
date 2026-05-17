@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { db } from '@/lib/db'
 import { absoluteUrl } from '@/lib/seo'
+import { POLICY_PAGES } from '@/lib/policy-pages'
 
 export const revalidate = 300
 
@@ -27,9 +28,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: absoluteUrl('/'), lastModified: latestAny, changeFrequency: 'daily', priority: 1 },
     { url: absoluteUrl('/san-pham'), lastModified: latestProductUpdate, changeFrequency: 'daily', priority: 0.9 },
-    { url: absoluteUrl('/news'), lastModified: latestPostUpdate, changeFrequency: 'daily', priority: 0.8 },
+    { url: absoluteUrl('/tin-tuc'), lastModified: latestPostUpdate, changeFrequency: 'daily', priority: 0.8 },
     { url: absoluteUrl('/gioi-thieu'), lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: absoluteUrl('/lien-he'), lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    ...POLICY_PAGES.map((page) => ({
+      url: absoluteUrl(page.href),
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.4,
+    })),
   ]
 
   const productRoutes: MetadataRoute.Sitemap = products.map((p) => ({
@@ -40,7 +47,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   const postRoutes: MetadataRoute.Sitemap = posts.map((p) => ({
-    url: absoluteUrl(`/news/${p.slug}`),
+    url: absoluteUrl(`/tin-tuc/${p.slug}`),
     lastModified: p.updatedAt,
     changeFrequency: 'monthly',
     priority: 0.6,

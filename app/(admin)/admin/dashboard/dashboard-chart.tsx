@@ -172,10 +172,10 @@ export function DashboardChart() {
 
   return (
     <div className="rounded border bg-white p-5">
-      <div className="mb-4 flex items-center justify-between gap-4">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-medium">Thống kê truy cập</h2>
-          <p className="mt-1 text-xs text-gray-400">
+          <h2 className="text-base font-medium sm:text-lg">Thống kê truy cập</h2>
+          <p className="mt-0.5 text-xs text-gray-400">
             {isCurrentMonth ? "Tự cập nhật mỗi 10 giây" : "Đang xem dữ liệu lịch sử"}
             {updatedAt ? ` • ${updatedAt.toLocaleTimeString("vi-VN")}` : ""}
           </p>
@@ -194,7 +194,7 @@ export function DashboardChart() {
         </div>
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+      <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2 text-xs sm:text-sm">
         <div className="flex items-center gap-1">
           <span className="h-3 w-3 rounded" style={{ background: COLORS.page_view }} />
           Page views: <strong>{totals.page_view}</strong>
@@ -213,7 +213,7 @@ export function DashboardChart() {
         <p className="py-8 text-center text-sm text-gray-500">Đang tải...</p>
       ) : (
         <div className="overflow-x-auto pb-3 pt-2">
-          <div className="relative" style={{ minWidth: 500 }}>
+          <div className="relative" style={{ minWidth: 300 }}>
             <svg
               viewBox={`0 0 ${W} ${H}`}
               className="w-full"

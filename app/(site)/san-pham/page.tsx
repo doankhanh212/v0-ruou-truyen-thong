@@ -258,7 +258,7 @@ function SanPhamPageInner() {
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-blue-600">
             Rượu Truyền Thống
           </p>
-          <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">Sản phẩm rượu</h1>
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl md:text-4xl">Sản phẩm rượu</h1>
           <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-gray-500">
             Danh mục rượu truyền thống cao cấp — cập nhật trực tiếp từ kho sản phẩm chính thức.
           </p>
@@ -290,35 +290,53 @@ function SanPhamPageInner() {
             ) : null}
           </div>
 
-          <div className="flex w-full items-center gap-2 md:hidden">
-            <div className="relative flex-1">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                value={search}
-                onChange={(event) => handleSearch(event.target.value)}
-                placeholder="Tìm sản phẩm..."
-                className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-9 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              {search ? (
-                <button
-                  type="button"
-                  onClick={() => setSearch('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-                >
-                  <X size={13} />
-                </button>
-              ) : null}
+          <div className="flex w-full flex-col gap-2 md:hidden">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(event) => handleSearch(event.target.value)}
+                  placeholder="Tìm sản phẩm..."
+                  className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-9 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                {search ? (
+                  <button
+                    type="button"
+                    onClick={() => setSearch('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  >
+                    <X size={13} />
+                  </button>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowMobileFilter(true)}
+                className="flex min-h-11 flex-shrink-0 items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-700 shadow-sm"
+              >
+                <SlidersHorizontal size={15} />
+                Lọc
+                {hasActiveFilter ? <span className="h-2 w-2 rounded-full bg-blue-600" /> : null}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setShowMobileFilter(true)}
-              className="flex min-h-11 flex-shrink-0 items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-700 shadow-sm"
-            >
-              <SlidersHorizontal size={15} />
-              Lọc
-              {hasActiveFilter ? <span className="h-2 w-2 rounded-full bg-blue-600" /> : null}
-            </button>
+            {/* Recommend preset chips on mobile */}
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {RECOMMEND_PRESETS.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => handleRecommend(preset.id)}
+                  className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${
+                    recommend === preset.id ? preset.activeColor : preset.color
+                  }`}
+                >
+                  {preset.icon}
+                  {preset.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="hidden flex-wrap items-center gap-2 md:flex">

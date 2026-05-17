@@ -267,14 +267,14 @@ export function PostsClient() {
               <p className="mt-0.5 text-xs text-gray-500">
                 {editingId
                   ? `ID #${editingId} — chỉnh sửa nội dung và meta SEO`
-                  : "Tạo bài viết mới hiển thị tại trang /news"}
+                  : "Tạo bài viết mới hiển thị tại trang /tin-tuc"}
               </p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {editingId && form.slug && (
               <a
-                href={`/news/${form.slug}${form.isPublished ? "" : "?preview=true"}`}
+                href={`/tin-tuc/${form.slug}${form.isPublished ? "" : "?preview=true"}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -354,7 +354,7 @@ export function PostsClient() {
                     Đường dẫn (slug) <span className="text-red-500">*</span>
                   </label>
                   <div className="flex items-center gap-1 rounded-lg border border-gray-300 px-2 focus-within:border-[#8B1A1A] focus-within:ring-1 focus-within:ring-[#8B1A1A]/30">
-                    <span className="text-xs text-gray-400">/news/</span>
+                    <span className="text-xs text-gray-400">/tin-tuc/</span>
                     <input
                       type="text"
                       value={form.slug}
@@ -450,7 +450,7 @@ export function PostsClient() {
                   )}
                 </div>
                 <p className="text-[11px] text-gray-400">
-                  Khuyến nghị: 1200×675 px (16:9). Hiển thị ở đầu bài và trong list /news.
+                  Khuyến nghị: 1200×675 px (16:9). Hiển thị ở đầu bài và trong list /tin-tuc.
                 </p>
               </div>
             </section>
@@ -527,7 +527,7 @@ export function PostsClient() {
                   <p className="truncate text-sm font-medium text-blue-700">
                     {form.metaTitle || form.title || "(Chưa có tiêu đề)"}
                   </p>
-                  <p className="text-[11px] text-green-700">yourdomain.com/news/{form.slug || "..."}</p>
+                  <p className="text-[11px] text-green-700">yourdomain.com/tin-tuc/{form.slug || "..."}</p>
                   <p className="mt-1 line-clamp-2 text-xs text-gray-600">
                     {form.metaDescription || "(Chưa có mô tả — Google sẽ tự lấy đoạn đầu nội dung)"}
                   </p>
@@ -545,7 +545,7 @@ export function PostsClient() {
     <>
       <AdminPageHeader
         title="Tin tức / Blog"
-        description="Quản lý bài viết, tin tức hiển thị tại trang /news. Hỗ trợ ảnh + soạn thảo trực quan."
+        description="Quản lý bài viết, tin tức hiển thị tại trang /tin-tuc. Hỗ trợ ảnh + soạn thảo trực quan."
         actions={<Button onClick={openCreate}>+ Thêm bài viết</Button>}
       />
 
@@ -560,78 +560,90 @@ export function PostsClient() {
           description='Bấm "+ Thêm bài viết" để tạo bài đầu tiên.'
         />
       ) : (
-        <Table>
-          <THead>
-            <TR>
-              <TH>Tiêu đề</TH>
-              <TH>Slug</TH>
-              <TH>Trạng thái</TH>
-              <TH>Ngày tạo</TH>
-              <TH className="text-right">Hành động</TH>
-            </TR>
-          </THead>
-          <tbody>
+        <>
+          {/* Mobile card list */}
+          <div className="space-y-2 sm:hidden">
             {posts.map((p) => (
-              <TR key={p.id}>
-                <TD>
-                  <div className="flex items-center gap-3">
-                    {p.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={p.image}
-                        alt=""
-                        className="h-10 w-14 flex-shrink-0 rounded object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-10 w-14 flex-shrink-0 items-center justify-center rounded bg-amber-50 text-amber-300">
-                        <ImageIcon size={14} />
-                      </div>
-                    )}
-                    <span className="line-clamp-2 font-medium text-gray-900">{p.title}</span>
+              <div key={p.id} className="flex gap-3 rounded-lg border bg-white p-3">
+                {p.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={p.image} alt="" className="h-14 w-20 flex-shrink-0 rounded object-cover" />
+                ) : (
+                  <div className="flex h-14 w-20 flex-shrink-0 items-center justify-center rounded bg-amber-50 text-amber-300">
+                    <ImageIcon size={16} />
                   </div>
-                </TD>
-                <TD className="font-mono text-xs text-gray-500">/news/{p.slug}</TD>
-                <TD>
-                  <button
-                    onClick={() => togglePublish(p)}
-                    className={`text-xs px-2 py-1 rounded font-semibold ${
-                      p.isPublished
-                        ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}
-                  >
-                    {p.isPublished ? "Đã xuất bản" : "Nháp"}
-                  </button>
-                </TD>
-                <TD className="text-xs text-gray-500">
-                  {new Date(p.createdAt).toLocaleDateString("vi-VN")}
-                </TD>
-                <TD className="text-right space-x-3">
-                  <a
-                    href={`/news/${p.slug}${p.isPublished ? "" : "?preview=true"}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-purple-600 hover:underline"
-                  >
-                    Xem
-                  </a>
-                  <button
-                    onClick={() => openEdit(p)}
-                    className="text-sm font-semibold text-[#8B1A1A] hover:underline"
-                  >
-                    Sửa
-                  </button>
-                  <button
-                    onClick={() => remove(p.id)}
-                    className="text-sm text-red-600 hover:underline"
-                  >
-                    Xoá
-                  </button>
-                </TD>
-              </TR>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="line-clamp-2 text-sm font-medium text-gray-900">{p.title}</p>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={() => togglePublish(p)}
+                      className={`rounded px-2 py-0.5 text-xs font-semibold ${p.isPublished ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}
+                    >
+                      {p.isPublished ? "Đã đăng" : "Nháp"}
+                    </button>
+                    <span className="text-xs text-gray-400">{new Date(p.createdAt).toLocaleDateString("vi-VN")}</span>
+                  </div>
+                  <div className="mt-1.5 flex gap-3">
+                    <a href={`/tin-tuc/${p.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs text-purple-600 hover:underline">Xem</a>
+                    <button onClick={() => openEdit(p)} className="text-xs font-semibold text-[#8B1A1A] hover:underline">Sửa</button>
+                    <button onClick={() => remove(p.id)} className="text-xs text-red-600 hover:underline">Xoá</button>
+                  </div>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </Table>
+          </div>
+          {/* Desktop table */}
+          <div className="hidden sm:block">
+            <Table>
+              <THead>
+                <TR>
+                  <TH>Tiêu đề</TH>
+                  <TH>Slug</TH>
+                  <TH>Trạng thái</TH>
+                  <TH>Ngày tạo</TH>
+                  <TH className="text-right">Hành động</TH>
+                </TR>
+              </THead>
+              <tbody>
+                {posts.map((p) => (
+                  <TR key={p.id}>
+                    <TD>
+                      <div className="flex items-center gap-3">
+                        {p.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={p.image} alt="" className="h-10 w-14 flex-shrink-0 rounded object-cover" />
+                        ) : (
+                          <div className="flex h-10 w-14 flex-shrink-0 items-center justify-center rounded bg-amber-50 text-amber-300">
+                            <ImageIcon size={14} />
+                          </div>
+                        )}
+                        <span className="line-clamp-2 font-medium text-gray-900">{p.title}</span>
+                      </div>
+                    </TD>
+                    <TD className="font-mono text-xs text-gray-500">/tin-tuc/{p.slug}</TD>
+                    <TD>
+                      <button
+                        onClick={() => togglePublish(p)}
+                        className={`text-xs px-2 py-1 rounded font-semibold ${p.isPublished ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}
+                      >
+                        {p.isPublished ? "Đã xuất bản" : "Nháp"}
+                      </button>
+                    </TD>
+                    <TD className="text-xs text-gray-500">
+                      {new Date(p.createdAt).toLocaleDateString("vi-VN")}
+                    </TD>
+                    <TD className="text-right space-x-3">
+                      <a href={`/tin-tuc/${p.slug}${p.isPublished ? "" : "?preview=true"}`} target="_blank" rel="noopener noreferrer" className="text-sm text-purple-600 hover:underline">Xem</a>
+                      <button onClick={() => openEdit(p)} className="text-sm font-semibold text-[#8B1A1A] hover:underline">Sửa</button>
+                      <button onClick={() => remove(p.id)} className="text-sm text-red-600 hover:underline">Xoá</button>
+                    </TD>
+                  </TR>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        </>
       )}
     </>
   );

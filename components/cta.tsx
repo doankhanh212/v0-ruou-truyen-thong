@@ -77,7 +77,7 @@ export function CTA({ sections }: CTAProps = {}) {
                 <div className="relative aspect-[4/5]">
                   <Image
                     src={brandVisuals.gifts}
-                    alt="Quà tặng cao cấp Somo Gold"
+                    alt="Quà tặng cao cấp rượu truyền thống"
                     fill
                     sizes="(max-width: 640px) 100vw, 25vw"
                     className="object-cover"
@@ -88,7 +88,7 @@ export function CTA({ sections }: CTAProps = {}) {
                 <div className="relative aspect-[4/5]">
                   <Image
                     src={brandVisuals.contactAlt}
-                    alt="Poster bộ quà tặng Lộc Xuân Somo Gold"
+                    alt="Poster bộ quà tặng Lộc Xuân"
                     fill
                     sizes="(max-width: 640px) 100vw, 25vw"
                     className="object-cover"

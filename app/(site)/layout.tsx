@@ -29,6 +29,7 @@ export default async function SiteLayout({
         siteName={settings.header_site_name}
         navLinks={navLinks}
         zaloLabel={settings.header_zalo_label}
+        colorPreset={settings.header_color_preset}
       />
       <main className="min-h-screen">{children}</main>
       <Footer config={footerConfig} />
