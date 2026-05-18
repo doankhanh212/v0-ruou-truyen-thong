@@ -13,6 +13,7 @@ const KNOWN_EVENTS = new Set([
   "click_product",
   "click_zalo",
   "click_messenger",
+  "click_whatsapp",
   "click_call",
   "page_change",
   "chatbot_open",
@@ -62,8 +63,9 @@ function dedupAxis(event: string, productId: number | null, metadata: unknown): 
     case "page_change":
       return `path=${get("path")}`;
     case "click_zalo":
-      return `src=${get("source")}|phone=${get("phone")}`;
+      return `src=${get("source")}|phone=${get("phone")}|url=${get("url")}`;
     case "click_messenger":
+    case "click_whatsapp":
       return `src=${get("source")}|url=${get("url")}`;
     case "click_call":
       return `src=${get("source")}|phone=${get("phone")}`;

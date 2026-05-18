@@ -81,14 +81,14 @@ function buildFacebookPageIframe(value: string) {
     href: pageUrl,
     tabs: "timeline",
     width: "340",
-    height: "500",
+    height: "340",
     small_header: "false",
     adapt_container_width: "true",
     hide_cover: "false",
     show_facepile: "true",
   });
 
-  return `<iframe title="Facebook Fanpage" src="https://www.facebook.com/plugins/page.php?${params.toString()}" width="340" height="500" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" loading="lazy"></iframe>`;
+  return `<iframe title="Facebook Fanpage" src="https://www.facebook.com/plugins/page.php?${params.toString()}" width="340" height="340" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" loading="lazy"></iframe>`;
 }
 
 function FooterLinks({ title, links }: { title: string; links: FooterConfig["newsLinks"] }) {
@@ -122,8 +122,7 @@ function FooterLinks({ title, links }: { title: string; links: FooterConfig["new
 export function Footer({ config = DEFAULT_FOOTER_CONFIG }: FooterProps) {
   const shopInfo = safeShopInfo(config.shopInfoHtml);
   const fanpageIframe = buildFacebookPageIframe(config.fanpageIframe);
-  const copyright =
-    config.copyright?.trim() || DEFAULT_FOOTER_CONFIG.copyright;
+  const copyright = config.copyright?.trim() ?? "";
   const { className: colorClass, style: colorStyle } = getFooterColorStyle(
     config.colorPreset,
     "blue",
@@ -132,7 +131,7 @@ export function Footer({ config = DEFAULT_FOOTER_CONFIG }: FooterProps) {
   return (
     <footer className={`${colorClass} text-white`} style={colorStyle}>
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-x-12 gap-y-10 md:grid-cols-2 xl:grid-cols-[minmax(0,1.25fr)_minmax(160px,0.75fr)_minmax(180px,0.85fr)_340px]">
+        <div className="grid grid-cols-1 gap-x-12 gap-y-10 md:grid-cols-2 xl:grid-cols-[minmax(0,1.25fr)_minmax(160px,0.75fr)_minmax(180px,0.85fr)_minmax(280px,340px)]">
           <div className="min-w-0">
             <h3 className="mb-4 text-lg font-bold text-amber-200">Thông tin Shop</h3>
             <div
@@ -144,13 +143,13 @@ export function Footer({ config = DEFAULT_FOOTER_CONFIG }: FooterProps) {
           <FooterLinks title="Tin tức" links={config.newsLinks} />
           <FooterLinks title="Chính sách" links={config.policyLinks} />
 
-          <div className="min-w-0 xl:w-[340px]">
+          <div className="min-w-0 xl:max-w-[340px]">
             <h4 className="mb-4 text-sm font-bold uppercase tracking-wide text-amber-200">
               Fanpage
             </h4>
             {fanpageIframe ? (
               <div
-                className="overflow-hidden rounded-md bg-white/10 [&_iframe]:block [&_iframe]:h-[500px] [&_iframe]:w-full [&_iframe]:max-w-full"
+                className="aspect-square overflow-hidden rounded-md bg-white/10 [&_iframe]:block [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:max-w-full"
                 dangerouslySetInnerHTML={{ __html: fanpageIframe }}
               />
             ) : (
@@ -159,11 +158,13 @@ export function Footer({ config = DEFAULT_FOOTER_CONFIG }: FooterProps) {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-white/20 pt-6">
-          <p className="break-words text-center text-sm leading-6 text-white/75 md:text-left">
-            {copyright}
-          </p>
-        </div>
+        {copyright ? (
+          <div className="mt-10 border-t border-white/20 pt-6">
+            <p className="break-words text-center text-sm leading-6 text-white/75 md:text-left">
+              {copyright}
+            </p>
+          </div>
+        ) : null}
       </div>
     </footer>
   );

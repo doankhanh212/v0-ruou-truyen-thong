@@ -15,6 +15,7 @@ type SystemConfig = {
   agePopupEnabled: boolean;
   floatingZaloUrl: string;
   floatingMessengerUrl: string;
+  floatingWhatsappUrl: string;
 };
 
 const DEFAULT_SYSTEM: SystemConfig = {
@@ -26,6 +27,7 @@ const DEFAULT_SYSTEM: SystemConfig = {
   agePopupEnabled: true,
   floatingZaloUrl: "",
   floatingMessengerUrl: "",
+  floatingWhatsappUrl: "",
 };
 
 const inputClass =
@@ -61,6 +63,8 @@ function parseSystem(settings: SettingsMap): SystemConfig {
       typeof parsed.floatingZaloUrl === "string" ? parsed.floatingZaloUrl : settings.zalo_url,
     floatingMessengerUrl:
       typeof parsed.floatingMessengerUrl === "string" ? parsed.floatingMessengerUrl : "",
+    floatingWhatsappUrl:
+      typeof parsed.floatingWhatsappUrl === "string" ? parsed.floatingWhatsappUrl : "",
   };
 }
 
@@ -199,6 +203,7 @@ export function SettingsClient({ initial }: { initial: SettingsMap }) {
       freeShippingThreshold: Math.max(0, Math.round(Number(system.freeShippingThreshold) || 0)),
       floatingZaloUrl: system.floatingZaloUrl.trim(),
       floatingMessengerUrl: system.floatingMessengerUrl.trim(),
+      floatingWhatsappUrl: system.floatingWhatsappUrl.trim(),
     };
 
     setSaving(true);
@@ -286,12 +291,21 @@ export function SettingsClient({ initial }: { initial: SettingsMap }) {
             value={system.floatingZaloUrl}
             onChange={(value) => setSystem((current) => ({ ...current, floatingZaloUrl: value }))}
             placeholder="https://zalo.me/84902931119"
+            helper="Bỏ trống nếu không muốn hiển thị nút Zalo nổi."
           />
           <TextInput
             label="Link Messenger nổi"
             value={system.floatingMessengerUrl}
             onChange={(value) => setSystem((current) => ({ ...current, floatingMessengerUrl: value }))}
             placeholder="https://m.me/ten-fanpage"
+            helper="Bỏ trống nếu không muốn hiển thị nút Messenger."
+          />
+          <TextInput
+            label="Link WhatsApp nổi"
+            value={system.floatingWhatsappUrl}
+            onChange={(value) => setSystem((current) => ({ ...current, floatingWhatsappUrl: value }))}
+            placeholder="https://wa.me/84902931119"
+            helper="Bỏ trống nếu không muốn hiển thị nút WhatsApp."
           />
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
             <div className="flex items-center justify-between gap-4">

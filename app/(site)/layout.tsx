@@ -34,8 +34,9 @@ export default async function SiteLayout({
       <main className="min-h-screen">{children}</main>
       <Footer config={footerConfig} />
       <FloatingContact
-        zaloUrl={systemConfig.floatingZaloUrl || settings.zalo_url}
+        zaloUrl={systemConfig.floatingZaloUrl}
         messengerUrl={systemConfig.floatingMessengerUrl}
+        whatsappUrl={systemConfig.floatingWhatsappUrl}
       />
       <ChatbotWidget />
       <AgeVerificationPopup enabled={systemConfig.agePopupEnabled} />

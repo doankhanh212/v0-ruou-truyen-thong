@@ -7,6 +7,7 @@ type EventName =
   | 'click_product'
   | 'click_zalo'
   | 'click_messenger'
+  | 'click_whatsapp'
   | 'click_call'
   | 'page_change'
   | 'chatbot_open'

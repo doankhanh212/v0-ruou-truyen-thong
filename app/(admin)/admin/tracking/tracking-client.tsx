@@ -13,12 +13,14 @@ type Log = {
   createdAt: string;
 };
 
-const EVENTS = ["", "page_view", "click_product", "click_zalo", "chatbot_open", "ai_recommend", "click_call"];
+const EVENTS = ["", "page_view", "click_product", "click_zalo", "click_messenger", "click_whatsapp", "chatbot_open", "ai_recommend", "click_call"];
 
 const COLOR: Record<string, string> = {
   page_view: "bg-blue-100 text-blue-700",
   click_product: "bg-indigo-100 text-indigo-700",
   click_zalo: "bg-green-100 text-green-700",
+  click_messenger: "bg-sky-100 text-sky-700",
+  click_whatsapp: "bg-emerald-100 text-emerald-700",
   chatbot_open: "bg-yellow-100 text-yellow-700",
   ai_recommend: "bg-orange-100 text-orange-700",
   click_call: "bg-red-100 text-red-700",

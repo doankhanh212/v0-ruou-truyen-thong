@@ -63,6 +63,7 @@ export type SystemConfig = {
   agePopupEnabled: boolean;
   floatingZaloUrl: string;
   floatingMessengerUrl: string;
+  floatingWhatsappUrl: string;
 };
 
 export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
@@ -81,7 +82,7 @@ export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
     { label: "Chính sách giao nhận hàng", href: "/chinh-sach/giao-nhan-hang" },
   ],
   fanpageIframe: "https://www.facebook.com/cuulongmytuu",
-  copyright: "Rượu Truyền Thống. Tất cả các quyền được bảo lưu.",
+  copyright: "",
   colorPreset: "blue",
 };
 
@@ -94,6 +95,7 @@ export const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
   agePopupEnabled: true,
   floatingZaloUrl: "",
   floatingMessengerUrl: "",
+  floatingWhatsappUrl: "",
 };
 
 export const DEFAULT_SETTINGS: SettingsMap = {
@@ -124,7 +126,7 @@ export const DEFAULT_SETTINGS: SettingsMap = {
   // Footer defaults
   footer_brand_name: "Rượu Truyền Thống",
   footer_brand_desc: "Rượu truyền thống cao cấp — chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống. Đạt ISO 22000:2018 & OCOP 4 sao.",
-  footer_copyright: "Rượu Truyền Thống. Tất cả các quyền được bảo lưu.",
+  footer_copyright: "",
   footer_phone: "0909 799 311 – 0902 931 119",
   footer_email: "",
   footer_address: "29 Nguyễn Khắc Nhu, P. Cầu Ông Lãnh, TP. HCM",
@@ -244,10 +246,7 @@ export function getFooterConfig(settings: SettingsMap): FooterConfig {
       typeof parsed.fanpageIframe === "string" && parsed.fanpageIframe.trim()
         ? parsed.fanpageIframe
         : settings.fanpage_url,
-    copyright: stringValue(
-      parsed.copyright,
-      settings.footer_copyright || DEFAULT_FOOTER_CONFIG.copyright
-    ),
+    copyright: stringValue(parsed.copyright, settings.footer_copyright),
     colorPreset: stringValue(parsed.colorPreset, DEFAULT_FOOTER_CONFIG.colorPreset),
   };
 }
@@ -272,5 +271,6 @@ export function getSystemConfig(settings: SettingsMap): SystemConfig {
         : DEFAULT_SYSTEM_CONFIG.agePopupEnabled,
     floatingZaloUrl: stringValue(parsed.floatingZaloUrl, settings.zalo_url).trim(),
     floatingMessengerUrl: stringValue(parsed.floatingMessengerUrl).trim(),
+    floatingWhatsappUrl: stringValue(parsed.floatingWhatsappUrl).trim(),
   };
 }

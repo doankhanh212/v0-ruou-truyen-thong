@@ -43,7 +43,7 @@ const DEFAULT_FOOTER: FooterConfig = {
     { label: "Chính sách giao nhận hàng", href: "/chinh-sach/giao-nhan-hang" },
   ],
   fanpageIframe: "https://www.facebook.com/cuulongmytuu",
-  copyright: "Rượu Truyền Thống. Tất cả các quyền được bảo lưu.",
+  copyright: "",
   colorPreset: "blue",
 };
 
@@ -123,7 +123,7 @@ function parseFooter(settings: SettingsMap): FooterConfig {
     copyright:
       typeof parsed.copyright === "string"
         ? parsed.copyright
-        : settings.footer_copyright || DEFAULT_FOOTER.copyright,
+        : settings.footer_copyright,
     colorPreset:
       typeof parsed.colorPreset === "string" && parsed.colorPreset
         ? parsed.colorPreset
@@ -492,9 +492,11 @@ export function AppearanceClient({ settings }: AppearanceClientProps) {
                   <div className={`${className} rounded-lg px-4 py-5 text-white`} style={style}>
                     <p className="text-xs font-semibold text-amber-200">Thông tin Shop</p>
                     <p className="mt-1 text-sm text-white/90">Rượu Truyền Thống</p>
-                    <p className="mt-2 border-t border-white/20 pt-2 text-[11px] text-white/70">
-                      {footer.copyright}
-                    </p>
+                    {footer.copyright.trim() ? (
+                      <p className="mt-2 border-t border-white/20 pt-2 text-[11px] text-white/70">
+                        {footer.copyright}
+                      </p>
+                    ) : null}
                   </div>
                 );
               })()}
