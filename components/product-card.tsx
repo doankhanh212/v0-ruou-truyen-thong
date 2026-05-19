@@ -76,18 +76,18 @@ export function ProductCard({ item, onZaloClick }: ProductCardProps) {
           </ul>
         </Link>
 
-        <div className="mt-auto flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <span className="block whitespace-nowrap text-base font-bold text-blue-700">
+        <div className="mt-auto grid grid-cols-[minmax(0,1fr)_minmax(104px,auto)] items-end gap-3 border-t border-gray-100 pt-4">
+          <div className="min-w-0">
+            <span className="block break-words text-[15px] font-bold leading-tight text-blue-700 sm:text-sm xl:text-[15px]">
               {item.price}đ
             </span>
-            <span className="mt-0.5 block text-xs italic text-gray-500">(Giá đã bao gồm VAT)</span>
+            <span className="mt-0.5 block text-[11px] italic leading-snug text-gray-500">(Giá đã bao gồm VAT)</span>
           </div>
           <button
             type="button"
             onClick={handleZalo}
             disabled={unavailable}
-            className={`flex min-h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-bold transition-all sm:w-auto ${
+            className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-2.5 text-xs font-bold transition-all sm:text-[13px] ${
               unavailable
                 ? 'cursor-not-allowed bg-slate-200 text-slate-500'
                 : 'bg-blue-600 text-white shadow-sm shadow-blue-200 hover:bg-blue-700 active:scale-95'

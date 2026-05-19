@@ -32,13 +32,34 @@ export function clientIp(request: NextRequest | { headers: Headers }): string {
 export function checkOrigin(request: NextRequest): NextResponse | null {
   const origin = request.headers.get("origin");
   if (!origin) return null;
-  const expected = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/+$/, "");
-  // In dev we don't enforce — NEXT_PUBLIC_SITE_URL may be unset or wrong.
-  if (process.env.NODE_ENV !== "production" || !expected) return null;
+  if (process.env.NODE_ENV !== "production") return null;
+  const allowedOrigins = new Set<string>();
+  const configured = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/+$/, "");
+  if (configured) {
+    try {
+      allowedOrigins.add(new URL(configured).origin);
+    } catch {
+      // Ignore malformed env; the request host below is still authoritative.
+    }
+  }
+
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const host = forwardedHost || request.headers.get("host");
+  if (host) {
+    const forwardedProto = request.headers.get("x-forwarded-proto");
+    const proto = forwardedProto || request.nextUrl.protocol.replace(":", "") || "https";
+    try {
+      allowedOrigins.add(new URL(`${proto}://${host}`).origin);
+    } catch {
+      // Ignore malformed proxy headers and fall through to reject.
+    }
+  }
+
+  // If neither env nor proxy headers provide an origin, fail open.
+  if (allowedOrigins.size === 0) return null;
   try {
     const originUrl = new URL(origin);
-    const expectedUrl = new URL(expected);
-    if (originUrl.origin === expectedUrl.origin) return null;
+    if (allowedOrigins.has(originUrl.origin)) return null;
   } catch {
     // fall through to reject
   }
