@@ -23,12 +23,32 @@ const SHOP_INFO_HTML_OPTIONS: sanitizeHtml.IOptions = {
     "li",
     "span",
     "div",
+    "h1",
+    "h2",
+    "h3",
+    "blockquote",
   ],
   allowedAttributes: {
-    a: ["href", "target", "rel", "class"],
-    span: ["class"],
-    div: ["class"],
-    p: ["class"],
+    a: ["href", "target", "rel", "class", "style"],
+    span: ["class", "style"],
+    div: ["class", "style"],
+    p: ["class", "style"],
+    h1: ["class", "style"],
+    h2: ["class", "style"],
+    h3: ["class", "style"],
+    blockquote: ["class", "style"],
+  },
+  allowedStyles: {
+    "*": {
+      color: [/^#[0-9a-fA-F]{3,8}$/, /^rgb\(/, /^rgba\(/],
+      "background-color": [/^#[0-9a-fA-F]{3,8}$/, /^rgb\(/, /^rgba\(/],
+      "font-size": [/^\d+(?:\.\d+)?(?:px|em|rem|%)$/],
+      "font-family": [/^[\w\s"',.-]+$/],
+      "font-weight": [/^(?:normal|bold|[1-9]00)$/],
+      "font-style": [/^(?:normal|italic)$/],
+      "text-align": [/^(?:left|center|right|justify)$/],
+      "line-height": [/^\d+(?:\.\d+)?(?:px|em|rem|%)?$/],
+    },
   },
   allowedSchemes: ["http", "https", "mailto", "tel"],
   transformTags: {
@@ -135,7 +155,7 @@ export function Footer({ config = DEFAULT_FOOTER_CONFIG }: FooterProps) {
           <div className="min-w-0">
             <h3 className="mb-4 text-lg font-bold text-amber-200">Thông tin Shop</h3>
             <div
-              className="prose prose-sm max-w-none break-words text-white prose-p:my-2 prose-p:leading-7 prose-p:text-white/85 prose-strong:text-amber-200 prose-a:break-words prose-a:text-amber-200 prose-li:text-white/85"
+              className="prose prose-sm max-w-none break-words text-white prose-p:my-2 prose-p:text-white/85 prose-headings:text-amber-200 prose-strong:text-amber-200 prose-a:break-words prose-a:text-amber-200 prose-li:text-white/85"
               dangerouslySetInnerHTML={{ __html: shopInfo }}
             />
           </div>
