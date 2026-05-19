@@ -91,6 +91,33 @@ function splitContactHtml(html: string) {
   return { mapHtml, contentHtml }
 }
 
+function phoneHref(value: string) {
+  const cleaned = value.replace(/[^\d+]/g, '')
+  return cleaned.replace(/^\+?84/, '0').length >= 8 ? `tel:${cleaned}` : ''
+}
+
+function emailHref(value: string) {
+  const match = value.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)
+  return match ? `mailto:${match[0]}` : ''
+}
+
+function normalizeContactHref(id: ContactCardId, href: string, value: string) {
+  const raw = href.trim()
+  const source = raw || value.trim()
+  if (!source) return ''
+  if (/^(https?:\/\/|tel:|mailto:)/i.test(source) || source.startsWith('/')) return source
+
+  if (id === 'phone') return phoneHref(source)
+  if (id === 'email') return emailHref(source)
+  if (id === 'zalo') {
+    const phone = phoneHref(source).replace(/^tel:/, '')
+    if (phone) return `https://zalo.me/${phone}`
+    return source.includes('zalo.me') ? `https://${source.replace(/^\/+/, '')}` : ''
+  }
+
+  return ''
+}
+
 export default async function LienHePage() {
   const [page, sections] = await Promise.all([
     getStaticPage('lien-he'),
@@ -104,14 +131,19 @@ export default async function LienHePage() {
   const heroBadge = sections['lien-he.hero.badge']?.text?.trim() ?? ''
   const heroSubtitle = sections['lien-he.hero.subtitle']?.text?.trim() ?? ''
   const heroColor = getHeroColorStyle(sections['lien-he.hero.color']?.text, 'red')
-  const contactCards = QUICK_CONTACT.map((card) => ({
-    ...card,
-    label: sectionText(sections, `lien-he.contact.${card.id}.label`),
-    value: sectionText(sections, `lien-he.contact.${card.id}.value`),
-    sub: sectionText(sections, `lien-he.contact.${card.id}.sub`),
-    href: sectionText(sections, `lien-he.contact.${card.id}.href`),
-    cta: sectionText(sections, `lien-he.contact.${card.id}.cta`),
-  })).filter((card) => card.label || card.value || card.sub || card.cta)
+  const contactCards = QUICK_CONTACT.map((card) => {
+    const label = sectionText(sections, `lien-he.contact.${card.id}.label`)
+    const value = sectionText(sections, `lien-he.contact.${card.id}.value`)
+    const rawHref = sectionText(sections, `lien-he.contact.${card.id}.href`)
+    return {
+      ...card,
+      label,
+      value,
+      sub: sectionText(sections, `lien-he.contact.${card.id}.sub`),
+      href: normalizeContactHref(card.id, rawHref, value),
+      cta: sectionText(sections, `lien-he.contact.${card.id}.cta`),
+    }
+  }).filter((card) => card.label || card.value || card.sub || card.cta)
 
   return (
     <div className="min-h-screen bg-[#faf8f5]">
@@ -150,34 +182,48 @@ export default async function LienHePage() {
       {contactCards.length ? (
         <section className="mx-auto -mt-10 max-w-6xl px-4 sm:-mt-12 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {contactCards.map(({ id, icon: Icon, label, value, sub, href, cta, accent, iconBg, iconColor }) => (
-              <a
-                key={id}
-                href={href || undefined}
-                target={href.startsWith('http') ? '_blank' : undefined}
-                rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                className="group relative overflow-hidden rounded-2xl bg-white p-5 shadow-lg ring-1 ring-black/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-              >
-                <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accent}`} />
-                <div className="flex items-start gap-3">
-                  <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconBg}`}>
-                    <Icon size={20} className={iconColor} />
+            {contactCards.map(({ id, icon: Icon, label, value, sub, href, cta, accent, iconBg, iconColor }) => {
+              const content = (
+                <>
+                  <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accent}`} />
+                  <div className="flex items-start gap-3">
+                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconBg}`}>
+                      <Icon size={20} className={iconColor} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      {label ? (
+                        <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">{label}</p>
+                      ) : null}
+                      {value ? <p className="mt-0.5 truncate text-base font-bold text-gray-900">{value}</p> : null}
+                      {sub ? <p className="mt-0.5 truncate text-xs text-gray-500">{sub}</p> : null}
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    {label ? (
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">{label}</p>
-                    ) : null}
-                    {value ? <p className="mt-0.5 truncate text-base font-bold text-gray-900">{value}</p> : null}
-                    {sub ? <p className="mt-0.5 truncate text-xs text-gray-500">{sub}</p> : null}
-                  </div>
+                  {cta ? (
+                    <span className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-[#8B1A1A]">
+                      {cta} {href ? <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" /> : null}
+                    </span>
+                  ) : null}
+                </>
+              )
+              const cardClass = `group relative overflow-hidden rounded-2xl bg-white p-5 shadow-lg ring-1 ring-black/5 transition-all duration-300 ${
+                href ? 'hover:-translate-y-1 hover:shadow-xl' : ''
+              }`
+              return href ? (
+                <a
+                  key={id}
+                  href={href}
+                  target={href.startsWith('http') ? '_blank' : undefined}
+                  rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  className={cardClass}
+                >
+                  {content}
+                </a>
+              ) : (
+                <div key={id} className={cardClass}>
+                  {content}
                 </div>
-                {cta ? (
-                  <span className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-[#8B1A1A]">
-                    {cta} <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-                  </span>
-                ) : null}
-              </a>
-            ))}
+              )
+            })}
           </div>
         </section>
       ) : null}

@@ -73,8 +73,14 @@ function extractIframeSrc(value: string) {
   return match?.[1] || value;
 }
 
+function cleanFacebookUrl(value: string) {
+  const trimmed = value.trim().replace(/\s+/g, "");
+  if (!trimmed) return "";
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 function normalizeFacebookPageUrl(raw: string) {
-  const input = extractIframeSrc(raw.trim());
+  const input = cleanFacebookUrl(extractIframeSrc(raw));
   if (!input) return "";
 
   try {
@@ -84,7 +90,11 @@ function normalizeFacebookPageUrl(raw: string) {
 
     if (url.pathname.includes("/plugins/page.php")) {
       const href = url.searchParams.get("href");
-      return href ? decodeURIComponent(href) : "";
+      return href ? cleanFacebookUrl(href) : "";
+    }
+
+    if (url.pathname === "/profile.php" && url.searchParams.get("id")) {
+      return `https://www.facebook.com/profile.php?id=${url.searchParams.get("id")}`;
     }
 
     return `https://www.facebook.com${url.pathname}`.replace(/\/$/, "");
