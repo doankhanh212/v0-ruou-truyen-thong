@@ -17,6 +17,15 @@ const FALLBACK_TITLE = 'Giới thiệu — Rượu truyền thống'
 const FALLBACK_DESC =
   'Câu chuyện rượu truyền thống — kế thừa bí quyết chế tác rượu thuốc truyền thống từ đời xưa của người dân miền Nam Việt Nam.'
 
+function cleanHref(value: string, fallback: string) {
+  const trimmed = value.trim()
+  if (!trimmed) return fallback
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('#')) {
+    return trimmed
+  }
+  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const [seo, page, settings] = await Promise.all([
     getSeoByPath('/gioi-thieu'),
@@ -64,6 +73,19 @@ export default async function GioiThieuPage() {
     sections['gioi-thieu.hero.subtitle']?.text?.trim() ||
     'Kế thừa bí quyết chế tác rượu thuốc truyền thống Việt Nam — chắt lọc tinh hoa từ đất, nước và thảo mộc của miền Tây Nam Bộ.'
   const heroColor = getHeroColorStyle(sections['gioi-thieu.hero.color']?.text, 'blue')
+  const ctaLabel = sections['gioi-thieu.cta.label']?.text?.trim() || 'Khám phá sản phẩm'
+  const ctaTitle =
+    sections['gioi-thieu.cta.title']?.text?.trim() ||
+    'Trải nghiệm tinh hoa rượu truyền thống Việt Nam.'
+  const ctaBody =
+    sections['gioi-thieu.cta.body']?.text?.trim() ||
+    'Đậm đà bản sắc - khẳng định đẳng cấp người sành rượu.'
+  const ctaPrimaryLabel =
+    sections['gioi-thieu.cta.primary_label']?.text?.trim() || 'Xem sản phẩm'
+  const ctaPrimaryHref = cleanHref(sections['gioi-thieu.cta.primary_href']?.text || '', '/san-pham')
+  const ctaZaloLabel = sections['gioi-thieu.cta.zalo_label']?.text?.trim() || 'Chat Zalo'
+  const ctaPhoneLabel = sections['gioi-thieu.cta.phone_label']?.text?.trim() || 'Gọi tư vấn'
+  const ctaColor = getHeroColorStyle(sections['gioi-thieu.cta.color']?.text, 'red')
   const zaloPhone = (companyInfo.phone[1] || companyInfo.phone[0] || '').replace(/\s/g, '')
 
   return (
@@ -121,42 +143,42 @@ export default async function GioiThieuPage() {
       </section>
 
       {/* CTA strip */}
-      <section className="bg-gradient-to-r from-[#8B1A1A] to-[#6f1414] px-4 py-12 text-white sm:py-16">
+      <section className={`${ctaColor.className} px-4 py-12 text-white sm:py-16`} style={ctaColor.style}>
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 text-center md:flex-row md:justify-between md:text-left">
           <div className="max-w-xl">
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#d4af37]">
-              Khám phá sản phẩm
+              {ctaLabel}
             </p>
             <h2 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">
-              Trải nghiệm tinh hoa rượu truyền thống Việt Nam.
+              {ctaTitle}
             </h2>
-            <p className="mt-2 text-sm text-red-100">
-              Đậm đà bản sắc — khẳng định đẳng cấp người sành rượu.
+            <p className="mt-2 text-sm text-white/85">
+              {ctaBody}
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link
-              href="/san-pham"
+              href={ctaPrimaryHref}
               className="inline-flex items-center gap-2 rounded-xl bg-[#d4af37] px-5 py-3 text-sm font-extrabold text-[#3d2400] shadow-lg transition-all hover:scale-105 hover:bg-[#e2c15b]"
             >
-              Xem sản phẩm <ArrowRight size={15} />
+              {ctaPrimaryLabel} <ArrowRight size={15} />
             </Link>
-            {zaloPhone ? (
+            {zaloPhone && ctaZaloLabel ? (
               <a
                 href={`https://zalo.me/${zaloPhone}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition-colors hover:bg-white/20"
               >
-                <MessageCircle size={15} /> Chat Zalo
+                <MessageCircle size={15} /> {ctaZaloLabel}
               </a>
             ) : null}
-            {companyInfo.phone[0] ? (
+            {companyInfo.phone[0] && ctaPhoneLabel ? (
               <a
                 href={`tel:${companyInfo.phone[0].replace(/\s/g, '')}`}
                 className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition-colors hover:bg-white/20"
               >
-                <Phone size={15} /> Gọi tư vấn
+                <Phone size={15} /> {ctaPhoneLabel}
               </a>
             ) : null}
           </div>

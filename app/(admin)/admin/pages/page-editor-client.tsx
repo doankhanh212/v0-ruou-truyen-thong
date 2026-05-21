@@ -59,6 +59,7 @@ type FormState = {
   heroBadge: string;
   heroSubtitle: string;
   heroColor: string;
+  aboutCta: AboutCtaForm;
   contactMapEmbed: string;
   contactCards: {
     phone: ContactCardForm;
@@ -69,6 +70,16 @@ type FormState = {
 
 type SectionValue = { text: string; image: string | null };
 type ContactCardId = "phone" | "zalo" | "email";
+type AboutCtaForm = {
+  label: string;
+  title: string;
+  body: string;
+  primaryLabel: string;
+  primaryHref: string;
+  zaloLabel: string;
+  phoneLabel: string;
+  color: string;
+};
 type ContactCardForm = {
   label: string;
   value: string;
@@ -81,6 +92,17 @@ const EMPTY_CONTACT_CARDS: Record<ContactCardId, ContactCardForm> = {
   phone: { label: "", value: "", sub: "", href: "", cta: "" },
   zalo: { label: "", value: "", sub: "", href: "", cta: "" },
   email: { label: "", value: "", sub: "", href: "", cta: "" },
+};
+
+const DEFAULT_ABOUT_CTA: AboutCtaForm = {
+  label: "Khám phá sản phẩm",
+  title: "Trải nghiệm tinh hoa rượu truyền thống Việt Nam.",
+  body: "Đậm đà bản sắc - khẳng định đẳng cấp người sành rượu.",
+  primaryLabel: "Xem sản phẩm",
+  primaryHref: "/san-pham",
+  zaloLabel: "Chat Zalo",
+  phoneLabel: "Gọi tư vấn",
+  color: "red",
 };
 
 const CONTACT_CARD_META: Array<{ id: ContactCardId; title: string }> = [
@@ -107,6 +129,7 @@ export function PageEditorClient({ slug, pageTitle, pageDescription, previewHref
     heroBadge: "",
     heroSubtitle: "",
     heroColor: DEFAULT_HERO_COLOR[slug] || "blue",
+    aboutCta: DEFAULT_ABOUT_CTA,
     contactMapEmbed: "",
     contactCards: EMPTY_CONTACT_CARDS,
   });
@@ -114,6 +137,7 @@ export function PageEditorClient({ slug, pageTitle, pageDescription, previewHref
   const heroBadgeKey = `${slug}.hero.badge`;
   const heroSubtitleKey = `${slug}.hero.subtitle`;
   const heroColorKey = `${slug}.hero.color`;
+  const aboutCtaKey = (field: string) => `gioi-thieu.cta.${field}`;
   const contactMapEmbedKey = "lien-he.map.embed";
   const contactCardKey = (id: ContactCardId, field: keyof ContactCardForm) =>
     `lien-he.contact.${id}.${field}`;
@@ -136,6 +160,7 @@ export function PageEditorClient({ slug, pageTitle, pageDescription, previewHref
       let heroBadge = "";
       let heroSubtitle = "";
       let heroColor = DEFAULT_HERO_COLOR[slug] || "blue";
+      let aboutCta = DEFAULT_ABOUT_CTA;
       let contactMapEmbed = "";
       let contactCards = EMPTY_CONTACT_CARDS;
       if (sectionsRes.ok) {
@@ -151,6 +176,28 @@ export function PageEditorClient({ slug, pageTitle, pageDescription, previewHref
           if (isPreset || isCustom) {
             heroColor = savedColor;
           }
+        }
+        if (slug === "gioi-thieu") {
+          const savedCtaColor = values?.[aboutCtaKey("color")]?.text?.trim();
+          const ctaColor =
+            savedCtaColor &&
+            (HERO_COLOR_PRESETS.some((p) => p.id === savedCtaColor) ||
+              parseCustomHeroColor(savedCtaColor) !== null)
+              ? savedCtaColor
+              : DEFAULT_ABOUT_CTA.color;
+          aboutCta = {
+            label: values?.[aboutCtaKey("label")]?.text || DEFAULT_ABOUT_CTA.label,
+            title: values?.[aboutCtaKey("title")]?.text || DEFAULT_ABOUT_CTA.title,
+            body: values?.[aboutCtaKey("body")]?.text || DEFAULT_ABOUT_CTA.body,
+            primaryLabel:
+              values?.[aboutCtaKey("primary_label")]?.text || DEFAULT_ABOUT_CTA.primaryLabel,
+            primaryHref:
+              values?.[aboutCtaKey("primary_href")]?.text || DEFAULT_ABOUT_CTA.primaryHref,
+            zaloLabel: values?.[aboutCtaKey("zalo_label")]?.text || DEFAULT_ABOUT_CTA.zaloLabel,
+            phoneLabel:
+              values?.[aboutCtaKey("phone_label")]?.text || DEFAULT_ABOUT_CTA.phoneLabel,
+            color: ctaColor,
+          };
         }
         contactCards = {
           phone: {
@@ -185,6 +232,7 @@ export function PageEditorClient({ slug, pageTitle, pageDescription, previewHref
         heroBadge,
         heroSubtitle,
         heroColor,
+        aboutCta,
         contactMapEmbed,
         contactCards,
       });
@@ -224,6 +272,25 @@ export function PageEditorClient({ slug, pageTitle, pageDescription, previewHref
       [heroSubtitleKey]: { text: form.heroSubtitle, image: null },
       [heroColorKey]: { text: form.heroColor, image: null },
     };
+    if (slug === "gioi-thieu") {
+      sectionsPayload[aboutCtaKey("label")] = { text: form.aboutCta.label, image: null };
+      sectionsPayload[aboutCtaKey("title")] = { text: form.aboutCta.title, image: null };
+      sectionsPayload[aboutCtaKey("body")] = { text: form.aboutCta.body, image: null };
+      sectionsPayload[aboutCtaKey("primary_label")] = {
+        text: form.aboutCta.primaryLabel,
+        image: null,
+      };
+      sectionsPayload[aboutCtaKey("primary_href")] = {
+        text: form.aboutCta.primaryHref,
+        image: null,
+      };
+      sectionsPayload[aboutCtaKey("zalo_label")] = { text: form.aboutCta.zaloLabel, image: null };
+      sectionsPayload[aboutCtaKey("phone_label")] = {
+        text: form.aboutCta.phoneLabel,
+        image: null,
+      };
+      sectionsPayload[aboutCtaKey("color")] = { text: form.aboutCta.color, image: null };
+    }
     if (slug === "lien-he") {
       sectionsPayload[contactMapEmbedKey] = { text: form.contactMapEmbed, image: null };
       for (const id of ["phone", "zalo", "email"] as ContactCardId[]) {
@@ -576,6 +643,144 @@ export function PageEditorClient({ slug, pageTitle, pageDescription, previewHref
                 </div>
               )}
 
+              {slug === "gioi-thieu" ? (
+                <div className="space-y-3 rounded-xl border border-red-200 bg-red-50/50 p-4">
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={14} className="text-[#8B1A1A]" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#8B1A1A]">
+                      CTA cuối trang Giới thiệu
+                    </h3>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Khối “Khám phá sản phẩm” nằm ngay dưới nội dung trang và phía trên footer.
+                  </p>
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div>
+                      <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                        Nhãn nhỏ
+                      </label>
+                      <input
+                        value={form.aboutCta.label}
+                        onChange={(e) =>
+                          setForm((c) => ({
+                            ...c,
+                            aboutCta: { ...c.aboutCta, label: e.target.value },
+                          }))
+                        }
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#8B1A1A] focus:outline-none focus:ring-1 focus:ring-[#8B1A1A]/30"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                        Link nút chính
+                      </label>
+                      <input
+                        value={form.aboutCta.primaryHref}
+                        onChange={(e) =>
+                          setForm((c) => ({
+                            ...c,
+                            aboutCta: { ...c.aboutCta, primaryHref: e.target.value },
+                          }))
+                        }
+                        placeholder="/san-pham hoặc https://..."
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono focus:border-[#8B1A1A] focus:outline-none focus:ring-1 focus:ring-[#8B1A1A]/30"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                      Tiêu đề CTA
+                    </label>
+                    <input
+                      value={form.aboutCta.title}
+                      onChange={(e) =>
+                        setForm((c) => ({
+                          ...c,
+                          aboutCta: { ...c.aboutCta, title: e.target.value },
+                        }))
+                      }
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold focus:border-[#8B1A1A] focus:outline-none focus:ring-1 focus:ring-[#8B1A1A]/30"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                      Mô tả ngắn
+                    </label>
+                    <textarea
+                      value={form.aboutCta.body}
+                      onChange={(e) =>
+                        setForm((c) => ({
+                          ...c,
+                          aboutCta: { ...c.aboutCta, body: e.target.value },
+                        }))
+                      }
+                      rows={2}
+                      className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#8B1A1A] focus:outline-none focus:ring-1 focus:ring-[#8B1A1A]/30"
+                    />
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <div>
+                      <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                        Nút sản phẩm
+                      </label>
+                      <input
+                        value={form.aboutCta.primaryLabel}
+                        onChange={(e) =>
+                          setForm((c) => ({
+                            ...c,
+                            aboutCta: { ...c.aboutCta, primaryLabel: e.target.value },
+                          }))
+                        }
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#8B1A1A] focus:outline-none focus:ring-1 focus:ring-[#8B1A1A]/30"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                        Nút Zalo
+                      </label>
+                      <input
+                        value={form.aboutCta.zaloLabel}
+                        onChange={(e) =>
+                          setForm((c) => ({
+                            ...c,
+                            aboutCta: { ...c.aboutCta, zaloLabel: e.target.value },
+                          }))
+                        }
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#8B1A1A] focus:outline-none focus:ring-1 focus:ring-[#8B1A1A]/30"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                        Nút gọi
+                      </label>
+                      <input
+                        value={form.aboutCta.phoneLabel}
+                        onChange={(e) =>
+                          setForm((c) => ({
+                            ...c,
+                            aboutCta: { ...c.aboutCta, phoneLabel: e.target.value },
+                          }))
+                        }
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#8B1A1A] focus:outline-none focus:ring-1 focus:ring-[#8B1A1A]/30"
+                      />
+                    </div>
+                  </div>
+
+                  <HeroColorPicker
+                    value={form.aboutCta.color}
+                    onChange={(v) =>
+                      setForm((c) => ({ ...c, aboutCta: { ...c.aboutCta, color: v } }))
+                    }
+                  />
+
+                  <AboutCtaPreview cta={form.aboutCta} />
+                </div>
+              ) : null}
+
               <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-3 text-xs text-gray-400">
                 <span>
                   {wordCount} từ · {charCount} ký tự
@@ -738,6 +943,54 @@ function HeroPreview({
             {subtitle}
           </p>
         ) : null}
+      </div>
+    </div>
+  );
+}
+
+function AboutCtaPreview({ cta }: { cta: AboutCtaForm }) {
+  const custom = parseCustomHeroColor(cta.color);
+  const preset = HERO_COLOR_PRESETS.find((p) => p.id === cta.color);
+  const style = custom
+    ? { backgroundImage: `linear-gradient(135deg, ${custom[0]}, ${custom[1]})` }
+    : undefined;
+  const className = custom
+    ? ""
+    : preset?.className || "bg-gradient-to-br from-[#8B1A1A] to-[#4a0e0e]";
+
+  return (
+    <div className="overflow-hidden rounded-lg">
+      <div className={`${className} px-4 py-5 text-white`} style={style}>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="min-w-0">
+            {cta.label ? (
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#d4af37]">
+                {cta.label}
+              </p>
+            ) : null}
+            <h3 className="mt-1 max-w-xl text-xl font-bold leading-tight">
+              {cta.title || "(Tiêu đề CTA)"}
+            </h3>
+            {cta.body ? <p className="mt-1 text-xs text-white/80">{cta.body}</p> : null}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {cta.primaryLabel ? (
+              <span className="rounded-lg bg-[#d4af37] px-3 py-2 text-xs font-bold text-[#3d2400]">
+                {cta.primaryLabel}
+              </span>
+            ) : null}
+            {cta.zaloLabel ? (
+              <span className="rounded-lg border border-white/30 bg-white/10 px-3 py-2 text-xs font-semibold">
+                {cta.zaloLabel}
+              </span>
+            ) : null}
+            {cta.phoneLabel ? (
+              <span className="rounded-lg border border-white/30 bg-white/10 px-3 py-2 text-xs font-semibold">
+                {cta.phoneLabel}
+              </span>
+            ) : null}
+          </div>
+        </div>
       </div>
     </div>
   );
