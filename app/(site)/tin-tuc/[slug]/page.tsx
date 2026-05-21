@@ -93,7 +93,7 @@ export default async function TinTucDetailPage({ params, searchParams }: Props) 
       "@type": "Organization",
       name: SITE_NAME,
       url: absoluteUrl("/"),
-      logo: { "@type": "ImageObject", url: absoluteUrl("/icon-light-32x32.png") },
+      logo: { "@type": "ImageObject", url: absoluteUrl("/android-chrome-512x512.png") },
     },
   };
 

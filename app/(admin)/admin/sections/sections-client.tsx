@@ -146,9 +146,9 @@ const FIELD_META: Record<string, FieldMeta> = {
   },
   "home.trust.card1_image": {
     label: "Card 1 — Ảnh nền",
-    hint: "Tỉ lệ 16:9. Hiển thị ở card lớn bên trái.",
+    hint: "Tỉ lệ 4:3. Hiển thị ở card bên trái, cân bằng chiều cao với card bên phải.",
     imagePrompt:
-      "Ảnh chụp thực tế phong cách premium documentary, tỉ lệ 16:9, xưởng nấu rượu truyền thống Việt Nam, chum sành, hơi rượu, ánh sáng tự nhiên ấm, sản phẩm rượu thật là điểm nhấn, không chữ, không logo, không minh họa hoạt hình.",
+      "Ảnh chụp thực tế phong cách premium documentary, tỉ lệ 4:3, xưởng nấu rượu truyền thống Việt Nam, chum sành, hơi rượu, ánh sáng tự nhiên ấm, sản phẩm rượu thật là điểm nhấn, không chữ, không logo, không minh họa hoạt hình.",
     hasImage: true,
     icon: ImageIcon,
   },
@@ -170,9 +170,9 @@ const FIELD_META: Record<string, FieldMeta> = {
   },
   "home.trust.card2_image": {
     label: "Card 2 — Ảnh nền",
-    hint: "Tỉ lệ 4:5 (dọc). Hiển thị ở card nhỏ bên phải.",
+    hint: "Tỉ lệ 4:3. Hiển thị ở card bên phải, cân bằng chiều cao với card bên trái.",
     imagePrompt:
-      "Ảnh chụp sản phẩm quà tặng doanh nghiệp cao cấp, tỉ lệ dọc 4:5, bình sứ Bát Tràng sang trọng đựng rượu truyền thống, hộp quà tinh tế, ánh sáng studio mềm, nền sạch cao cấp, không chữ, không logo, không watermark.",
+      "Ảnh chụp sản phẩm quà tặng doanh nghiệp cao cấp, tỉ lệ 4:3, bình sứ Bát Tràng sang trọng đựng rượu truyền thống, hộp quà tinh tế, ánh sáng studio mềm, nền sạch cao cấp, không chữ, không logo, không watermark.",
     hasImage: true,
     icon: ImageIcon,
   },

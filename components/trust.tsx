@@ -68,14 +68,14 @@ export function Trust({ sections }: TrustProps = {}) {
             </h2>
           </div>
 
-          <div className="mb-10 grid items-start gap-4 lg:grid-cols-[1.25fr_0.75fr]">
+          <div className="mb-10 grid items-stretch gap-4 lg:grid-cols-2">
             <div className="relative overflow-hidden rounded-3xl border border-white/60 bg-white shadow-sm">
-              <div className="relative aspect-[16/9]">
+              <div className="relative aspect-[4/3] h-full min-h-[300px] sm:min-h-[360px] lg:min-h-[415px]">
                 <Image
                   src={card1.image}
                   alt={card1.title}
                   fill
-                  sizes="(max-width: 1024px) 100vw, 60vw"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" />
@@ -92,12 +92,12 @@ export function Trust({ sections }: TrustProps = {}) {
             </div>
 
             <div className="relative overflow-hidden rounded-3xl border border-amber-200/70 bg-white shadow-sm">
-              <div className="relative aspect-[4/5]">
+              <div className="relative aspect-[4/3] h-full min-h-[300px] sm:min-h-[360px] lg:min-h-[415px]">
                 <Image
                   src={card2.image}
                   alt={card2.title}
                   fill
-                  sizes="(max-width: 1024px) 100vw, 30vw"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, Menu as MenuIcon, X } from "lucide-react";
 import { ADMIN_MENU, isItemActive, type MenuGroup } from "@/lib/admin/menu";
+import { BrandLogo } from "@/components/brand-logo";
 
 function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -157,9 +158,12 @@ export function AdminSidebar() {
 
 function SidebarBrand() {
   return (
-    <Link href="/admin/dashboard" className="block">
-      <p className="font-semibold text-[#8B1A1A]">Rượu Truyền Thống</p>
-      <p className="text-xs text-gray-500">Admin Panel</p>
+    <Link href="/admin/dashboard" className="flex min-w-0 items-center gap-3">
+      <BrandLogo className="h-9 w-9" sizes="36px" />
+      <span className="min-w-0">
+        <span className="block truncate font-semibold text-[#8B1A1A]">Rượu Truyền Thống</span>
+        <span className="block text-xs text-gray-500">Admin Panel</span>
+      </span>
     </Link>
   );
 }

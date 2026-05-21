@@ -72,7 +72,7 @@ export default async function Home({ searchParams }: HomeProps) {
     '@type': 'Organization',
     name: SITE_NAME,
     url: absoluteUrl('/'),
-    logo: absoluteUrl('/icon.svg'),
+    logo: absoluteUrl('/android-chrome-512x512.png'),
   }
 
   const websiteJsonLd = {

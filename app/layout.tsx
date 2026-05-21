@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   },
   description:
     'Rượu truyền thống cao cấp — chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống. Đạt ISO 22000:2018 & OCOP 4 sao.',
+  manifest: '/site.webmanifest',
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',

@@ -26,7 +26,7 @@ export function HerbsShowcase() {
 
         <div className="relative w-full h-96 rounded-2xl overflow-hidden shadow-lg">
           <Image
-            src="/herbs-collection.jpg"
+            src="/catalog/cuu-long-my-tuu-cover.jpg"
             alt="9 vị dược liệu tinh chọn"
             fill
             sizes="(max-width: 768px) 100vw, 800px"

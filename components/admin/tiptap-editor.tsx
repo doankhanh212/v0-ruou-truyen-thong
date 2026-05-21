@@ -138,6 +138,7 @@ export function TiptapEditor({
     editorProps: {
       attributes: {
         class: `prose prose-sm sm:prose-base max-w-none focus:outline-none px-4 py-3 ${className}`,
+        spellcheck: "false",
       },
     },
   });

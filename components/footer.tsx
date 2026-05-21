@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import sanitizeHtml from "sanitize-html";
 import type { FooterConfig } from "@/lib/settings";
 import { DEFAULT_FOOTER_CONFIG } from "@/lib/settings";
@@ -27,9 +28,23 @@ const SHOP_INFO_HTML_OPTIONS: sanitizeHtml.IOptions = {
     "h2",
     "h3",
     "blockquote",
+    "s",
+    "strike",
+    "code",
+    "pre",
+    "mark",
+    "hr",
+    "img",
+    "table",
+    "thead",
+    "tbody",
+    "tr",
+    "th",
+    "td",
   ],
   allowedAttributes: {
     a: ["href", "target", "rel", "class", "style"],
+    img: ["src", "alt", "title", "width", "height", "class", "style"],
     span: ["class", "style"],
     div: ["class", "style"],
     p: ["class", "style"],
@@ -37,6 +52,12 @@ const SHOP_INFO_HTML_OPTIONS: sanitizeHtml.IOptions = {
     h2: ["class", "style"],
     h3: ["class", "style"],
     blockquote: ["class", "style"],
+    code: ["class", "style"],
+    pre: ["class", "style"],
+    mark: ["class", "style"],
+    table: ["class", "style"],
+    th: ["class", "style", "colspan", "rowspan"],
+    td: ["class", "style", "colspan", "rowspan"],
   },
   allowedStyles: {
     "*": {
@@ -47,7 +68,10 @@ const SHOP_INFO_HTML_OPTIONS: sanitizeHtml.IOptions = {
       "font-weight": [/^(?:normal|bold|[1-9]00)$/],
       "font-style": [/^(?:normal|italic)$/],
       "text-align": [/^(?:left|center|right|justify)$/],
+      "text-decoration": [/^[\w\s-]+$/],
       "line-height": [/^\d+(?:\.\d+)?(?:px|em|rem|%)?$/],
+      width: [/^\d+(?:\.\d+)?(?:px|em|rem|%)$/],
+      height: [/^\d+(?:\.\d+)?(?:px|em|rem|%)$/],
     },
   },
   allowedSchemes: ["http", "https", "mailto", "tel"],
@@ -59,6 +83,7 @@ const SHOP_INFO_HTML_OPTIONS: sanitizeHtml.IOptions = {
         rel: "noopener noreferrer",
         target: attribs.target || "_blank",
         ...(attribs.class ? { class: attribs.class } : {}),
+        ...(attribs.style ? { style: attribs.style } : {}),
       },
     }),
   },
@@ -153,6 +178,7 @@ export function Footer({ config = DEFAULT_FOOTER_CONFIG }: FooterProps) {
   const shopInfo = safeShopInfo(config.shopInfoHtml);
   const fanpageIframe = buildFacebookPageIframe(config.fanpageIframe);
   const copyright = config.copyright?.trim() ?? "";
+  const logoUrl = config.logoUrl?.trim() ?? "";
   const { className: colorClass, style: colorStyle } = getFooterColorStyle(
     config.colorPreset,
     "blue",
@@ -163,9 +189,16 @@ export function Footer({ config = DEFAULT_FOOTER_CONFIG }: FooterProps) {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-x-12 gap-y-10 md:grid-cols-2 xl:grid-cols-[minmax(0,1.25fr)_minmax(160px,0.75fr)_minmax(180px,0.85fr)_minmax(280px,340px)]">
           <div className="min-w-0">
-            <h3 className="mb-4 text-lg font-bold text-amber-200">Thông tin Shop</h3>
+            <div className="mb-4 flex items-center gap-3">
+              {logoUrl ? (
+                <span className="relative block h-11 w-11 shrink-0 overflow-hidden rounded-full bg-white/95 p-1 shadow-sm ring-1 ring-white/25">
+                  <Image src={logoUrl} alt="Logo Thông tin Shop" fill sizes="44px" className="object-cover" />
+                </span>
+              ) : null}
+              <h3 className="text-lg font-bold text-amber-200">Thông tin Shop</h3>
+            </div>
             <div
-              className="prose prose-sm max-w-none break-words text-white prose-p:my-2 prose-p:text-white/85 prose-headings:text-amber-200 prose-strong:text-amber-200 prose-a:break-words prose-a:text-amber-200 prose-li:text-white/85"
+              className="footer-rich-text max-w-none break-words"
               dangerouslySetInnerHTML={{ __html: shopInfo }}
             />
           </div>

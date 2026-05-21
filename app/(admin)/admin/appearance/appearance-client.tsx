@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { GripVertical, LayoutTemplate, Palette, Plus, RotateCcw, Save, Trash2 } from "lucide-react";
+import { useRef, useState } from "react";
+import Image from "next/image";
+import { GripVertical, Image as ImageIcon, LayoutTemplate, Palette, Plus, RotateCcw, Save, Trash2, Upload } from "lucide-react";
 import { TiptapEditor } from "@/components/admin/tiptap-editor";
 import type { FooterConfig, FooterLink, SettingsMap } from "@/lib/settings";
 import { getHeaderColorStyle } from "@/lib/header-colors";
 import { getFooterColorStyle } from "@/lib/footer-colors";
 import { HeaderColorPicker } from "@/components/admin/header-color-picker";
 import { FooterColorPicker } from "@/components/admin/footer-color-picker";
+import { BrandLogo } from "@/components/brand-logo";
 
 interface NavLink {
   label: string;
@@ -30,6 +32,7 @@ const DEFAULT_NAV: NavLink[] = [
 ];
 
 const DEFAULT_FOOTER: FooterConfig = {
+  logoUrl: "/android-chrome-512x512.png",
   shopInfoHtml:
     "<p><strong>Rượu Truyền Thống</strong></p><p>Rượu truyền thống cao cấp, chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống.</p>",
   newsLinks: [
@@ -110,6 +113,10 @@ function parseFooter(settings: SettingsMap): FooterConfig {
   ].join("");
 
   return {
+    logoUrl:
+      typeof parsed.logoUrl === "string"
+        ? parsed.logoUrl
+        : "/android-chrome-512x512.png",
     shopInfoHtml:
       typeof parsed.shopInfoHtml === "string"
         ? parsed.shopInfoHtml
@@ -234,7 +241,9 @@ export function AppearanceClient({ settings }: AppearanceClientProps) {
   const [savedZaloLabel, setSavedZaloLabel] = useState(settings.header_zalo_label || "Chat Zalo");
   const [savedHeaderColor, setSavedHeaderColor] = useState(settings.header_color_preset || "white");
   const [saving, setSaving] = useState(false);
+  const [uploadingFooterLogo, setUploadingFooterLogo] = useState(false);
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  const footerLogoInputRef = useRef<HTMLInputElement | null>(null);
 
   function addNavLink() {
     setNavLinks((prev) => [...prev, { label: "", href: "/" }]);
@@ -253,6 +262,29 @@ export function AppearanceClient({ settings }: AppearanceClientProps) {
     setNavLinks(arr);
   }
 
+  async function handleFooterLogoUpload(file: File) {
+    setUploadingFooterLogo(true);
+    setMsg(null);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("type", "logo");
+      const res = await fetch("/api/media", { method: "POST", body: fd });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Tải logo thất bại");
+      }
+      const data = await res.json();
+      if (typeof data.url === "string") {
+        setFooter((current) => ({ ...current, logoUrl: data.url }));
+      }
+    } catch (error) {
+      setMsg({ kind: "err", text: error instanceof Error ? error.message : "Tải logo thất bại" });
+    } finally {
+      setUploadingFooterLogo(false);
+    }
+  }
+
   function reset() {
     setSiteName(savedSiteName);
     setZaloLabel(savedZaloLabel);
@@ -268,6 +300,7 @@ export function AppearanceClient({ settings }: AppearanceClientProps) {
     try {
       const cleanFooter: FooterConfig = {
         ...footer,
+        logoUrl: footer.logoUrl.trim(),
         newsLinks: cleanLinks(footer.newsLinks),
         policyLinks: cleanLinks(footer.policyLinks),
         copyright: footer.copyright.trim(),
@@ -388,13 +421,7 @@ export function AppearanceClient({ settings }: AppearanceClientProps) {
                   <div className={`${className} rounded-lg border px-4 py-3`} style={style}>
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
-                        <span
-                          className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
-                            darkText ? "bg-[#8B1A1A] text-white" : "bg-white/15 text-white ring-1 ring-white/25"
-                          }`}
-                        >
-                          M
-                        </span>
+                        <BrandLogo className="h-8 w-8" sizes="32px" />
                         <span className={`text-sm font-bold ${darkText ? "text-[#8B1A1A]" : "text-white"}`}>
                           {siteName || "Rượu Truyền Thống"}
                         </span>
@@ -425,6 +452,47 @@ export function AppearanceClient({ settings }: AppearanceClientProps) {
         </div>
         <div className="grid gap-5 xl:grid-cols-[1.2fr_0.9fr_0.9fr]">
           <div>
+            <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <Label helper="Logo nhỏ nằm cạnh tiêu đề Thông tin Shop ngoài chân trang">Logo chân trang</Label>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white">
+                  {footer.logoUrl ? (
+                    <Image src={footer.logoUrl} alt="Logo chân trang" width={56} height={56} className="h-full w-full object-cover" />
+                  ) : (
+                    <ImageIcon size={20} className="text-slate-400" />
+                  )}
+                </div>
+                <input
+                  ref={footerLogoInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void handleFooterLogoUpload(file);
+                    event.currentTarget.value = "";
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => footerLogoInputRef.current?.click()}
+                  disabled={uploadingFooterLogo}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-50"
+                >
+                  <Upload size={13} />
+                  {uploadingFooterLogo ? "Đang tải..." : footer.logoUrl ? "Đổi logo" : "Tải logo"}
+                </button>
+                {footer.logoUrl ? (
+                  <button
+                    type="button"
+                    onClick={() => setFooter((current) => ({ ...current, logoUrl: "" }))}
+                    className="text-xs font-semibold text-rose-600 hover:underline"
+                  >
+                    Gỡ logo
+                  </button>
+                ) : null}
+              </div>
+            </div>
             <Label helper="Dùng editor để tự định dạng chữ, màu sắc và đoạn văn">Thông tin Shop</Label>
             <TiptapEditor
               value={footer.shopInfoHtml}

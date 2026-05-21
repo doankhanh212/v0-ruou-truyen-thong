@@ -6,6 +6,8 @@ import type { CatalogListParams, CatalogListResponse, CatalogPricingOption, Cata
 import { buildCatalogPriceLabel } from "@/lib/catalog";
 import { filterAlcoholComplianceTerms, isAlcoholComplianceForbidden } from "@/lib/alcohol-compliance";
 
+const FALLBACK_PRODUCT_IMAGE = "/catalog/ruou-truyen-thong-cover.jpg";
+
 type ProductWithRelations = DbProduct & {
   images: ProductImage[];
   categoryRel: DbCategory | null;
@@ -75,7 +77,7 @@ function toPrimaryImage(product: ProductWithRelations) {
     if (left.isPrimary !== right.isPrimary) return Number(right.isPrimary) - Number(left.isPrimary);
     return left.sortOrder - right.sortOrder;
   });
-  return product.imageUrl || orderedImages[0]?.url || "/placeholder.jpg";
+  return product.imageUrl || orderedImages[0]?.url || FALLBACK_PRODUCT_IMAGE;
 }
 
 function toGallery(product: ProductWithRelations) {
@@ -149,9 +151,9 @@ function adaptDbProduct(product: ProductWithRelations): CatalogProduct {
     category: categorySlug,
     price,
     priceMin,
-    image: gallery[0] ?? "/placeholder.jpg",
+    image: gallery[0] ?? FALLBACK_PRODUCT_IMAGE,
     imageAlt: product.imageAlt ?? undefined,
-    detailImage: gallery[1] ?? gallery[0] ?? "/placeholder.jpg",
+    detailImage: gallery[1] ?? gallery[0] ?? FALLBACK_PRODUCT_IMAGE,
     gallery,
     description: product.description || "",
     alcohol: product.alcohol != null ? `${trimDecimal(product.alcohol)}% ACL.VOL` : "",

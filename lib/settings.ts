@@ -46,6 +46,7 @@ export type FooterLink = {
 };
 
 export type FooterConfig = {
+  logoUrl: string;
   shopInfoHtml: string;
   newsLinks: FooterLink[];
   policyLinks: FooterLink[];
@@ -67,6 +68,7 @@ export type SystemConfig = {
 };
 
 export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
+  logoUrl: "/android-chrome-512x512.png",
   shopInfoHtml:
     "<p><strong>Rượu Truyền Thống</strong></p><p>Rượu truyền thống cao cấp, chưng cất từ dược liệu Việt Nam theo phương pháp truyền thống.</p>",
   newsLinks: [
@@ -236,6 +238,10 @@ export function getFooterConfig(settings: SettingsMap): FooterConfig {
   ].join("");
 
   return {
+    logoUrl:
+      typeof parsed.logoUrl === "string"
+        ? parsed.logoUrl
+        : DEFAULT_FOOTER_CONFIG.logoUrl,
     shopInfoHtml: stringValue(
       parsed.shopInfoHtml,
       legacyShopInfo || DEFAULT_FOOTER_CONFIG.shopInfoHtml

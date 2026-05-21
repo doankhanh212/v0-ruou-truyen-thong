@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { ZALO_PHONE } from '@/utils/zalo'
 import { track } from '@/utils/track'
 import { getHeaderColorStyle } from '@/lib/header-colors'
+import { BrandLogo } from '@/components/brand-logo'
 
 const DEFAULT_NAV = [
   { href: '/', label: 'Trang chủ' },
@@ -47,7 +48,6 @@ export function Header({ zaloUrl, siteName, navLinks, zaloLabel, colorPreset }: 
   const isDarkText = headerColor.textTone === 'dark'
   const headerBorderClass = isDarkText ? 'border-border' : 'border-white/15'
   const brandTextClass = isDarkText ? 'text-primary' : 'text-white'
-  const logoClass = isDarkText ? 'bg-primary text-white' : 'bg-white/15 text-white ring-1 ring-white/25'
   const menuButtonClass = isDarkText ? 'text-foreground' : 'text-white'
   const activeLinkClass = isDarkText ? 'text-primary font-semibold' : 'text-white font-semibold'
   const inactiveLinkClass = isDarkText ? 'text-foreground hover:text-primary' : 'text-white/85 hover:text-white'
@@ -73,9 +73,7 @@ export function Header({ zaloUrl, siteName, navLinks, zaloLabel, colorPreset }: 
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${logoClass}`}>
-            𝔐
-          </div>
+          <BrandLogo className="h-10 w-10" priority />
           <span className={`text-lg font-semibold hidden sm:inline ${brandTextClass}`}>{displayName}</span>
         </Link>
 
